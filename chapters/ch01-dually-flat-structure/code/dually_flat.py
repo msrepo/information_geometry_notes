@@ -353,6 +353,29 @@ def check_legendre():
     print(f"   gradients of the duals give back xi: {np.round(-1 / xs_, 4)} and {np.round(np.exp(xs2 - 1), 4)}  (1.75)")
 
 
+def check_legendre_1d():
+    head("   The Legendre transform in one dimension (the widget in section 5 of the interactive page)")
+    cases = {
+        "psi = t^2/2": (lambda t: t * t / 2, lambda t: t, lambda t: 1.0, lambda e: e * e / 2, lambda e: 1.0, 1.5, (-4, 4)),
+        "psi = log(1 + e^t)": (lambda t: math.log1p(math.exp(t)), lambda t: 1 / (1 + math.exp(-t)), lambda t: (1 / (1 + math.exp(-t))) * (1 - 1 / (1 + math.exp(-t))),
+                               lambda e: e * math.log(e) + (1 - e) * math.log(1 - e), lambda e: 1 / (e * (1 - e)), -0.4, (-12, 12)),
+        "psi = e^t": (math.exp, math.exp, math.exp, lambda e: e * math.log(e) - e, lambda e: 1 / e, 1.0, (-12, 4)),
+        "psi = t^4": (lambda t: t ** 4, lambda t: 4 * t ** 3, lambda t: 12 * t * t, lambda e: 0.75 * e * (e / 4) ** (1 / 3), lambda e: (1 / 3) * 4 ** (-1 / 3) * e ** (-2 / 3), 1.0, (-3, 3)),
+    }
+    for name, (f, df, d2f, fs, d2fs, t0, rng_) in cases.items():
+        eta = df(t0)
+        intercept = f(t0) - eta * t0                                   # value at t = 0 of the tangent line of slope eta
+        grid = np.linspace(rng_[0], rng_[1], 400001)
+        sup = float(np.max(grid * eta - np.array([f(t) for t in grid]))) if name != "psi = e^t" else float(np.max(grid * eta - np.exp(grid)))
+        h = 1e-5
+        dfs = (fs(eta + h) - fs(eta - h)) / (2 * h)
+        print(f"   {name}: theta0 = {t0}, eta = psi'(theta0) = {eta:.4f}; tangent intercept at 0 = {intercept:.4f} = -psi*(eta); psi*(eta) = {-intercept:.4f}; "
+              f"sup over theta' of theta' eta - psi(theta') = {sup:.4f}; closed form {fs(eta):.4f}; slope of psi* at eta = {dfs:.4f} (equals theta0)")
+        print(f"      second derivatives: psi''(theta0) = {d2f(t0):.4f}, psi*''(eta) = {d2fs(eta):.4f}, product {d2f(t0) * d2fs(eta):.4f}")
+    print(f"   transforming twice returns psi: psi**(theta0) for psi = e^t at theta0 = 1: max over eta of eta theta0 - (eta log eta - eta) = "
+          f"{float(np.max(1.0 * np.linspace(1e-6, 60, 600001) - (np.linspace(1e-6, 60, 600001) * np.log(np.linspace(1e-6, 60, 600001)) - np.linspace(1e-6, 60, 600001)))):.4f}, e^1 = {math.e:.4f}")
+
+
 # ------------------------------------------------------------------ 5. two flat structures, one metric
 
 def fisher_rao_mid(p, q, t=0.5):
@@ -949,7 +972,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

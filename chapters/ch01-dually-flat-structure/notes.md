@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: seven widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. Then three on the three-outcome probability triangle. (5) Drag
+- **[Interactive companion](figures/interactive.html)**: eight widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. (5) The Legendre transform: slope as a coordinate and the tangent's intercept as the dual function. Then three on the three-outcome probability triangle. (6) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (6) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (7) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (7) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (8) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -300,6 +300,29 @@ quadrature. **Keep this reversal in mind**; it decides which projection minimise
 **Idea.** Because $\nabla^2\psi\succ0$, the slope map $\theta\mapsto\eta=\nabla\psi(\theta)$ is one-to-one: distinct points of the
 graph have distinct tangent planes. So *the slope can serve as a coordinate*. For softmax this says that the logits
 and the probabilities are two names for the same point, and the map between them (softmax) is the slope map of log-sum-exp.
+
+**The Legendre transform, three pictures of one thing.** Take a convex $\psi$ and a slope $\eta$.
+
+1. *Slope as a name.* Each point $\theta$ of the graph has a tangent line with slope $\eta=\psi'(\theta)$; because $\psi'$ is increasing, distinct points have distinct slopes, so
+   the slope identifies the point just as well as $\theta$ does.
+2. *Intercept as the dual function.* Draw the tangent line of slope $\eta$. Where it crosses the vertical axis $\theta=0$ is $\psi(\theta)-\eta\theta$, so
+   $\psi^*(\eta)=\eta\theta-\psi(\theta)$ is **minus the intercept**. Tracing how the intercept changes with the slope draws the curve $\psi^*$.
+3. *The best a linear function can do.* $\psi^*(\eta)=\max_{\theta'}\{\eta\theta'-\psi(\theta')\}$: the largest amount by which the line $\eta\theta'$ rises above $\psi$. The maximum is at the
+   $\theta'$ where the slope of $\psi$ equals $\eta$, which is picture 1 again.
+
+Numbers from `code/dually_flat.py` (each: the intercept, the supremum over a fine grid, and the closed form agree):
+
+| $\psi(\theta)$ | $\theta_0$ | $\eta=\psi'(\theta_0)$ | $\psi^*(\eta)$ | closed form of $\psi^*$ |
+|---|---|---|---|---|
+| $\tfrac12\theta^2$ | 1.5 | 1.5000 | 1.1250 | $\tfrac12\eta^2$ |
+| $\log(1+e^\theta)$ | −0.4 | 0.4013 | −0.6735 | $\eta\log\eta+(1-\eta)\log(1-\eta)$ |
+| $e^\theta$ | 1 | 2.7183 | 0.0000 | $\eta\log\eta-\eta$ |
+| $\theta^4$ | 1 | 4.0000 | 3.0000 | $\tfrac34\eta(\eta/4)^{1/3}$ |
+
+Two things to see. The slope of $\psi^*$ at $\eta$ is $\theta_0$ in every row ($1.5000$, $-0.4000$, $1.0000$, $1.0000$): the roles of point and slope are exchanged, which is (1.64). And the curvatures are
+reciprocal, $\psi''(\theta_0)\,\psi^{*\prime\prime}(\eta)=1$ in every row ($0.2403\times4.1621$ for the coin, $2.7183\times0.3679$ for $e^\theta$): a steep potential has a flat dual and vice versa, which is $G^*=G^{-1}$ of (1.66).
+Transforming twice returns $\psi$: starting from $\psi^*=\eta\log\eta-\eta$ and maximising $\eta\cdot1-\psi^*(\eta)$ gives $2.7183=e^1$. The interactive page's fifth widget shows the tangent, its intercept and the dual curve
+together for the four potentials above.
 
 **The dual potential.** Define $\psi^*(\eta)=\theta\cdot\eta-\psi(\theta)$ with $\theta=\theta(\eta)$ the inverse of the slope map
 (equivalently $\psi^*(\eta)=\max_{\theta'}\{\theta'\cdot\eta-\psi(\theta')\}$, the usual definition, because the maximiser has slope $\eta$).

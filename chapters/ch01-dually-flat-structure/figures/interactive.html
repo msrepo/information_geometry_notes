@@ -115,7 +115,22 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="wbn"></div>
 </div>
 
-<h2>5. Two kinds of straight line</h2>
+<h2>5. The Legendre transform: slope as a coordinate</h2>
+<p>Pick a convex $\psi$ and a point $\theta_0$. Its tangent has slope $\eta=\psi'(\theta_0)$ and crosses the vertical axis $\theta=0$ at height $\psi(\theta_0)-\eta\theta_0=-\psi^*(\eta)$. So the dual function is minus the intercept. Slide $\theta_0$ and the right plot traces $\psi^*$ point by point; its own tangent there has slope $\theta_0$, so the roles of point and slope are exchanged.</p>
+<div class="widget" id="wl">
+  <div class="controls">
+    <label>$\psi$ <select id="wlf"><option value="0">½θ²</option><option value="1" selected>log(1 + eᶿ)</option><option value="2">eᶿ</option><option value="3">θ⁴</option></select></label>
+    <label>point $\theta_0$ <input type="range" id="wlt" min="-3" max="3" step="0.005" value="-0.4"><output id="wlto"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="wll" viewBox="0 0 340 330" width="100%" role="img" aria-label="The convex function, its tangent at theta0 and the tangent's intercept at theta equal to zero"></svg></div>
+    <div><svg id="wlr" viewBox="0 0 340 330" width="100%" role="img" aria-label="The dual function traced out by the intercepts, with its own tangent of slope theta0"></svg></div>
+  </div>
+  <div class="stats" id="wls"></div>
+  <div class="cap" id="wln"></div>
+</div>
+
+<h2>6. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -130,7 +145,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>6. The Pythagorean theorem</h2>
+<h2>7. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -143,7 +158,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>7. Projecting onto a submanifold</h2>
+<h2>8. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -528,6 +543,56 @@ function draw(){
 }
 g("wbf").addEventListener("change",()=>{cur=+g("wbf").value;setRange();draw()});
 ["wb0","wb1"].forEach(i=>g(i).addEventListener("input",draw));setRange();draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",A=document.getElementById("wll"),B=document.getElementById("wlr"),g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const F=[
+ {n:"½θ²",f:t=>t*t/2,d:t=>t,d2:t=>1,lo:-3,hi:3,t0:1.5,sn:"½η²"},
+ {n:"log(1+eᶿ)",f:t=>Math.log(1+Math.exp(t)),d:t=>1/(1+Math.exp(-t)),d2:t=>{const s=1/(1+Math.exp(-t));return s*(1-s)},lo:-5,hi:5,t0:-0.4,sn:"η log η + (1−η) log(1−η)"},
+ {n:"eᶿ",f:t=>Math.exp(t),d:t=>Math.exp(t),d2:t=>Math.exp(t),lo:-3,hi:2,t0:1,sn:"η log η − η"},
+ {n:"θ⁴",f:t=>t*t*t*t,d:t=>4*t*t*t,d2:t=>12*t*t,lo:-2,hi:2,t0:1,sn:"¾ η (η/4)^(1/3)"}];
+let cur=1;
+function setRange(){const p=F[cur],e=g("wlt");e.min=p.lo;e.max=p.hi;e.step=0.005;e.value=p.t0}
+function frame(P,x0,y0,w,h,xr,yr,xl,yl,title){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h;
+ if(xr[0]<0&&xr[1]>0)el("line",{x1:X(0),x2:X(0),y1:y0,y2:y0+h,stroke:"var(--faint)","stroke-width":.9},P);
+ if(yr[0]<0&&yr[1]>0)el("line",{x1:x0,x2:x0+w,y1:Y(0),y2:Y(0),stroke:"var(--faint)","stroke-width":.9},P);
+ el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ el("text",{x:x0+w/2,y:y0+h+28,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ const id="wlc"+Math.round(Math.random()*1e6),d=el("defs",{},P),c=el("clipPath",{id},d);el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||""},P);
+function draw(){
+ while(A.firstChild)A.removeChild(A.firstChild);while(B.firstChild)B.removeChild(B.firstChild);
+ const p=F[cur],t0=+g("wlt").value;g("wlto").textContent=t0.toFixed(2);
+ const eta=p.d(t0),ic=p.f(t0)-eta*t0,n=300,ts=[];for(let i=0;i<=n;i++)ts.push(p.lo+(p.hi-p.lo)*i/n);
+ const fy=ts.map(p.f);let ymin=Math.min(...fy,ic),ymax=Math.max(...fy);const pd=(ymax-ymin)*0.1;ymin-=pd;ymax+=pd;
+ const L=frame(A,36,18,296,250,[p.lo,p.hi],[ymin,ymax],"θ","ψ(θ)","ψ(θ) = "+p.n+" and its tangent");
+ path(L.G,ts.map((t,i)=>[L.X(t),L.Y(fy[i])]),"var(--ink)",2.4);
+ path(L.G,[[L.X(p.lo),L.Y(p.f(t0)+eta*(p.lo-t0))],[L.X(p.hi),L.Y(p.f(t0)+eta*(p.hi-t0))]],"var(--s2)",1.8);
+ const zx=p.lo<=0&&p.hi>=0?0:p.lo;
+ el("circle",{cx:L.X(t0),cy:L.Y(p.f(t0)),r:5,fill:"var(--s2)"},L.G);
+ el("line",{x1:L.X(0),x2:L.X(0),y1:L.Y(0),y2:L.Y(ic),stroke:"var(--s1)","stroke-width":4},L.G);
+ el("circle",{cx:L.X(0),cy:L.Y(ic),r:5,fill:"var(--s1)"},L.G);
+ const es=ts.map(p.d),ps=ts.map((t,i)=>t*es[i]-fy[i]);
+ const emin=Math.min(...es),emax=Math.max(...es);let pmin=Math.min(...ps),pmax=Math.max(...ps);const pp=(pmax-pmin)*0.1||0.5;pmin-=pp;pmax+=pp;
+ const ps0=eta*t0-p.f(t0);
+ const R=frame(B,36,18,296,250,[emin,emax],[pmin,pmax],"η","ψ*(η)","ψ*(η) traced by the intercepts (negated)");
+ path(R.G,es.map((e,i)=>[R.X(e),R.Y(ps[i])]),"var(--ink)",2.4);
+ const sl=t0,r0=Math.max((emax-emin),1e-6);
+ path(R.G,[[R.X(emin),R.Y(ps0+sl*(emin-eta))],[R.X(emax),R.Y(ps0+sl*(emax-eta))]],"var(--s1)",1.6,"5 4");
+ el("circle",{cx:R.X(eta),cy:R.Y(ps0),r:5,fill:"var(--s1)"},R.G);
+ let sup=-1e18;for(let i=0;i<ts.length;i++){const v=ts[i]*eta-fy[i];if(v>sup)sup=v}
+ const f4=v=>v.toFixed(4),d2s=1/p.d2(t0);
+ g("wls").innerHTML=`<div>η = ψ′(θ₀) <b>${f4(eta)}</b></div><div>intercept at θ = 0 <b>${f4(ic)}</b></div><div>ψ*(η) = −intercept <b>${f4(-ic)}</b></div><div>max over θ′ of ηθ′−ψ(θ′) <b>${f4(sup)}</b></div><div>slope of ψ* at η <b>${f4(t0)}</b></div><div>ψ″·ψ*″ <b>${(p.d2(t0)*d2s).toFixed(4)}</b></div>`;
+ g("wln").textContent="Closed form of the dual: ψ*(η) = "+p.sn+". The blue dashed line is the tangent of ψ* at η; its slope is θ₀ — the point and the slope have traded places.";
+}
+g("wlf").addEventListener("change",()=>{cur=+g("wlf").value;setRange();draw()});g("wlt").addEventListener("input",draw);setRange();draw();
 })();
 </script>
 </body>
