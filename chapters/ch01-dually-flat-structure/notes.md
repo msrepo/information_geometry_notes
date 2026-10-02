@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: five widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. Then three on the three-outcome probability triangle. (3) Drag
+- **[Interactive companion](figures/interactive.html)**: six widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. Then three on the three-outcome probability triangle. (4) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (4) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (5) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (5) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (6) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -212,6 +212,27 @@ Strictly, positive *semi*-definite is the criterion for convex, and positive-def
 necessary. $\psi(x)=x^4$ is strictly convex, so $D[x{:}0]=x^4=0.0625$ at $x=0.5$ is positive, yet its Hessian $12x^2$ is zero at
 $x=0$. Then criterion (3) of Definition 1.1 (a positive-definite $g$) fails at that point: you get a divergence-like gap but not a Riemannian
 metric there. What the construction actually needs is $\nabla^2\psi\succ0$ everywhere.
+
+**What "positive-definite Hessian" means, concretely.** Near a point, a smooth function is its tangent plane plus a quadratic bowl:
+$\psi(\theta+d)\approx\psi(\theta)+\nabla\psi\cdot d+\tfrac12\,d^\top H\,d$ with $H=\nabla^2\psi(\theta)$. For a Bregman divergence the tangent plane
+is subtracted off, so only the bowl is left, $D\approx\tfrac12 d^\top Hd$. The matrix $H$ is **positive-definite** when $d^\top Hd>0$ for *every*
+direction $d\ne0$, that is, when the bowl curves upwards in every direction. Four equivalent ways to say it:
+
+- *Every direction curves up.* The "curvature along the unit direction $u$" is $u^\top Hu$, and it must be positive for all $u$.
+- *All eigenvalues are positive.* The eigenvectors are the directions of extreme curvature, the eigenvalues are the curvatures there, and every other direction
+  lies in between. For the Gaussian potential at $(\mu,\sigma)=(1,2)$, $H=\left[\begin{smallmatrix}4&8\\8&48\end{smallmatrix}\right]$ has eigenvalues $2.5906$ and
+  $49.4094$; scanning 1800 directions the curvature never leaves $[2.5906,\,49.4094]$.
+- *The unit ball is an ellipse.* Define the length $|d|_H=\sqrt{d^\top Hd}$; the set $|d|_H=1$ is an ellipse whose half-axes are $1/\sqrt{\lambda_i}$ along the
+  eigenvectors ($0.1423$ and $0.6213$ for the Gaussian). This is why a positive-definite $H$ can serve as a **metric**: it assigns every nonzero step a positive length.
+  Where $\lambda$ is large, steps are expensive and the ellipse is thin.
+- *Sylvester's test (2×2).* $H=\left[\begin{smallmatrix}a&b\\b&c\end{smallmatrix}\right]$ is positive-definite exactly when $a>0$ and $\det H=ac-b^2>0$; for the Gaussian, $4>0$ and $\det=128>0$.
+
+What goes wrong otherwise, with the examples the widget offers: if the smallest eigenvalue is **zero** (positive *semi*-definite) there is a flat direction, a trough, along which
+steps have length zero. $\psi=x^4+y^2$ at the origin has $H=\left[\begin{smallmatrix}0&0\\0&2\end{smallmatrix}\right]$, eigenvalues $0$ and $2$; a step $e=0.3$ along $x$ has true gap
+$D=0.0081$ but the quadratic term predicts $0.0000$, so the Hessian is blind there and is not a metric. If an eigenvalue is **negative** the surface is a saddle or a hill in that direction:
+$\psi=x^2-y^2$ has eigenvalues $-2$ and $2$, "length" would be imaginary along $y$, and $\psi$ is not convex. For the softmax at $\theta=(0.4,-0.8)$ the Hessian
+$\left[\begin{smallmatrix}0.2499&-0.0775\\-0.0775&0.1294\end{smallmatrix}\right]$ has eigenvalues $0.0915$ and $0.2879$ and determinant $0.0263$, positive-definite as a covariance matrix must be
+(§3 below). The interactive page's third widget lets you drag the three entries of a 2×2 matrix and watch the ellipse, the eigen-directions and the curvature-by-direction curve turn into a trough or a saddle.
 
 **Examples (1.37)–(1.50).**
 

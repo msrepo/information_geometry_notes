@@ -159,6 +159,37 @@ def check_kl_gaussians():
     print(f"   the integrand p log(p/q) is negative where q > p, yet the integral is >= 0: for q = N(1, 0.5^2) the smallest value of the integrand is {float(np.min(pdf(0, 1) * np.log(pdf(0, 1) / pdf(1, 0.5)))):.4f}")
 
 
+def classify(H, tol=1e-9):
+    w = np.linalg.eigvalsh(H)
+    if w.min() > tol: return "positive definite", w
+    if w.min() >= -tol: return "positive semi-definite (a flat direction)", w
+    if w.max() < -tol: return "negative definite", w
+    return "indefinite (a saddle)", w
+
+
+def check_hessian():
+    head("   What a positive-definite Hessian means (the widget in section 3 of the interactive page)")
+    ex = {"softmax Hessian at theta = (0.4, -0.8)": G_theta(np.array([0.4, -0.8])),
+          "Gaussian psi Hessian at (mu, sigma) = (1, 2)": np.array([[4.0, 8.0], [8.0, 48.0]]),
+          "psi = x^4 + y^2 at the origin": np.array([[0.0, 0.0], [0.0, 2.0]]),
+          "psi = x^2 - y^2": np.array([[2.0, 0.0], [0.0, -2.0]])}
+    for name, H in ex.items():
+        kind, w = classify(H)
+        print(f"   {name}: H = {np.round(H, 4).tolist()}; eigenvalues {np.round(w, 4).tolist()}; det {np.linalg.det(H):.4f}; {kind}")
+    H = ex["Gaussian psi Hessian at (mu, sigma) = (1, 2)"]
+    w, V = np.linalg.eigh(H)
+    print(f"   Gaussian: unit-length ellipse d^T H d = 1 has half-axes 1/sqrt(lambda) = {1 / math.sqrt(w[1]):.4f} (along {np.round(V[:, 1], 3).tolist()}) and {1 / math.sqrt(w[0]):.4f} (along {np.round(V[:, 0], 3).tolist()})")
+    print(f"   Sylvester test: a = {H[0, 0]} > 0 and det = {np.linalg.det(H):.1f} > 0, so positive definite without computing eigenvalues")
+    q = lambda u: float(u @ H @ u)
+    print(f"   curvature along a unit direction u is u^T H u: along (1, 0) it is {q(np.array([1.0, 0.0])):.1f}, along (0, 1) it is {q(np.array([0.0, 1.0])):.1f}, "
+          f"along the unit eigenvectors it is the eigenvalues {w[0]:.4f} and {w[1]:.4f}, and every other direction lies between them")
+    angs = np.linspace(0, math.pi, 1801); vals = [q(np.array([math.cos(a_), math.sin(a_)])) for a_ in angs]
+    print(f"   scanning 1800 directions: smallest {min(vals):.4f}, largest {max(vals):.4f}, all positive: {min(vals) > 0}")
+    psi4 = lambda z: z[0] ** 4 + z[1] ** 2
+    for e in (0.1, 0.3):
+        print(f"   psi = x^4 + y^2, step e = {e} along x: true gap D = {psi4(np.array([e, 0.0])):.6f}; quadratic term (1/2) e^2 H_xx = {0.5 * e ** 2 * 0.0:.6f}  (the Hessian sees nothing along x)")
+
+
 # ------------------------------------------------------------------ 2. Bregman divergences
 
 def bregman(f, grad, x, y):
@@ -899,7 +930,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_exp_family(); check_legendre(); check_flat_structures()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

@@ -81,7 +81,25 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="wkr"></div>
 </div>
 
-<h2>3. Two kinds of straight line</h2>
+<h2>3. What "positive-definite Hessian" means</h2>
+<p>Near a point a function is its tangent plane plus a quadratic bowl $\tfrac12 d^\top H d$, and for a Bregman divergence that bowl is all that is left. Drag the entries of $H=\begin{bmatrix}a&b\\b&c\end{bmatrix}$. The left picture shades the sign of $d^\top Hd$ over all steps $d$ (blue positive, orange negative) with the unit ellipse $d^\top Hd=1$; the right plots the curvature along each direction $\varphi$. $H$ is positive-definite exactly when the curve never touches zero: an ellipse, two positive eigenvalues. Touch zero and there is a flat direction; go below and it is a saddle.</p>
+<div class="widget" id="wh">
+  <div class="controls">
+    <label>$a$ <input type="range" id="wha" min="-5" max="5" step="0.01" value="1"><output id="whao"></output></label>
+    <label>$b$ <input type="range" id="whb" min="-5" max="5" step="0.01" value="0.6"><output id="whbo"></output></label>
+    <label>$c$ <input type="range" id="whc" min="-5" max="5" step="0.01" value="1.5"><output id="whco"></output></label>
+    <label>direction $\varphi$ <input type="range" id="whp" min="0" max="180" step="1" value="30"><output id="whpo"></output></label>
+  </div>
+  <div class="controls" id="whbtn"></div>
+  <div class="grid2">
+    <div><svg id="whl" viewBox="0 0 320 320" width="100%" role="img" aria-label="Sign of d transpose H d over all steps d, the unit ellipse and the eigen-directions"></svg></div>
+    <div><svg id="whr" viewBox="0 0 320 320" width="100%" role="img" aria-label="Curvature d transpose H d along the direction at angle phi"></svg></div>
+  </div>
+  <div class="stats" id="whs"></div>
+  <div class="cap" id="whn"></div>
+</div>
+
+<h2>4. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -96,7 +114,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>4. The Pythagorean theorem</h2>
+<h2>5. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -109,7 +127,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>5. Projecting onto a submanifold</h2>
+<h2>6. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -398,6 +416,51 @@ function draw(){
  document.getElementById("wkr").innerHTML=`<div>KL[p:q] <b>${klp.toFixed(4)}</b></div><div>KL[q:p] <b>${klq.toFixed(4)}</b></div><div>numeric sum of the bars <b>${kl.toFixed(4)}</b></div><div>average of the two <b>${((klp+klq)/2).toFixed(4)}</b></div>`;
 }
 document.getElementById("wkm").addEventListener("input",draw);document.getElementById("wks").addEventListener("input",draw);draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",L=document.getElementById("whl"),R=document.getElementById("whr");
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const PRE=[["bowl",1,0,1],["tilted ellipse",2,1.2,1.5],["softmax Hessian (rounded)",0.25,-0.08,0.13],["Gaussian ψ Hessian ÷ 10",0.4,0.8,4.8],["flat direction",1,1,1],["saddle",1,0,-1],["saddle, strong b",1,2,1]];
+const g=id=>document.getElementById(id);
+const bt=g("whbtn");PRE.forEach(p=>{const b=document.createElement("button");b.textContent=p[0];b.onclick=()=>{g("wha").value=p[1];g("whb").value=p[2];g("whc").value=p[3];draw()};bt.appendChild(b)});
+function draw(){
+ while(L.firstChild)L.removeChild(L.firstChild);while(R.firstChild)R.removeChild(R.firstChild);
+ const a=+g("wha").value,b=+g("whb").value,c=+g("whc").value,ph=+g("whp").value*Math.PI/180;
+ g("whao").textContent=a.toFixed(2);g("whbo").textContent=b.toFixed(2);g("whco").textContent=c.toFixed(2);g("whpo").textContent=g("whp").value+"°";
+ const q=(x,y)=>a*x*x+2*b*x*y+c*y*y;
+ const m=(a+c)/2,r=Math.sqrt(((a-c)/2)*((a-c)/2)+b*b),l1=m+r,l2=m-r,det=a*c-b*b,tol=1e-6;
+ const ev=l=>{let v=Math.abs(b)>1e-9?[l-c,b]:(Math.abs(l-a)<Math.abs(l-c)?[1,0]:[0,1]);const n=Math.hypot(v[0],v[1]);return[v[0]/n,v[1]/n]};
+ const S=300,o=10,rg=1.5,X=x=>o+(x+rg)/(2*rg)*S,Y=y=>o+S-(y+rg)/(2*rg)*S;
+ const n=36,qmax=Math.max(1,Math.abs(l1),Math.abs(l2))*rg*rg;
+ for(let i=0;i<n;i++)for(let j=0;j<n;j++){const x=-rg+(i+.5)*2*rg/n,y=-rg+(j+.5)*2*rg/n,v=q(x,y);
+  el("rect",{x:X(x-rg/n),y:Y(y+rg/n),width:S/n+.6,height:S/n+.6,fill:v>=0?"var(--s1)":"var(--s2)",opacity:Math.min(Math.abs(v)/qmax,1)*0.55+0.04},L)}
+ el("rect",{x:o,y:o,width:S,height:S,fill:"none",stroke:"var(--line)"},L);
+ el("line",{x1:X(-rg),x2:X(rg),y1:Y(0),y2:Y(0),stroke:"var(--faint)","stroke-width":.7},L);el("line",{x1:X(0),x2:X(0),y1:Y(-rg),y2:Y(rg),stroke:"var(--faint)","stroke-width":.7},L);
+ [[l1],[l2]].forEach(([l])=>{const v=ev(l);el("line",{x1:X(-rg*v[0]),y1:Y(-rg*v[1]),x2:X(rg*v[0]),y2:Y(rg*v[1]),stroke:"var(--ink)","stroke-dasharray":"5 4","stroke-width":1,opacity:.6},L);
+  if(l>tol){const rr=1/Math.sqrt(l);el("circle",{cx:X(rr*v[0]),cy:Y(rr*v[1]),r:4,fill:"var(--ink)"},L)}});
+ let seg=[],segs=[];for(let k=0;k<=720;k++){const t=2*Math.PI*k/720,u=[Math.cos(t),Math.sin(t)],v=q(u[0],u[1]);
+  if(v>0.05){const rr=1/Math.sqrt(v);if(rr<=rg*1.3)seg.push([rr*u[0],rr*u[1]]);else{if(seg.length)segs.push(seg);seg=[]}}else{if(seg.length)segs.push(seg);seg=[]}}
+ if(seg.length)segs.push(seg);
+ segs.forEach(s=>el("path",{d:s.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join(""),fill:"none",stroke:"var(--ink)","stroke-width":2},L));
+ const u=[Math.cos(ph),Math.sin(ph)];el("line",{x1:X(0),y1:Y(0),x2:X(u[0]),y2:Y(u[1]),stroke:"var(--s4)","stroke-width":3},L);el("circle",{cx:X(u[0]),cy:Y(u[1]),r:5,fill:"var(--s4)"},L);
+ el("text",{x:o+4,y:o+14,fill:"var(--muted)","font-size":11},L).textContent="steps d; shading = sign of dᵀHd";
+ const W=300,ym=Math.max(3,Math.max(Math.abs(l1),Math.abs(l2))*1.15),PX=t=>o+10+t/Math.PI*(W-10),PY=v=>o+W/2-v/ym*(W/2);
+ el("rect",{x:o,y:o,width:W,height:W,fill:"var(--soft)",stroke:"var(--line)"},R);
+ el("line",{x1:o,x2:o+W,y1:PY(0),y2:PY(0),stroke:"var(--ink)","stroke-width":1},R);
+ let pts=[];for(let k=0;k<=180;k++){const t=k*Math.PI/180;pts.push([t,q(Math.cos(t),Math.sin(t))])}
+ for(let k=0;k<180;k++){const p0=pts[k],p1=pts[k+1];el("line",{x1:PX(p0[0]),y1:PY(p0[1]),x2:PX(p1[0]),y2:PY(p1[1]),stroke:(p0[1]+p1[1])/2>=0?"var(--s1)":"var(--s2)","stroke-width":2.5},R)}
+ el("circle",{cx:PX(ph),cy:PY(q(u[0],u[1])),r:5,fill:"var(--s4)"},R);
+ el("text",{x:o+6,y:o+14,fill:"var(--muted)","font-size":11},R).textContent="curvature uᵀHu along direction φ";
+ el("text",{x:o+W/2,y:o+W+4,"text-anchor":"middle",fill:"var(--muted)","font-size":11},R).textContent="";
+ [0,90,180].forEach(d=>el("text",{x:PX(d*Math.PI/180),y:o+W-4,"text-anchor":"middle",fill:"var(--muted)","font-size":11},R).textContent=d+"°");
+ const kind=l2>tol?"positive definite":(l2>=-tol?(l1>tol?"positive semi-definite: a flat direction":"zero matrix"):(l1<-tol?"negative definite":"indefinite: a saddle"));
+ const f=v=>v.toFixed(3);
+ g("whs").innerHTML=`<div>eigenvalues <b>${f(l2)}, ${f(l1)}</b></div><div>det <b>${f(det)}</b></div><div>a > 0 and det > 0? <b>${a>0&&det>0?"yes":"no"}</b></div><div>curvature along φ <b>${f(q(u[0],u[1]))}</b></div><div><b>${kind}</b></div>`;
+ g("whn").textContent=l2>tol?"Every direction curves up, so |d|_H = √(dᵀHd) is a genuine length and the unit ball is the ellipse, with half-axes 1/√λ along the dashed eigen-directions.":(l2>=-tol?"One direction has curvature 0: steps along it have length 0, so H cannot be a metric and the unit 'ellipse' stretches to infinity (two lines).":"Some directions curve down: dᵀHd is negative there, so it cannot be a squared length, and the unit set dᵀHd = 1 is a pair of hyperbola branches.");
+}
+["wha","whb","whc","whp"].forEach(i=>g(i).addEventListener("input",draw));draw();
 })();
 </script>
 </body>
