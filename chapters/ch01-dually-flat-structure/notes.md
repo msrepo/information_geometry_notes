@@ -515,6 +515,46 @@ They are also *different paths*, not different speeds on the same path: the KL d
 Which is "straight" depends on which coordinates you count as affine, and the chapter's choice of $\psi$ makes $\theta$ affine for one structure and $\eta$ for the other. For the exponential family $\theta$-lines are the *natural* interpolations (average the exponent: geometric mixtures),
 and $\eta$-lines are the moment interpolations (average what you can measure: mixtures). Interpolating two trained Gaussian models, say, by averaging logits and averaging probabilities are the same dichotomy.
 
+**The Fisher–Rao geodesic.** The e- and m-geodesics are "straight" in a chart. The Fisher–Rao geodesic is something else: the path that is **shortest for the metric $G$**, locally. Intuition first: a path through the manifold has a length, add up the Riemannian length of each little step, and a *geodesic* is a path
+you cannot shorten by wiggling it with the endpoints held fixed. Formally
+
+$$
+L[\gamma]=\int_0^1\sqrt{g_{ij}(\gamma)\,\dot\gamma^i\dot\gamma^j}\;dt ,
+$$
+
+and a geodesic is a critical point of $L$; it satisfies $\ddot\gamma^k+\Gamma^k_{ij}\dot\gamma^i\dot\gamma^j=0$, where the symbols $\Gamma$ are built from $g$ and its derivatives (the Levi-Civita connection; the book develops it in Part II, and I use it here only through its answer). Parametrised at constant speed, a geodesic does no "sideways steering".
+It differs from the e- and m-lines because the metric is not constant in $\theta$ or in $\eta$: in a chart where $g$ varies, a straight line in the chart is not the shortest path.
+
+*On the Gaussians it can be written down.* With $x=\mu/\sqrt2$ and $y=\sigma$ the metric is $ds^2=2(dx^2+dy^2)/y^2$: twice the hyperbolic metric of the upper half-plane. Its geodesics are the **vertical half-lines** and the **semicircles centred on the axis $y=0$**. Why, in three steps:
+(i) a vertical line is the fixed set of the reflection $x\mapsto 2x_0-x$, which is an isometry, so a shortest path cannot leave it; (ii) inversion in a circle centred on $y=0$ is an isometry and maps vertical lines to semicircles; (iii) a semicircle $x=c+r\cos\varphi,\ y=r\sin\varphi$ has
+$ds=\sqrt2\,d\varphi/\sin\varphi$, so its length is $\sqrt2\,[\ln\tan(\varphi/2)]$ between two angles, and moving uniformly in $\ln\tan(\varphi/2)$ is moving at constant speed (that is how the points in the table above were placed).
+
+<img src="figures/fisher-rao.svg" alt="The Gaussian manifold as the upper half-plane with x = mu/sqrt(2) and y = sigma. Vertical lines and semicircles centred on the axis y = 0 are the geodesics. The geodesic from N(0,1) to N(1.5, 1.5^2) is a semicircle of length 1.3070; the straight chord between the same two points has length 1.3448.">
+
+*The distance.* Two Gaussians $(\mu_1,\sigma_1)$ and $(\mu_2,\sigma_2)$ are at Fisher–Rao distance
+
+$$
+d=\sqrt2\;\operatorname{arccosh}\!\Big(1+\frac{(\Delta\mu)^2/2+(\Delta\sigma)^2}{2\sigma_1\sigma_2}\Big).
+$$
+
+For $P=N(0,1^2)$ and $Q=N(1.5,1.5^2)$: $\Delta x=1.0607$, $\Delta y=0.5$, $\sigma_1\sigma_2=1.5$, the argument is $1.4583$ and $d=1.3070$; numerically integrating the length along the semicircle gives $1.3070$. The semicircle is centred at $x=1.1196$ with radius $1.5012$.
+Checks that it really is the shortest: the straight chord between $P$ and $Q$ in the $(\mu,\sigma)$ plane has length $1.3448$; the e-geodesic has $1.3313$ and the m-geodesic $1.3250$; and in 300 random smooth perturbations with the endpoints fixed, the *smallest* increase in length was $+0.00689$ (every perturbation lengthens the path).
+The constant-speed parametrisation splits the length into four equal quarters of $0.3267$. A vertical line is a geodesic too: from $N(0,1)$ to $N(0,3)$ the distance is $\sqrt2\ln3=1.5537$, and the formula gives $1.5537$.
+
+*Relation to KL.* For nearby points $d^2\approx2\,\mathrm{KL}$ in either order, because both share the quadratic part (§2). The table below takes $P=N(0,1)$ and $q=N(\varepsilon,(1+\varepsilon/2)^2)$:
+
+| $\varepsilon$ | $d$ | $\sqrt{2\,\mathrm{KL}[P{:}q]}$ | $\sqrt{2\,\mathrm{KL}[q{:}P]}$ |
+|---|---|---|---|
+| 0.01 | 0.01222 | 0.01219 | 0.01224 |
+| 0.1 | 0.11949 | 0.11696 | 0.12215 |
+| 1 | 0.98026 | 0.83655 | 1.19961 |
+
+The three agree as $\varepsilon\to0$ and spread as it grows; in these rows the true distance lies between the two KL-based numbers. At the far ends of our pair, $\sqrt{2\,\mathrm{KL}[P{:}Q]}=1.1204$ and $\sqrt{2\,\mathrm{KL}[Q{:}P]}=1.6398$ against $d=1.3070$. So KL is not a distance, and its two orders over- and under-estimate the shortest-path distance by different amounts.
+The Fisher–Rao distance, unlike KL, is symmetric, satisfies the triangle inequality and does not depend on the chart.
+
+*Three curves, three meanings.* The e-geodesic is straight in the natural coordinates and the m-geodesic straight in the moment coordinates: they depend on the *flat structures* built from $\psi$. The Fisher–Rao geodesic depends only on the *metric*, so it is the same for every divergence that induces this $g$
+(§2: all of them agree to second order). It is the Riemannian geodesic of the dually flat manifold; that it lies "between" the e- and m-geodesics (as in the table) is what one expects from the standard fact that the Riemannian connection is the average of the two flat ones, which this chapter does not prove and I have only seen confirmed on this pair of points.
+
 **The metric, and the two sets of components.** On the dually flat manifold, $ds^2=2D_\psi[\theta{:}\theta+d\theta]=g_{ij}d\theta^id\theta^j$
 with $g_{ij}=\partial_i\partial_j\psi$ (1.85–1.86). The tangent vectors along the $\theta$-axes, $e_i$, are the same
 at every point (the chart is affine), and $g_{ij}=\langle e_i,e_j\rangle$. Along the $\eta$-axes the tangent vectors are $e^{*i}$,

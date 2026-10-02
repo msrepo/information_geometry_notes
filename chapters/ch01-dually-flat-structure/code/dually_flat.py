@@ -549,6 +549,42 @@ def check_gaussian_geodesics():
           f"in eta the m-points are collinear ({np.linalg.norm(gauss_eta(gauss_theta(*g_m_point(0.75))) - 2 * gauss_eta(gauss_theta(*g_m_point(0.5))) + gauss_eta(gauss_theta(*g_m_point(0.25)))):.1e})")
 
 
+def fr_distance(a, b):
+    """Closed-form Fisher-Rao distance on the Gaussians: sqrt(2) times the hyperbolic distance in (x, y) = (mu / sqrt 2, sigma)."""
+    dx = (a[0] - b[0]) / math.sqrt(2); dy = a[1] - b[1]
+    return math.sqrt(2) * math.acosh(1 + (dx * dx + dy * dy) / (2 * a[1] * b[1]))
+
+
+def check_fisher_rao_gaussian():
+    head("   The Fisher-Rao geodesic on the Gaussians (the subsection after the e/m geodesics)")
+    P, Q = GP, GQ
+    d_closed = fr_distance(P, Q)
+    print(f"   closed form: d = sqrt(2) arccosh(1 + (dx^2 + dy^2)/(2 y1 y2)) with dx = {1.5 / math.sqrt(2):.4f}, dy = {0.5}, y1 y2 = {1.0 * 1.5}: "
+          f"argument {1 + ((1.5 / math.sqrt(2)) ** 2 + 0.25) / (2 * 1.5):.4f}, d = {d_closed:.4f}; numerical length of the semicircle {g_length(g_fr_point):.4f}")
+    chord = lambda t: (P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1]))
+    print(f"   the straight chord in the (mu, sigma) plane has length {g_length(chord):.4f}, longer than the geodesic {d_closed:.4f}")
+    print(f"   the semicircle: centre c = {(Q[0] ** 2 / 2 + Q[1] ** 2 - P[0] ** 2 / 2 - P[1] ** 2) / (2 * (Q[0] - P[0]) / math.sqrt(2)):.4f} on the axis sigma = 0 (in the x = mu/sqrt 2 coordinate), radius = "
+          f"{math.hypot(0 - (Q[0] ** 2 / 2 + Q[1] ** 2 - P[0] ** 2 / 2 - P[1] ** 2) / (2 * (Q[0] - P[0]) / math.sqrt(2)), 1.0):.4f}")
+    # minimality: fix the ends, add smooth bumps that vanish at the ends, the length must increase
+    rng = np.random.default_rng(0); worst = 1e9
+    for _ in range(300):
+        coef = rng.normal(size=(2, 4)) * 0.05
+        def pert(t):
+            m, sg = g_fr_point(t)
+            bump = sum(coef[0, k] * math.sin((k + 1) * math.pi * t) for k in range(4)); bump2 = sum(coef[1, k] * math.sin((k + 1) * math.pi * t) for k in range(4))
+            return m + bump, max(sg + bump2, 0.05)
+        worst = min(worst, g_length(pert, 2000) - d_closed)
+    print(f"   300 random perturbations of the geodesic with the endpoints fixed: the smallest increase in length is {worst:+.5f} (all positive: {worst > 0})")
+    seg = [g_length(lambda t, a=a: g_fr_point(a + 0.25 * t), 4000) for a in (0.0, 0.25, 0.5, 0.75)]
+    print(f"   constant speed: the four quarters of the parameter range have lengths {', '.join(f'{x:.4f}' for x in seg)} (each a quarter of {d_closed:.4f})")
+    print("   a long-step comparison, sqrt(2 KL) against the geodesic distance, for P = N(0, 1) and a nearby Gaussian N(e, (1 + e/2)^2):")
+    for e in (1.0, 0.1, 0.01):
+        q = (e, 1 + e / 2)
+        print(f"      e = {e}: d = {fr_distance(P, q):.5f}, sqrt(2 KL[P:q]) = {math.sqrt(2 * klg(*P, *q)):.5f}, sqrt(2 KL[q:P]) = {math.sqrt(2 * klg(*q, *P)):.5f}")
+    print(f"   at the far ends (P to Q): sqrt(2 KL[P:Q]) = {math.sqrt(2 * klg(*P, *Q)):.4f}, sqrt(2 KL[Q:P]) = {math.sqrt(2 * klg(*Q, *P)):.4f}, geodesic distance {d_closed:.4f}")
+    print("   vertical lines are geodesics too: from N(0, 1) to N(0, 3) the distance is sqrt 2 ln 3 = "
+          f"{math.sqrt(2) * math.log(3):.4f} against the closed form {fr_distance((0.0, 1.0), (0.0, 3.0)):.4f}")
+
 # ------------------------------------------------------------------ 6. generalised Pythagorean theorem
 
 def orth_triangle(th_p, th_q, t, flip=False):
@@ -1145,17 +1181,38 @@ def fig_gaussian_geodesics(out):
         "The three curves joining N(0, 1) and N(1.5, 1.5^2), drawn in the (mu, sigma) plane, in natural coordinates, and in moment coordinates. The e-geodesic is straight in natural coordinates, the m-geodesic is straight in moment coordinates, and the Fisher-Rao geodesic, the shortest path, is straight in neither.", body))
 
 
+def fig_fisher_rao(out):
+    body = []
+    P_ = Panel(body, 56, 46, 440, 264, (-1.6, 2.6), (0, 2.4))
+    P_.frame([-1, 0, 1, 2], [0, 1, 2], "x = μ/√2", "y = σ", "the Gaussians as a half-plane: ds² = 2(dx² + dy²)/y²", grid=False)
+    for x0 in (-1.0, 0.0, 1.0, 2.0):
+        P_.line([x0, x0], [0.0, 2.4], "thin s0")
+    th = np.linspace(0.02, math.pi - 0.02, 150)
+    for c, r in ((-0.5, 0.9), (0.4, 0.8), (1.0, 1.2), (1.8, 0.7), (0.0, 1.9)):
+        P_.line(c + r * np.cos(th), r * np.sin(th), "thin s0")
+    xa, ya = GP[0] / math.sqrt(2), GP[1]; xb, yb = GQ[0] / math.sqrt(2), GQ[1]
+    arc = [g_fr_point(t) for t in np.linspace(0, 1, 100)]
+    P_.line([a[0] / math.sqrt(2) for a in arc], [a[1] for a in arc], "ln s3")
+    P_.line([xa, xb], [ya, yb], "dash s2")
+    P_.dot(xa, ya, "f0"); P_.text(xa, ya, "P", "v", dx=-12, dy=-6); P_.dot(xb, yb, "f0"); P_.text(xb, yb, "Q", "v", dx=7, dy=-7)
+    body.append('<line class="ln s3" x1="60" y1="364" x2="92" y2="364"/><text class="sm" x="98" y="368">Fisher–Rao geodesic P→Q: a semicircle centred on y = 0, length 1.3070</text>')
+    body.append('<line class="dash s2" x1="60" y1="384" x2="92" y2="384"/><text class="sm" x="98" y="388">the straight chord in this chart: length 1.3448, longer</text>')
+    body.append('<line class="thin s0" x1="60" y1="404" x2="92" y2="404"/><text class="sm" x="98" y="408">other geodesics: vertical lines and semicircles centred on y = 0</text>')
+    (out / "fisher-rao.svg").write_text(svg(560, 424, "Fisher-Rao geodesics on the Gaussians",
+        "The Gaussian manifold drawn as the upper half-plane with x = mu/sqrt(2) and y = sigma. Its geodesics for the Fisher metric are vertical lines and semicircles centred on the axis y = 0. The geodesic from N(0, 1) to N(1.5, 1.5^2) is a semicircle of length 1.3070; the straight chord between the same points has length 1.3448.", body))
+
+
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_gaussian(out); fig_gaussian_geodesics(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_legendre_1d()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
     check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
