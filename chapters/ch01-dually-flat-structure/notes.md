@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: three widgets on the three-outcome probability triangle. (1) Drag
+- **[Interactive companion](figures/interactive.html)**: four widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. Then three on the three-outcome probability triangle. (2) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (2) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (3) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (3) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (4) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -94,14 +94,43 @@ depend on the description, but some natural notions (straightness, convexity) do
 
 Examples the chapter lists, with the coordinates worth knowing.
 
-- **Gaussians** $N(\mu,\sigma^2)$: $(\mu,\sigma)$ with $\sigma>0$ is one chart. The moments $(m_1,m_2)=(\mu,\mu^2+\sigma^2)$
-  and the natural parameters $\theta=(\mu/\sigma^2,\,-1/(2\sigma^2))$ are two more. At $(\mu,\sigma)=(1,2)$ these are
-  $(1,5)$ and $(0.25,-0.125)$. The last two will turn out to be a dual pair (§3).
+- **Gaussians** $N(\mu,\sigma^2)$: three charts, worked through in the next subsection.
 - **Distributions on $n+1$ outcomes**: the open probability simplex $S_n$. The charts are $(p_1,\dots,p_n)$ (with $p_0$
   determined) and the logits $\theta_i=\log(p_i/p_0)$.
 - **Positive measures** $\mathbb R^n_+$: the same, with the total mass left free. Images, spectra and histograms live here.
 - **Positive-definite matrices**, an $n(n+1)/2$-dimensional manifold, and **neural networks**, whose weights $W$ are a
   chart for the "neural manifold". The book only names these here and returns to them later.
+
+### Worked example: the Gaussians in three charts
+
+The *points* of this manifold are Gaussian curves. A *chart* is a way of naming one such curve with two numbers. Three
+namings are in common use.
+
+- **Chart 1, $(\mu,\sigma)$**: where the bell sits and how wide it is. The only restriction is $\sigma>0$, so the chart is
+  a half-plane.
+- **Chart 2, moments $(m_1,m_2)=(\mu,\mu^2+\sigma^2)$**: the two averages $\mathbb E[x]$ and $\mathbb E[x^2]$. Not every
+  pair is a Gaussian: $m_2-m_1^2=\sigma^2>0$ confines the chart to the region above the parabola $m_2=m_1^2$.
+- **Chart 3, natural parameters $\theta=(\mu/\sigma^2,\,-1/(2\sigma^2))$**: write the density as
+  $\exp\{\theta_1x+\theta_2x^2-\psi(\theta)\}$, so $\theta_1,\theta_2$ are the coefficients of $x$ and $x^2$ in the exponent
+  (this is the exponential-family form of §3). The restriction is $\theta_2<0$, which is $\sigma>0$ again.
+
+Numbers (from `code/dually_flat.py`): the Gaussian $(\mu,\sigma)=(1,2)$ is $(m_1,m_2)=(1,5)$ and $\theta=(0.25,-0.125)$;
+$(0,1)$ is $(0,1)$ and $(0,-0.5)$; $(-1.5,0.5)$ is $(-1.5,2.5)$ and $(-6,-2)$. Going back, $\mu=m_1$, $\sigma^2=m_2-m_1^2$,
+and $\sigma^2=-1/(2\theta_2)$, $\mu=\theta_1\sigma^2$; the script recovers $(\mu,\sigma)$ from both charts at all three points.
+
+<img src="figures/gaussian-charts.svg" alt="The coordinate grid of the (mu, sigma) half-plane (blue: constant mu, orange: constant sigma) redrawn in moment coordinates, where the lines become vertical segments and parabolas, and in natural coordinates, where they fan out and the sigma lines bunch toward theta2 = 0. The Gaussian (1, 2) is the point (1, 5) in moments and (0.25, -0.125) in natural parameters.">
+
+The picture is the point of the example. Nothing about the *set* of Gaussians changes between the panels; only the labels do,
+and the grid of chart 1 gets bent. Equal steps of $\sigma$ at $\mu=1$ ($\sigma=0.5,1,2,3$) give $m_2=1.25,\,2,\,5,\,10$ in chart 2
+but $\theta_2=-2,\,-0.5,\,-0.125,\,-0.0556$ in chart 3, which squeezes everything toward $\theta_2=0$. So **distances read off a
+chart are not real distances**; a chart is only a naming. Making "distance" chart-independent is the job of the metric in
+§2, and it is why straightness and convexity, which *do* depend on the chart, must be fixed by choosing one on purpose.
+
+Why chart 2 and chart 3 are called a dual pair: the normaliser of the density in chart 3 is
+$\psi(\theta)=-\theta_1^2/(4\theta_2)+\tfrac12\log(-\pi/\theta_2)$, and its gradient is exactly $(m_1,m_2)$. Each chart is the slope
+of a convex function of the other (§3 checks this numerically, and §4 develops the duality).
+
+The interactive companion's first widget lets you move $\mu$ and $\sigma$ and watch the same Gaussian, and the bent grid, in all three charts.
 
 ## 2. Divergence: a squared distance that is not symmetric (§1.2)
 

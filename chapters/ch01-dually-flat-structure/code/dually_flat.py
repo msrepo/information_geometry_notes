@@ -9,6 +9,7 @@ the Legendre dual of psi is the negative entropy.
 
 Checked here, in the order the notes use them:
 
+  0. the Gaussians in three charts: (mu, sigma), moments and natural parameters, and the maps between them;
   1. a divergence is a local squared distance: KL ~ (1/2) g dxi dxi, its asymmetry, and how badly
      the triangle inequality fails (even for the square root);
   2. Bregman divergences: the book's examples, the Itakura-Saito and generalised-KL cases, the matrix
@@ -100,6 +101,26 @@ def head(s):
 
 P3 = np.array([0.7, 0.2, 0.1])
 Q3 = np.array([0.1, 0.3, 0.6])
+
+
+# ------------------------------------------------------------------ 0. one manifold, three charts: the Gaussians
+
+def mom_of(mu, sg):
+    return np.array([mu, mu ** 2 + sg ** 2])
+
+
+def check_gaussian_charts():
+    head("0. The Gaussians N(mu, sigma^2) in three charts (section 1.1)")
+    for mu, sg in ((1.0, 2.0), (0.0, 1.0), (-1.5, 0.5)):
+        m, t = mom_of(mu, sg), gauss_theta(mu, sg)
+        mu_back, sg_back = m[0], math.sqrt(m[1] - m[0] ** 2)                       # (m1, m2) -> (mu, sigma)
+        sg_t = math.sqrt(-1 / (2 * t[1])); mu_t = t[0] * sg_t ** 2                   # theta -> (mu, sigma)
+        print(f"   (mu, sigma) = ({mu}, {sg}): moments (m1, m2) = ({m[0]:.4g}, {m[1]:.4g}); natural theta = ({t[0]:.4g}, {t[1]:.4g}); "
+              f"back from moments ({mu_back}, {sg_back:.4f}), back from theta ({mu_t:.4f}, {sg_t:.4f})")
+    print("   the allowed regions: m2 - m1^2 = sigma^2 > 0 (above the parabola m2 = m1^2) and theta2 = -1/(2 sigma^2) < 0")
+    print("   theta2 for sigma = 0.5, 1, 2, 3: " + ", ".join(f"{-1 / (2 * s_ ** 2):.4f}" for s_ in (0.5, 1, 2, 3))
+          + "  (equal steps of sigma bunch up towards 0 as sigma grows)")
+    print("   m2 for mu = 1 and sigma = 0.5, 1, 2, 3: " + ", ".join(f"{1 + s_ ** 2:.2f}" for s_ in (0.5, 1, 2, 3)))
 
 
 # ------------------------------------------------------------------ 1. divergence = local squared distance
@@ -831,17 +852,38 @@ def fig_em(out):
     return d_star
 
 
+def fig_gaussian(out):
+    body = []
+    mus, sgs = (-2, -1, 0, 1, 2), (0.5, 0.75, 1, 1.5, 2, 3)
+    spec = [("chart 1: (μ, σ)", (-3, 3), (0, 3.2), lambda m, s_: (m, s_), "μ", "σ", [-2, 0, 2], [0, 1, 2, 3]),
+            ("chart 2: moments (m₁, m₂)", (-3, 3), (0, 13), lambda m, s_: (m, m * m + s_ * s_), "m₁ = μ", "m₂ = μ² + σ²", [-2, 0, 2], [0, 4, 8, 12]),
+            ("chart 3: natural (θ₁, θ₂)", (-8, 8), (-2.2, 0.1), lambda m, s_: (m / s_ ** 2, -1 / (2 * s_ ** 2)), "θ₁ = μ/σ²", "θ₂ = −1/(2σ²)", [-8, -4, 0, 4, 8], [-2, -1, 0])]
+    for k, (title, xr, yr, f, xl, yl, xt, yt) in enumerate(spec):
+        P_ = Panel(body, 56 + 250 * k, 46, 190, 190, xr, yr)
+        P_.frame(xt, yt, xl, yl, title, grid=False)
+        for m in mus:
+            pts = np.array([f(m, 0.3 + 2.9 * i / 80) for i in range(81)]); P_.line(pts[:, 0], pts[:, 1], "thin s1")
+        for s_ in sgs:
+            pts = np.array([f(-3 + 6 * i / 80, s_) for i in range(81)]); P_.line(pts[:, 0], pts[:, 1], "thin s4")
+        x, y = f(1.0, 2.0); P_.dot(x, y, "f2")
+        P_.text(x, y, "(1, 2)", "v", dx=7, dy=-7)
+    body.append('<text class="sm" x="56" y="296">Blue: μ = −2, −1, 0, 1, 2. Orange: σ = 0.5, 0.75, 1, 1.5, 2, 3. The dot is the Gaussian (μ, σ) = (1, 2): (1, 5) in chart 2, (0.25, −0.125) in chart 3.</text>')
+    body.append('<text class="sm" x="56" y="314">The set of Gaussians is the same in all three; only the labels differ, and the grid of chart 1 is bent by the change of labels.</text>')
+    (out / "gaussian-charts.svg").write_text(svg(800, 330, "One family of Gaussians in three coordinate charts",
+        "The coordinate grid of the (mu, sigma) half-plane redrawn in moment coordinates (m1, m2) = (mu, mu^2 + sigma^2) and natural coordinates theta = (mu/sigma^2, -1/(2 sigma^2)). The Gaussian (1, 2) is the point (1, 5) in moments and (0.25, -0.125) in natural parameters.", body))
+
+
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_divergence(); check_bregman(); check_exp_family(); check_legendre(); check_flat_structures()
+    check_gaussian_charts(); check_divergence(); check_bregman(); check_exp_family(); check_legendre(); check_flat_structures()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

@@ -57,9 +57,20 @@ canvas{display:block;width:100%;height:auto;border-radius:8px;touch-action:none}
 <main>
 <h1>The dually flat structure, by hand</h1>
 <p class="lede">Companion to the notes on Chapter 1 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
-Everything here lives on the simplest non-trivial manifold: the distributions $p=(p_0,p_1,p_2)$ on three outcomes (think: a 3-class softmax output). The two coordinate systems of the chapter are the <b>logits</b> $\theta_i=\log(p_i/p_0)$ and the <b>probabilities</b> $\eta_i=p_i$. Drag the grey points inside the triangles, or focus a triangle with <kbd>Tab</kbd>, press <kbd>P</kbd> or <kbd>Q</kbd> to choose a point and move it with the arrow keys.</p>
+After the first widget, everything lives on the simplest non-trivial manifold: the distributions $p=(p_0,p_1,p_2)$ on three outcomes (think: a 3-class softmax output). The two coordinate systems of the chapter are the <b>logits</b> $\theta_i=\log(p_i/p_0)$ and the <b>probabilities</b> $\eta_i=p_i$. Drag the grey points inside the triangles, or focus a triangle with <kbd>Tab</kbd>, press <kbd>P</kbd> or <kbd>Q</kbd> to choose a point and move it with the arrow keys.</p>
 
-<h2>1. Two kinds of straight line</h2>
+<h2>1. One manifold, three charts: the Gaussians</h2>
+<p>The points are Gaussian curves; a chart is a way to name one with two numbers. Move $\mu$ and $\sigma$: the dot is the same Gaussian in all three charts, and the grid of chart 1 (blue: constant $\mu$, orange: constant $\sigma$) is bent by the change of labels. The moments are $(m_1,m_2)=(\mu,\mu^2+\sigma^2)$ and the natural parameters are $\theta=(\mu/\sigma^2,\,-1/(2\sigma^2))$.</p>
+<div class="widget" id="w0">
+  <div class="controls">
+    <label>$\mu$ <input type="range" id="w0m" min="-2" max="2" step="0.05" value="1"><output id="w0mo"></output></label>
+    <label>$\sigma$ <input type="range" id="w0s" min="0.5" max="3" step="0.05" value="2"><output id="w0so"></output></label>
+  </div>
+  <svg id="w0v" viewBox="0 0 700 520" width="100%" role="img" aria-label="The density and the same Gaussian in three coordinate charts"></svg>
+  <div class="stats" id="w0r"></div>
+</div>
+
+<h2>2. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -74,7 +85,7 @@ Everything here lives on the simplest non-trivial manifold: the distributions $p
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>2. The Pythagorean theorem</h2>
+<h2>3. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -87,7 +98,7 @@ Everything here lives on the simplest non-trivial manifold: the distributions $p
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>3. Projecting onto a submanifold</h2>
+<h2>4. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -296,6 +307,43 @@ function draggable(canvas, getSim, points, onChange) {
 
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { window.__w1(); window.__w2(); window.__w3(); });
 document.addEventListener("DOMContentLoaded", () => { const go = () => window.renderMathInElement && renderMathInElement(document.body, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false }); window.addEventListener("load", go); go(); });
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",svg=document.getElementById("w0v");
+const mom=(m,s)=>[m,m*m+s*s],nat=(m,s)=>[m/(s*s),-1/(2*s*s)];
+const P=[{t:"density p(x)",x:20,y:30,w:300,h:190,xr:[-6,6],yr:[0,0.85],xl:"x"},
+ {t:"chart 1: (μ, σ)",x:380,y:30,w:300,h:190,xr:[-3,3],yr:[0,3.2],xl:"μ",yl:"σ",map:(m,s)=>[m,s]},
+ {t:"chart 2: moments (m₁, m₂)",x:20,y:290,w:300,h:190,xr:[-3,3],yr:[0,13],xl:"m₁ = μ",yl:"m₂ = μ²+σ²",map:mom},
+ {t:"chart 3: natural (θ₁, θ₂)",x:380,y:290,w:300,h:190,xr:[-8,8],yr:[-2.2,0.1],xl:"θ₁ = μ/σ²",yl:"θ₂ = −1/(2σ²)",map:nat}];
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+function draw(){
+ while(svg.firstChild)svg.removeChild(svg.firstChild);
+ const mu=+document.getElementById("w0m").value,sg=+document.getElementById("w0s").value;
+ document.getElementById("w0mo").textContent=mu.toFixed(2);document.getElementById("w0so").textContent=sg.toFixed(2);
+ const defs=el("defs",{});
+ P.forEach((p,i)=>{
+  const X=x=>p.x+(x-p.xr[0])/(p.xr[1]-p.xr[0])*p.w,Y=y=>p.y+p.h-(y-p.yr[0])/(p.yr[1]-p.yr[0])*p.h;
+  const cp=el("clipPath",{id:"w0c"+i},defs);el("rect",{x:p.x,y:p.y,width:p.w,height:p.h},cp);
+  el("rect",{x:p.x,y:p.y,width:p.w,height:p.h,fill:"var(--soft)",stroke:"var(--line)"});
+  el("text",{x:p.x,y:p.y-10,fill:"var(--ink)","font-size":14}).textContent=p.t;
+  el("text",{x:p.x+p.w/2,y:p.y+p.h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":12}).textContent=p.xl;
+  if(p.yl)el("text",{x:p.x+p.w-4,y:p.y+14,"text-anchor":"end",fill:"var(--muted)","font-size":12}).textContent=p.yl;
+  const g=el("g",{"clip-path":"url(#w0c"+i+")"});
+  if(i===0){const d=[];for(let k=0;k<=300;k++){const x=-6+12*k/300;d.push((k?"L":"M")+X(x)+" "+Y(Math.exp(-((x-mu)**2)/(2*sg*sg))/(sg*Math.sqrt(2*Math.PI))))}
+   el("path",{d:d.join(""),fill:"none",stroke:"var(--s2)","stroke-width":2.5},g);
+   el("line",{x1:X(mu),x2:X(mu),y1:Y(0),y2:Y(0.85),stroke:"var(--faint)","stroke-dasharray":"4 3"},g);return;}
+  const poly=(pts,col,w,op)=>el("path",{d:pts.map((q,k)=>(k?"L":"M")+X(q[0])+" "+Y(q[1])).join(""),fill:"none",stroke:col,"stroke-width":w,opacity:op},g);
+  for(const m of [-2,-1,0,1,2]){const a=[];for(let k=0;k<=80;k++)a.push(p.map(m,0.3+2.9*k/80));poly(a,"var(--s1)",1,.8)}
+  for(const s of [0.5,0.75,1,1.5,2,3]){const a=[];for(let k=0;k<=80;k++)a.push(p.map(-3+6*k/80,s));poly(a,"var(--s4)",1,.8)}
+  if(i===2){const a=[];for(let k=0;k<=80;k++){const m=-3+6*k/80;a.push([m,m*m])}poly(a,"var(--faint)",1.5,1)}
+  const q=p.map(mu,sg);el("circle",{cx:X(q[0]),cy:Y(q[1]),r:6,fill:"var(--s2)",stroke:"var(--surface)","stroke-width":2},g);
+ });
+ const a=mom(mu,sg),b=nat(mu,sg),f=v=>v.toFixed(3);
+ document.getElementById("w0r").innerHTML=`<div>(μ, σ) <b>(${mu.toFixed(2)}, ${sg.toFixed(2)})</b></div><div>(m₁, m₂) <b>(${f(a[0])}, ${f(a[1])})</b></div><div>(θ₁, θ₂) <b>(${f(b[0])}, ${f(b[1])})</b></div>`;
+}
+document.getElementById("w0m").addEventListener("input",draw);document.getElementById("w0s").addEventListener("input",draw);draw();
+})();
 </script>
 </body>
 </html>
