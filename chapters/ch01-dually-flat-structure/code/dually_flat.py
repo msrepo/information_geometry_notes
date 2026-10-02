@@ -143,6 +143,22 @@ def check_divergence():
     print(f"   even the square root fails: sqrt KL[a:c] = {math.sqrt(d_ac):.3f} versus {math.sqrt(d_ab):.3f} + {math.sqrt(d_bc):.3f} = {math.sqrt(d_ab) + math.sqrt(d_bc):.3f}")
 
 
+def klg(m1, s1, m2, s2):
+    return math.log(s2 / s1) + (s1 ** 2 + (m1 - m2) ** 2) / (2 * s2 ** 2) - 0.5
+
+
+def check_kl_gaussians():
+    head("   KL between two Gaussians, p = N(0, 1) fixed (the widget in section 2 of the interactive page)")
+    xs = np.linspace(-12, 12, 240001); dx = xs[1] - xs[0]
+    pdf = lambda m, sg: np.exp(-(xs - m) ** 2 / (2 * sg ** 2)) / (math.sqrt(2 * math.pi) * sg)
+    for mq, sq in ((1.5, 1.0), (1.0, 0.5), (0.0, 2.0)):
+        p_, q_ = pdf(0, 1), pdf(mq, sq)
+        num = float(np.sum(p_ * np.log(p_ / q_)) * dx)
+        print(f"   q = N({mq}, {sq}^2): KL[p:q] = {klg(0, 1, mq, sq):.4f} (numeric integral {num:.4f}); KL[q:p] = {klg(mq, sq, 0, 1):.4f}")
+    print(f"   equal widths: a shift of e gives KL = e^2/2 in both orders, e.g. e = 0.1 -> {klg(0, 1, 0.1, 1):.4f}, e = 1.5 -> {klg(0, 1, 1.5, 1):.4f}")
+    print(f"   the integrand p log(p/q) is negative where q > p, yet the integral is >= 0: for q = N(1, 0.5^2) the smallest value of the integrand is {float(np.min(pdf(0, 1) * np.log(pdf(0, 1) / pdf(1, 0.5)))):.4f}")
+
+
 # ------------------------------------------------------------------ 2. Bregman divergences
 
 def bregman(f, grad, x, y):
@@ -883,7 +899,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_bregman(); check_exp_family(); check_legendre(); check_flat_structures()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_exp_family(); check_legendre(); check_flat_structures()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

@@ -70,7 +70,18 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w0r"></div>
 </div>
 
-<h2>2. Two kinds of straight line</h2>
+<h2>2. A divergence, concretely: KL between two Gaussians</h2>
+<p>$p=N(0,1)$ is fixed; move $q$. The top-right bars are the integrand $p\log(p/q)$ (green positive, red negative) whose total is $\mathrm{KL}[p{:}q]$. It is never negative, it vanishes only when $q=p$, it is quadratic near $q=p$, and it is not symmetric: change $\sigma_q$ away from 1 and the two orders split.</p>
+<div class="widget" id="wk">
+  <div class="controls">
+    <label>mean of $q$ <input type="range" id="wkm" min="-3" max="3" step="0.05" value="1.5"><output id="wkmo"></output></label>
+    <label>$\sigma$ of $q$ <input type="range" id="wks" min="0.4" max="3" step="0.05" value="1"><output id="wkso"></output></label>
+  </div>
+  <svg id="wkv" viewBox="0 0 700 560" width="100%" role="img" aria-label="Two Gaussians, the integrand of the KL divergence, and the divergence as q moves"></svg>
+  <div class="stats" id="wkr"></div>
+</div>
+
+<h2>3. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -85,7 +96,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>3. The Pythagorean theorem</h2>
+<h2>4. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -98,7 +109,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>4. Projecting onto a submanifold</h2>
+<h2>5. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -343,6 +354,50 @@ function draw(){
  document.getElementById("w0r").innerHTML=`<div>(μ, σ) <b>(${mu.toFixed(2)}, ${sg.toFixed(2)})</b></div><div>(m₁, m₂) <b>(${f(a[0])}, ${f(a[1])})</b></div><div>(θ₁, θ₂) <b>(${f(b[0])}, ${f(b[1])})</b></div>`;
 }
 document.getElementById("w0m").addEventListener("input",draw);document.getElementById("w0s").addEventListener("input",draw);draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",svg=document.getElementById("wkv");
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
+const pdf=(x,m,s)=>Math.exp(-((x-m)*(x-m))/(2*s*s))/(s*Math.sqrt(2*Math.PI));
+const klG=(m1,s1,m2,s2)=>Math.log(s2/s1)+(s1*s1+(m1-m2)*(m1-m2))/(2*s2*s2)-0.5;
+let uid=0;
+function panel(x,y,w,h,xr,yr,title,xl){
+ el("rect",{x,y,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"});
+ el("text",{x,y:y-10,fill:"var(--ink)","font-size":13}).textContent=title;
+ el("text",{x:x+w/2,y:y+h+22,"text-anchor":"middle",fill:"var(--muted)","font-size":12}).textContent=xl;
+ const X=v=>x+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y+h-(v-yr[0])/(yr[1]-yr[0])*h;
+ const id="wkc"+(uid++),d=el("defs",{}),c=el("clipPath",{id},d);el("rect",{x,y,width:w,height:h},c);
+ const g=el("g",{"clip-path":"url(#"+id+")"});
+ if(yr[0]<0)el("line",{x1:x,x2:x+w,y1:Y(0),y2:Y(0),stroke:"var(--faint)"},g);
+ return {X,Y,g,y,h};
+}
+const path=(P,xs,ys,col,wd)=>el("path",{d:xs.map((v,i)=>(i?"L":"M")+P.X(v)+" "+P.Y(ys[i])).join(""),fill:"none",stroke:col,"stroke-width":wd},P.g);
+function draw(){
+ uid=0;while(svg.firstChild)svg.removeChild(svg.firstChild);
+ const mq=+document.getElementById("wkm").value,sq=+document.getElementById("wks").value;
+ document.getElementById("wkmo").textContent=mq.toFixed(2);document.getElementById("wkso").textContent=sq.toFixed(2);
+ const N=400,xs=[],pp=[],qq=[],ig=[];let kl=0;const dx=16/N;
+ for(let i=0;i<=N;i++){const x=-8+16*i/N;xs.push(x);const a=pdf(x,0,1),b=pdf(x,mq,sq);pp.push(a);qq.push(b);const t=a>1e-300?a*Math.log(a/b):0;ig.push(t);kl+=t*dx}
+ const klp=klG(0,1,mq,sq),klq=klG(mq,sq,0,1);
+ const A=panel(20,30,320,230,[-6,6],[0,0.85],"two distributions","x");
+ path(A,xs,pp,"var(--s1)",2.5);path(A,xs,qq,"var(--s2)",2.5);
+ el("text",{x:A.X(-5.8),y:A.Y(0.78),fill:"var(--s1)","font-size":13}).textContent="p";el("text",{x:A.X(-5.2),y:A.Y(0.78),fill:"var(--s2)","font-size":13}).textContent="q";
+ const B=panel(360,30,320,230,[-6,6],[-0.25,0.55],"summed: p(x)·log(p(x)/q(x))","x");
+ for(let i=0;i<N;i++){const v=ig[i];if(Math.abs(v)<1e-9)continue;el("rect",{x:B.X(xs[i]),width:Math.max(B.X(xs[i+1])-B.X(xs[i]),0.6),y:Math.min(B.Y(v),B.Y(0)),height:Math.abs(B.Y(v)-B.Y(0)),fill:v>=0?"var(--s3)":"#d94a4a",opacity:.75},B.g)}
+ const ms=[],mv=[],mk=[];for(let i=0;i<=120;i++){const m=-3+6*i/120;ms.push(m);mv.push(Math.min(klG(0,1,m,sq),6));mk.push(Math.min(klG(m,sq,0,1),6))}
+ const C=panel(20,320,320,200,[-3,3],[0,6],"divergence as the mean of q moves","mean of q");
+ path(C,ms,mv,"var(--s1)",2.2);path(C,ms,mk,"var(--s2)",2.2);
+ el("line",{x1:C.X(mq),x2:C.X(mq),y1:320,y2:520,stroke:"var(--faint)","stroke-dasharray":"4 3"});
+ el("text",{x:C.X(-2.9),y:C.Y(5.6),fill:"var(--s1)","font-size":12}).textContent="KL[p:q]";el("text",{x:C.X(-2.9),y:C.Y(4.9),fill:"var(--s2)","font-size":12}).textContent="KL[q:p]";
+ const ss=[],sv=[],sk=[];for(let i=0;i<=120;i++){const s=0.4+2.6*i/120;ss.push(s);sv.push(Math.min(klG(0,1,mq,s),6));sk.push(Math.min(klG(mq,s,0,1),6))}
+ const D=panel(360,320,320,200,[0.4,3],[0,6],"divergence as σ of q moves","σ of q");
+ path(D,ss,sv,"var(--s1)",2.2);path(D,ss,sk,"var(--s2)",2.2);
+ el("line",{x1:D.X(sq),x2:D.X(sq),y1:320,y2:520,stroke:"var(--faint)","stroke-dasharray":"4 3"});
+ document.getElementById("wkr").innerHTML=`<div>KL[p:q] <b>${klp.toFixed(4)}</b></div><div>KL[q:p] <b>${klq.toFixed(4)}</b></div><div>numeric sum of the bars <b>${kl.toFixed(4)}</b></div><div>average of the two <b>${((klp+klq)/2).toFixed(4)}</b></div>`;
+}
+document.getElementById("wkm").addEventListener("input",draw);document.getElementById("wks").addEventListener("input",draw);draw();
 })();
 </script>
 </body>

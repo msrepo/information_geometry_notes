@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: four widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. Then three on the three-outcome probability triangle. (2) Drag
+- **[Interactive companion](figures/interactive.html)**: five widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. Then three on the three-outcome probability triangle. (3) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (3) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (4) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (4) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (5) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -158,6 +158,17 @@ insists the asymmetry carries information, and §5 and §6 show how. Two nearby 
 expanding $D[\xi{+}d\xi{:}\xi]$ about the base point $\xi{+}d\xi$ and using $g(\xi+d\xi)=g(\xi)+O(|d\xi|)$ shows
 the two orderings agree up to $O(|d\xi|^3)$, so *every* divergence with the same metric looks alike at second order.
 What distinguishes them is the third-order asymmetry, which the book defers to Part II (a general divergence yields a metric plus a pair of dual affine connections, not flat in general).
+
+**A worked example: KL between two Gaussians.** Fix $p=N(0,1)$ and let $q=N(m,\sigma^2)$ move. Then
+$\mathrm{KL}[p{:}q]=\int p\log\frac pq\,dx=\log\sigma+\frac{1+m^2}{2\sigma^2}-\frac12$, and the other order is
+$\mathrm{KL}[q{:}p]=-\log\sigma+\frac{\sigma^2+m^2}{2}-\frac12$. What you can see by moving $q$ (the interactive page's second widget):
+
+- *The integrand can be negative, the integral cannot.* The integrand $p\log(p/q)$ is positive where $q<p$ and negative where $q>p$.
+  For $q=N(1,0.5^2)$ it dips as low as $-0.2896$, yet the total is $2.8069>0$ (the numeric integral agrees to four decimals).
+- *Zero only at equality, quadratic nearby.* With equal widths a shift $e$ costs exactly $e^2/2$ in both orders
+  ($0.0050$ at $e=0.1$, $1.1250$ at $e=1.5$). That is (1.24) with $g=1$, the Fisher information of the mean at $\sigma=1$.
+- *Asymmetric as soon as the widths differ.* $q=N(1,0.5^2)$ gives $\mathrm{KL}[p{:}q]=2.8069$ but $\mathrm{KL}[q{:}p]=0.8181$; $q=N(0,2^2)$ gives
+  $0.3181$ and $0.8069$. $\mathrm{KL}[p{:}q]$ punishes a $q$ that is too narrow where $p$ has mass; $\mathrm{KL}[q{:}p]$ punishes the reverse.
 
 **It is not a distance, not even after a square root.** Take three coins that land heads with probability $0.99$, $0.5$, $0.01$.
 Then $\mathrm{KL}[a{:}c]=4.503$ while $\mathrm{KL}[a{:}b]+\mathrm{KL}[b{:}c]=0.637+1.614=2.252$, so the
