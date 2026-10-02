@@ -1,0 +1,116 @@
+<svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>The speed of EM is the fraction of missing information</title>
+<desc>Left: the contraction factor of EM per step against the separation of the component means, for the symmetric mixture and for a mixture with weights 0.35 and 0.65. The curves are one minus the Fisher information of the marginal model over the complete-data information, and the largest eigenvalue of the inverse complete information times the missing information; dots are measured by running EM. The factor goes from 0 for far apart components to 1 for merging components. Right: the number of steps (logarithmic scale) needed to reduce the error by seven orders of magnitude, from the formula and from runs.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="62" y1="306.0" x2="380" y2="306.0"/>
+<text class="sm" x="56" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="62" y1="243.5" x2="380" y2="243.5"/>
+<text class="sm" x="56" y="247.0" text-anchor="end">0.25</text>
+<line class="gd" x1="62" y1="181.0" x2="380" y2="181.0"/>
+<text class="sm" x="56" y="184.5" text-anchor="end">0.5</text>
+<line class="gd" x1="62" y1="118.5" x2="380" y2="118.5"/>
+<text class="sm" x="56" y="122.0" text-anchor="end">0.75</text>
+<line class="gd" x1="62" y1="56.0" x2="380" y2="56.0"/>
+<text class="sm" x="56" y="59.5" text-anchor="end">1</text>
+<line class="gd" x1="62.0" y1="56" x2="62.0" y2="306"/>
+<text class="sm" x="62.0" y="321" text-anchor="middle">0</text>
+<line class="gd" x1="115.0" y1="56" x2="115.0" y2="306"/>
+<text class="sm" x="115.0" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="168.0" y1="56" x2="168.0" y2="306"/>
+<text class="sm" x="168.0" y="321" text-anchor="middle">2</text>
+<line class="gd" x1="221.0" y1="56" x2="221.0" y2="306"/>
+<text class="sm" x="221.0" y="321" text-anchor="middle">3</text>
+<line class="gd" x1="274.0" y1="56" x2="274.0" y2="306"/>
+<text class="sm" x="274.0" y="321" text-anchor="middle">4</text>
+<line class="gd" x1="327.0" y1="56" x2="327.0" y2="306"/>
+<text class="sm" x="327.0" y="321" text-anchor="middle">5</text>
+<line class="gd" x1="380.0" y1="56" x2="380.0" y2="306"/>
+<text class="sm" x="380.0" y="321" text-anchor="middle">6</text>
+<line class="ax" x1="62" y1="306" x2="380" y2="306"/>
+<line class="ax" x1="62" y1="56" x2="62" y2="306"/>
+<text class="lab" x="221.0" y="338" text-anchor="middle">separation of the component means (in σ)</text>
+<text class="lab" transform="translate(22,181.0) rotate(-90)" text-anchor="middle">EM contraction per step</text>
+<text class="hd" x="62" y="44">Speed of EM: the fraction of missing information</text>
+<polyline class="ln s1" points="64.1,56.2 66.2,56.8 68.4,57.8 70.5,59.2 72.6,60.9 74.7,63.0 76.8,65.4 79.0,68.2 81.1,71.2 83.2,74.6 85.3,78.1 87.4,81.9 89.6,85.9 91.7,90.1 93.8,94.4 95.9,98.9 98.0,103.4 100.2,108.1 102.3,112.8 104.4,117.6 106.5,122.4 108.6,127.3 110.8,132.1 112.9,137.0 115.0,141.8 117.1,146.6 119.2,151.4 121.4,156.1 123.5,160.8 125.6,165.4 127.7,169.9 129.8,174.4 132.0,178.8 134.1,183.1 136.2,187.3 138.3,191.5 140.4,195.5 142.6,199.5 144.7,203.3 146.8,207.1 148.9,210.8 151.0,214.3 153.2,217.8 155.3,221.2 157.4,224.5 159.5,227.7 161.6,230.8 163.8,233.8 165.9,236.7 168.0,239.5 170.1,242.2 172.2,244.8 174.4,247.4 176.5,249.9 178.6,252.2 180.7,254.5 182.8,256.7 185.0,258.9 187.1,260.9 189.2,262.9 191.3,264.8 193.4,266.7 195.6,268.5 197.7,270.2 199.8,271.8 201.9,273.4 204.0,274.9 206.2,276.3 208.3,277.7 210.4,279.1 212.5,280.3 214.6,281.6 216.8,282.8 218.9,283.9 221.0,285.0 223.1,286.0 225.2,287.0 227.4,287.9 229.5,288.8 231.6,289.7 233.7,290.5 235.8,291.3 238.0,292.1 240.1,292.8 242.2,293.5 244.3,294.1 246.4,294.8 248.6,295.3 250.7,295.9 252.8,296.5 254.9,297.0 257.0,297.5 259.2,297.9 261.3,298.4 263.4,298.8 265.5,299.2 267.6,299.6 269.8,299.9 271.9,300.3 274.0,300.6 276.1,300.9 278.2,301.2 280.4,301.5 282.5,301.7 284.6,302.0 286.7,302.2 288.8,302.4 291.0,302.6 293.1,302.8 295.2,303.0 297.3,303.2 299.4,303.4 301.6,303.5 303.7,303.7 305.8,303.8 307.9,304.0 310.0,304.1 312.2,304.2 314.3,304.3 316.4,304.4 318.5,304.5 320.6,304.6 322.8,304.7 324.9,304.8 327.0,304.9 329.1,304.9 331.2,305.0 333.4,305.1 335.5,305.1 337.6,305.2 339.7,305.2 341.8,305.3 344.0,305.3 346.1,305.4 348.2,305.4 350.3,305.5 352.4,305.5 354.6,305.5 356.7,305.6 358.8,305.6 360.9,305.6 363.0,305.7 365.2,305.7 367.3,305.7 369.4,305.7 371.5,305.7 373.6,305.8 375.8,305.8 377.9,305.8 380.0,305.8"/>
+<polyline class="ln s2" points="67.3,56.0 72.6,56.0 77.9,56.0 83.2,56.0 88.5,56.0 93.8,56.1 99.1,56.2 104.4,56.4 109.7,56.7 115.0,57.2 120.3,57.9 125.6,58.9 130.9,60.1 136.2,61.7 141.5,63.7 146.8,66.1 152.1,69.0 157.4,72.3 162.7,76.0 168.0,80.3 173.3,85.0 178.6,90.1 183.9,95.7 189.2,101.6 194.5,108.0 199.8,114.7 205.1,121.6 210.4,128.9 215.7,136.3 221.0,143.9 226.3,151.6 231.6,159.3 236.9,167.1 242.2,174.9 247.5,182.5 252.8,190.1 258.1,197.5 263.4,204.8 268.7,211.8 274.0,218.6 279.3,225.2 284.6,231.4 289.9,237.4 295.2,243.1 300.5,248.5 305.8,253.6 311.1,258.3 316.4,262.8 321.7,266.9 327.0,270.8 332.3,274.3 337.6,277.6 342.9,280.6 348.2,283.4 353.5,285.9 358.8,288.2 364.1,290.3 369.4,292.1 374.7,293.8 380.0,295.3"/>
+<circle class="f1 ring" cx="88.5" cy="83.9" r="3.6"/>
+<circle class="f1 ring" cx="115.0" cy="141.8" r="3.6"/>
+<circle class="f1 ring" cx="168.0" cy="239.5" r="3.6"/>
+<circle class="f1 ring" cx="221.0" cy="285.0" r="3.6"/>
+<circle class="f1 ring" cx="274.0" cy="300.6" r="3.6"/>
+<circle class="f1 ring" cx="380.0" cy="305.8" r="3.6"/>
+<circle class="f2 ring" cx="88.5" cy="56.0" r="3.6"/>
+<circle class="f2 ring" cx="115.0" cy="57.2" r="3.6"/>
+<circle class="f2 ring" cx="168.0" cy="80.3" r="3.6"/>
+<circle class="f2 ring" cx="221.0" cy="143.9" r="3.6"/>
+<circle class="f2 ring" cx="274.0" cy="218.6" r="3.6"/>
+<line class="s1" style="stroke-width:2.2" x1="212" y1="76" x2="234" y2="76"/>
+<text class="sm" x="240" y="79.5">symmetric model: 1 − I<tspan dy="3.5" font-size="8.5">o</tspan><tspan dy="-3.5">(m)</tspan></text>
+<line class="s2" style="stroke-width:2.2" x1="212" y1="92" x2="234" y2="92"/>
+<text class="sm" x="240" y="95.5">w = 0.35: λ<tspan dy="3.5" font-size="8.5">max</tspan><tspan dy="-3.5">(G</tspan><tspan dy="3.5" font-size="8.5">X</tspan><tspan dy="-3.5">⁻¹ G</tspan><tspan dy="3.5" font-size="8.5">X∣Y</tspan><tspan dy="-3.5">)</tspan></text>
+<text class="sm" x="212" y="122">dots: EM run on the whole density</text>
+<line class="gd" x1="452" y1="306.0" x2="770" y2="306.0"/>
+<text class="sm" x="446" y="309.5" text-anchor="end">1</text>
+<line class="gd" x1="452" y1="236.6" x2="770" y2="236.6"/>
+<text class="sm" x="446" y="240.1" text-anchor="end">10</text>
+<line class="gd" x1="452" y1="167.1" x2="770" y2="167.1"/>
+<text class="sm" x="446" y="170.6" text-anchor="end">100</text>
+<line class="gd" x1="452" y1="97.7" x2="770" y2="97.7"/>
+<text class="sm" x="446" y="101.2" text-anchor="end">1000</text>
+<line class="gd" x1="452.0" y1="56" x2="452.0" y2="306"/>
+<text class="sm" x="452.0" y="321" text-anchor="middle">0</text>
+<line class="gd" x1="505.0" y1="56" x2="505.0" y2="306"/>
+<text class="sm" x="505.0" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="558.0" y1="56" x2="558.0" y2="306"/>
+<text class="sm" x="558.0" y="321" text-anchor="middle">2</text>
+<line class="gd" x1="611.0" y1="56" x2="611.0" y2="306"/>
+<text class="sm" x="611.0" y="321" text-anchor="middle">3</text>
+<line class="gd" x1="664.0" y1="56" x2="664.0" y2="306"/>
+<text class="sm" x="664.0" y="321" text-anchor="middle">4</text>
+<line class="gd" x1="717.0" y1="56" x2="717.0" y2="306"/>
+<text class="sm" x="717.0" y="321" text-anchor="middle">5</text>
+<line class="gd" x1="770.0" y1="56" x2="770.0" y2="306"/>
+<text class="sm" x="770.0" y="321" text-anchor="middle">6</text>
+<line class="ax" x1="452" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="452" y1="56" x2="452" y2="306"/>
+<text class="lab" x="611.0" y="338" text-anchor="middle">separation of the component means (in σ)</text>
+<text class="lab" transform="translate(412,181.0) rotate(-90)" text-anchor="middle">steps to shrink the error by 10⁷</text>
+<text class="hd" x="452" y="44">Steps needed</text>
+<polyline class="ln s1" points="457.3,62.3 458.9,77.9 460.4,90.3 462.0,100.5 463.6,109.2 465.2,116.8 466.7,123.5 468.3,129.4 469.9,134.9 471.4,139.8 473.0,144.4 474.6,148.5 476.2,152.4 477.7,156.1 479.3,159.5 480.9,162.7 482.4,165.7 484.0,168.5 485.6,171.2 487.2,173.8 488.7,176.2 490.3,178.5 491.9,180.7 493.4,182.8 495.0,184.9 496.6,186.8 498.2,188.7 499.7,190.5 501.3,192.2 502.9,193.9 504.4,195.5 506.0,197.0 507.6,198.5 509.2,200.0 510.7,201.4 512.3,202.8 513.9,204.1 515.4,205.4 517.0,206.6 518.6,207.8 520.2,209.0 521.7,210.2 523.3,211.3 524.9,212.4 526.4,213.4 528.0,214.5 529.6,215.5 531.2,216.5 532.7,217.5 534.3,218.4 535.9,219.3 537.4,220.2 539.0,221.1 540.6,222.0 542.2,222.9 543.7,223.7 545.3,224.5 546.9,225.3 548.4,226.1 550.0,226.9 551.6,227.6 553.2,228.4 554.7,229.1 556.3,229.9 557.9,230.6 559.4,231.3 561.0,231.9 562.6,232.6 564.2,233.3 565.7,233.9 567.3,234.6 568.9,235.2 570.4,235.9 572.0,236.5 573.6,237.1 575.2,237.7 576.7,238.3 578.3,238.9 579.9,239.4 581.4,240.0 583.0,240.6 584.6,241.1 586.2,241.7 587.7,242.2 589.3,242.7 590.9,243.3 592.4,243.8 594.0,244.3 595.6,244.8 597.2,245.3 598.7,245.8 600.3,246.3 601.9,246.8 603.4,247.3 605.0,247.7 606.6,248.2 608.2,248.7 609.7,249.1 611.3,249.6 612.9,250.0 614.4,250.5 616.0,250.9 617.6,251.4 619.1,251.8 620.7,252.2 622.3,252.6 623.9,253.1 625.4,253.5 627.0,253.9 628.6,254.3 630.1,254.7 631.7,255.1 633.3,255.5 634.9,255.9 636.4,256.3 638.0,256.7 639.6,257.1 641.1,257.4 642.7,257.8 644.3,258.2 645.9,258.6 647.4,258.9 649.0,259.3 650.6,259.7 652.1,260.0 653.7,260.4 655.3,260.8 656.9,261.1 658.4,261.5 660.0,261.8 661.6,262.2 663.1,262.5 664.7,262.8 666.3,263.2 667.9,263.5 669.4,263.8 671.0,264.2 672.6,264.5 674.1,264.8 675.7,265.2 677.3,265.5 678.9,265.8 680.4,266.1 682.0,266.4 683.6,266.7 685.1,267.1 686.7,267.4 688.3,267.7 689.9,268.0 691.4,268.3 693.0,268.6 694.6,268.9 696.1,269.2 697.7,269.5 699.3,269.8 700.9,270.1 702.4,270.4 704.0,270.6 705.6,270.9 707.1,271.2 708.7,271.5 710.3,271.8 711.9,272.1 713.4,272.4 715.0,272.6 716.6,272.9 718.1,273.2 719.7,273.5 721.3,273.7 722.9,274.0 724.4,274.3 726.0,274.5 727.6,274.8 729.1,275.1 730.7,275.3 732.3,275.6 733.9,275.9 735.4,276.1 737.0,276.4 738.6,276.6 740.1,276.9 741.7,277.1 743.3,277.4 744.9,277.7 746.4,277.9 748.0,278.2 749.6,278.4 751.1,278.6 752.7,278.9 754.3,279.1 755.9,279.4 757.4,279.6 759.0,279.9 760.6,280.1 762.1,280.4 763.7,280.6 765.3,280.8 766.9,281.1 768.4,281.3 770.0,281.5"/>
+<circle class="f1 ring" cx="478.5" cy="157.6" r="3.6"/>
+<circle class="f1 ring" cx="505.0" cy="195.5" r="3.6"/>
+<circle class="f1 ring" cx="558.0" cy="228.6" r="3.6"/>
+<circle class="f1 ring" cx="611.0" cy="247.3" r="3.6"/>
+<circle class="f1 ring" cx="664.0" cy="257.5" r="3.6"/>
+<circle class="f1 ring" cx="770.0" cy="272.9" r="3.6"/>
+<text class="sm" x="475.9" y="76.8" text-anchor="start">m → 0: the rate tends to 1, the stall of section 3</text>
+<text class="sm" x="62" y="372">Left: EM contracts the error by a fixed factor per step, and that factor is the largest fraction of the information about the parameter that</text>
+<text class="sm" x="62" y="387">the hidden label withholds, (8.30)-(8.31). It tends to 0 when the components are far apart and to 1 when they merge. The curves come</text>
+<text class="sm" x="62" y="402">from the information matrices, the dots from running EM. Right: the number of steps (logarithmic axis) to reduce the error by 10⁷,</text>
+<text class="sm" x="62" y="417">from the formula (curve) and measured (dots; from a start 0.001 away, to an error below 1e-10; counts are whole steps).</text>
+</svg>

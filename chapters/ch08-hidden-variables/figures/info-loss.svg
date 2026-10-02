@@ -1,0 +1,127 @@
+<svg viewBox="0 0 800 425" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Loss of information by grouping and by censoring</title>
+<desc>Left: the fraction of the Fisher information about the mean and about the standard deviation of a Gaussian that is lost when the observation is replaced by the index of a bin of width h; for small h the losses are h squared over 12 and h squared over 6 (dotted), for coarse bins they are smaller. Right: the fraction lost when the observation is replaced by the minimum of x and a censoring point c; it is small for c large and grows as c moves towards the centre of the distribution.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="62" y1="306.0" x2="380" y2="306.0"/>
+<text class="sm" x="56" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="62" y1="243.5" x2="380" y2="243.5"/>
+<text class="sm" x="56" y="247.0" text-anchor="end">0.25</text>
+<line class="gd" x1="62" y1="181.0" x2="380" y2="181.0"/>
+<text class="sm" x="56" y="184.5" text-anchor="end">0.5</text>
+<line class="gd" x1="62" y1="118.5" x2="380" y2="118.5"/>
+<text class="sm" x="56" y="122.0" text-anchor="end">0.75</text>
+<line class="gd" x1="62" y1="56.0" x2="380" y2="56.0"/>
+<text class="sm" x="56" y="59.5" text-anchor="end">1</text>
+<line class="gd" x1="62.0" y1="56" x2="62.0" y2="306"/>
+<text class="sm" x="62.0" y="321" text-anchor="middle">0</text>
+<line class="gd" x1="115.0" y1="56" x2="115.0" y2="306"/>
+<text class="sm" x="115.0" y="321" text-anchor="middle">0.5</text>
+<line class="gd" x1="168.0" y1="56" x2="168.0" y2="306"/>
+<text class="sm" x="168.0" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="221.0" y1="56" x2="221.0" y2="306"/>
+<text class="sm" x="221.0" y="321" text-anchor="middle">1.5</text>
+<line class="gd" x1="274.0" y1="56" x2="274.0" y2="306"/>
+<text class="sm" x="274.0" y="321" text-anchor="middle">2</text>
+<line class="gd" x1="327.0" y1="56" x2="327.0" y2="306"/>
+<text class="sm" x="327.0" y="321" text-anchor="middle">2.5</text>
+<line class="gd" x1="380.0" y1="56" x2="380.0" y2="306"/>
+<text class="sm" x="380.0" y="321" text-anchor="middle">3</text>
+<line class="ax" x1="62" y1="306" x2="380" y2="306"/>
+<line class="ax" x1="62" y1="56" x2="62" y2="306"/>
+<text class="lab" x="221.0" y="338" text-anchor="middle">bin width h  (σ = 1)</text>
+<text class="lab" transform="translate(22,181.0) rotate(-90)" text-anchor="middle">fraction of the information lost</text>
+<text class="hd" x="62" y="44">Grouping into bins</text>
+<polyline class="ln s1" points="66.2,306.0 70.2,305.9 74.2,305.7 78.2,305.5 82.1,305.3 86.1,304.9 90.1,304.5 94.0,304.1 98.0,303.6 102.0,303.1 106.0,302.5 109.9,301.8 113.9,301.1 117.9,300.3 121.8,299.5 125.8,298.7 129.8,297.8 133.8,296.8 137.7,295.8 141.7,294.8 145.7,293.7 149.6,292.5 153.6,291.3 157.6,290.1 161.6,288.9 165.5,287.6 169.5,286.3 173.5,284.9 177.4,283.5 181.4,282.1 185.4,280.6 189.4,279.2 193.3,277.7 197.3,276.1 201.3,274.6 205.2,273.0 209.2,271.4 213.2,269.8 217.2,268.2 221.1,266.5 225.1,264.9 229.1,263.2 233.0,261.5 237.0,259.8 241.0,258.1 245.0,256.4 248.9,254.8 252.9,253.1 256.9,251.4 260.9,249.7 264.8,248.1 268.8,246.4 272.8,244.8 276.7,243.2 280.7,241.7 284.7,240.1 288.7,238.6 292.6,237.2 296.6,235.7 300.6,234.3 304.5,233.0 308.5,231.7 312.5,230.4 316.5,229.2 320.4,228.0 324.4,226.9 328.4,225.8 332.3,224.8 336.3,223.8 340.3,222.8 344.3,221.9 348.2,221.1 352.2,220.3 356.2,219.5 360.1,218.8 364.1,218.1 368.1,217.5 372.1,216.9 376.0,216.3 380.0,215.8"/>
+<polyline class="ln s2" points="66.2,305.9 70.2,305.8 74.2,305.5 78.2,305.0 82.1,304.5 86.1,303.9 90.1,303.1 94.0,302.2 98.0,301.3 102.0,300.2 106.0,299.0 109.9,297.7 113.9,296.4 117.9,294.9 121.8,293.3 125.8,291.7 129.8,289.9 133.8,288.1 137.7,286.2 141.7,284.3 145.7,282.3 149.6,280.2 153.6,278.0 157.6,275.8 161.6,273.6 165.5,271.2 169.5,268.9 173.5,266.5 177.4,264.1 181.4,261.6 185.4,259.1 189.4,256.6 193.3,254.1 197.3,251.5 201.3,249.0 205.2,246.4 209.2,243.8 213.2,241.2 217.2,238.6 221.1,235.9 225.1,233.3 229.1,230.6 233.0,227.9 237.0,225.1 241.0,222.3 245.0,219.4 248.9,216.5 252.9,213.5 256.9,210.4 260.9,207.3 264.8,204.0 268.8,200.7 272.8,197.3 276.7,193.8 280.7,190.2 284.7,186.6 288.7,182.9 292.6,179.1 296.6,175.2 300.6,171.4 304.5,167.5 308.5,163.5 312.5,159.6 316.5,155.7 320.4,151.7 324.4,147.8 328.4,144.0 332.3,140.2 336.3,136.4 340.3,132.7 344.3,129.1 348.2,125.6 352.2,122.1 356.2,118.8 360.1,115.5 364.1,112.4 368.1,109.3 372.1,106.4 376.0,103.6 380.0,100.9"/>
+<polyline class="dot s1" points="66.2,306.0 70.2,305.9 74.2,305.7 78.2,305.5 82.1,305.2 86.1,304.9 90.1,304.5 94.0,304.1 98.0,303.6 102.0,303.0 106.0,302.4 109.9,301.7 113.9,301.0 117.9,300.2 121.8,299.4 125.8,298.4 129.8,297.5 133.8,296.5 137.7,295.4 141.7,294.2 145.7,293.0 149.6,291.8 153.6,290.4 157.6,289.1 161.6,287.6 165.5,286.1 169.5,284.6 173.5,283.0 177.4,281.3 181.4,279.6 185.4,277.8 189.4,275.9 193.3,274.0 197.3,272.1 201.3,270.0 205.2,268.0 209.2,265.8 213.2,263.6 217.2,261.4 221.1,259.0 225.1,256.7 229.1,254.2 233.0,251.8 237.0,249.2 241.0,246.6 245.0,243.9 248.9,241.2 252.9,238.4 256.9,235.6 260.9,232.7 264.8,229.7 268.8,226.7 272.8,223.6 276.7,220.5 280.7,217.3 284.7,214.1 288.7,210.7 292.6,207.4 296.6,204.0 300.6,200.5 304.5,196.9 308.5,193.3 312.5,189.7 316.5,185.9 320.4,182.2 324.4,178.3 328.4,174.4 332.3,170.5 336.3,166.5 340.3,162.4 344.3,158.3 348.2,154.1 352.2,149.9 356.2,145.5 360.1,141.2 364.1,136.8 368.1,132.3 372.1,127.8 376.0,123.2 380.0,118.5"/>
+<polyline class="dot s2" points="66.2,305.9 70.2,305.7 74.2,305.4 78.2,305.0 82.1,304.5 86.1,303.8 90.1,303.1 94.0,302.2 98.0,301.2 102.0,300.1 106.0,298.8 109.9,297.5 113.9,296.0 117.9,294.4 121.8,292.7 125.8,290.9 129.8,289.0 133.8,286.9 137.7,284.7 141.7,282.4 145.7,280.0 149.6,277.5 153.6,274.9 157.6,272.1 161.6,269.2 165.5,266.3 169.5,263.1 173.5,259.9 177.4,256.6 181.4,253.1 185.4,249.5 189.4,245.8 193.3,242.0 197.3,238.1 201.3,234.1 205.2,229.9 209.2,225.6 213.2,221.2 217.2,216.7 221.1,212.1 225.1,207.3 229.1,202.5 233.0,197.5 237.0,192.4 241.0,187.2 245.0,181.9 248.9,176.4 252.9,170.8 256.9,165.2 260.9,159.4 264.8,153.5 268.8,147.4 272.8,141.3 276.7,135.0 280.7,128.6 284.7,122.1 288.7,115.5 292.6,108.8 296.6,101.9 300.6,94.9 304.5,87.9 308.5,80.7 312.5,73.3 316.5,65.9 320.4,58.3"/>
+<circle class="f1 ring" cx="88.5" cy="304.7" r="3.4"/>
+<circle class="f2 ring" cx="88.5" cy="303.4" r="3.4"/>
+<circle class="f1 ring" cx="115.0" cy="300.9" r="3.4"/>
+<circle class="f2 ring" cx="115.0" cy="296.0" r="3.4"/>
+<circle class="f1 ring" cx="168.0" cy="286.8" r="3.4"/>
+<circle class="f2 ring" cx="168.0" cy="269.8" r="3.4"/>
+<circle class="f1 ring" cx="274.0" cy="244.3" r="3.4"/>
+<circle class="f2 ring" cx="274.0" cy="196.2" r="3.4"/>
+<circle class="f1 ring" cx="380.0" cy="215.8" r="3.4"/>
+<circle class="f2 ring" cx="380.0" cy="100.9" r="3.4"/>
+<line class="s1" style="stroke-width:2.2" x1="76" y1="70" x2="98" y2="70"/>
+<text class="sm" x="104" y="73.5">mean μ</text>
+<line class="s2" style="stroke-width:2.2" x1="76" y1="86" x2="98" y2="86"/>
+<text class="sm" x="104" y="89.5">standard deviation σ</text>
+<line class="dot s1" style="stroke-width:2.2" x1="76" y1="102" x2="98" y2="102"/>
+<text class="sm" x="104" y="105.5">h²/12: small-bin law for μ</text>
+<line class="dot s2" style="stroke-width:2.2" x1="76" y1="118" x2="98" y2="118"/>
+<text class="sm" x="104" y="121.5">h²/6: small-bin law for σ</text>
+<line class="gd" x1="452" y1="306.0" x2="770" y2="306.0"/>
+<text class="sm" x="446" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="452" y1="243.5" x2="770" y2="243.5"/>
+<text class="sm" x="446" y="247.0" text-anchor="end">0.25</text>
+<line class="gd" x1="452" y1="181.0" x2="770" y2="181.0"/>
+<text class="sm" x="446" y="184.5" text-anchor="end">0.5</text>
+<line class="gd" x1="452" y1="118.5" x2="770" y2="118.5"/>
+<text class="sm" x="446" y="122.0" text-anchor="end">0.75</text>
+<line class="gd" x1="452" y1="56.0" x2="770" y2="56.0"/>
+<text class="sm" x="446" y="59.5" text-anchor="end">1</text>
+<line class="gd" x1="478.5" y1="56" x2="478.5" y2="306"/>
+<text class="sm" x="478.5" y="321" text-anchor="middle">−2</text>
+<line class="gd" x1="531.5" y1="56" x2="531.5" y2="306"/>
+<text class="sm" x="531.5" y="321" text-anchor="middle">−1</text>
+<line class="gd" x1="584.5" y1="56" x2="584.5" y2="306"/>
+<text class="sm" x="584.5" y="321" text-anchor="middle">0</text>
+<line class="gd" x1="637.5" y1="56" x2="637.5" y2="306"/>
+<text class="sm" x="637.5" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="690.5" y1="56" x2="690.5" y2="306"/>
+<text class="sm" x="690.5" y="321" text-anchor="middle">2</text>
+<line class="gd" x1="743.5" y1="56" x2="743.5" y2="306"/>
+<text class="sm" x="743.5" y="321" text-anchor="middle">3</text>
+<line class="ax" x1="452" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="452" y1="56" x2="452" y2="306"/>
+<text class="lab" x="611.0" y="338" text-anchor="middle">censoring point c   (T = min(x, c))</text>
+<text class="lab" transform="translate(412,181.0) rotate(-90)" text-anchor="middle">fraction of the information lost</text>
+<text class="hd" x="452" y="44">Censoring N(0.3, 1) at c</text>
+<polyline class="ln s1" points="452.0,62.2 457.4,64.0 462.8,66.1 468.2,68.7 473.6,71.8 478.9,75.5 484.3,79.8 489.7,84.7 495.1,90.2 500.5,96.4 505.9,103.3 511.3,110.9 516.7,119.0 522.1,127.7 527.5,136.9 532.8,146.5 538.2,156.3 543.6,166.4 549.0,176.6 554.4,186.8 559.8,196.9 565.2,206.7 570.6,216.3 576.0,225.4 581.4,234.1 586.7,242.3 592.1,250.0 597.5,257.0 602.9,263.5 608.3,269.4 613.7,274.7 619.1,279.4 624.5,283.6 629.9,287.2 635.3,290.4 640.6,293.1 646.0,295.5 651.4,297.5 656.8,299.1 662.2,300.5 667.6,301.6 673.0,302.6 678.4,303.3 683.8,303.9 689.2,304.4 694.5,304.8 699.9,305.1 705.3,305.3 710.7,305.5 716.1,305.6 721.5,305.7 726.9,305.8 732.3,305.9 737.7,305.9 743.1,305.9 748.4,305.9 753.8,306.0 759.2,306.0 764.6,306.0 770.0,306.0"/>
+<polyline class="ln s2" points="452.0,81.2 457.4,86.2 462.8,91.8 468.2,97.8 473.6,104.3 478.9,111.0 484.3,117.9 489.7,124.8 495.1,131.6 500.5,138.0 505.9,143.9 511.3,149.1 516.7,153.7 522.1,157.4 527.5,160.3 532.8,162.4 538.2,163.8 543.6,164.6 549.0,164.9 554.4,165.0 559.8,165.0 565.2,165.2 570.6,165.7 576.0,166.7 581.4,168.4 586.7,170.9 592.1,174.2 597.5,178.4 602.9,183.5 608.3,189.3 613.7,195.8 619.1,202.9 624.5,210.4 629.9,218.2 635.3,226.2 640.6,234.1 646.0,241.8 651.4,249.3 656.8,256.4 662.2,263.0 667.6,269.2 673.0,274.7 678.4,279.7 683.8,284.1 689.2,287.9 694.5,291.3 699.9,294.1 705.3,296.5 710.7,298.4 716.1,300.1 721.5,301.4 726.9,302.5 732.3,303.3 737.7,304.0 743.1,304.5 748.4,304.9 753.8,305.2 759.2,305.4 764.6,305.6 770.0,305.7"/>
+<circle class="f1 ring" cx="531.5" cy="144.0" r="3.4"/>
+<circle class="f2 ring" cx="531.5" cy="162.0" r="3.4"/>
+<circle class="f1 ring" cx="584.5" cy="239.0" r="3.4"/>
+<circle class="f2 ring" cx="584.5" cy="169.8" r="3.4"/>
+<circle class="f1 ring" cx="637.5" cy="291.6" r="3.4"/>
+<circle class="f2 ring" cx="637.5" cy="229.5" r="3.4"/>
+<circle class="f1 ring" cx="690.5" cy="304.5" r="3.4"/>
+<circle class="f2 ring" cx="690.5" cy="288.8" r="3.4"/>
+<circle class="f1 ring" cx="743.5" cy="305.9" r="3.4"/>
+<circle class="f2 ring" cx="743.5" cy="304.5" r="3.4"/>
+<line class="s1" style="stroke-width:2.2" x1="602" y1="70" x2="624" y2="70"/>
+<text class="sm" x="630" y="73.5">mean μ</text>
+<line class="s2" style="stroke-width:2.2" x1="602" y1="86" x2="624" y2="86"/>
+<text class="sm" x="630" y="89.5">standard deviation σ</text>
+<text class="sm" x="62" y="372">Each dot is a number printed by the script: the loss is g<tspan dy="-4.5" font-size="8.5">X∣T</tspan><tspan dy="4.5">, the score variance inside the bin (or beyond the censoring point), as a fraction of g</tspan><tspan dy="-4.5" font-size="8.5">X</tspan><tspan dy="4.5">.</tspan></text>
+<text class="sm" x="62" y="387">Left: small bins lose h²/12σ² of the information about μ and twice that about σ; coarse bins lose less than that law says. Right: censoring far</text>
+<text class="sm" x="62" y="402">to the right loses little; moving the censoring point towards the centre removes the information carried by the tail.</text>
+</svg>

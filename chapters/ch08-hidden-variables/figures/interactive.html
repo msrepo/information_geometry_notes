@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hidden Variables Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted);max-width:100%}
+.controls select{min-width:0;max-width:100%}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Hidden variables, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 8 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+The running example is a mixture of two unit-variance Gaussians, $p(y;\xi)=w\,N(\mu_1,1)+(1-w)\,N(\mu_2,1)$ with $\xi=(w,\mu_1,\mu_2)$, where the hidden variable $h$ says which component produced an observation.
+The sample of 200 points in the first widget is the one used by <code>code/hidden_variables.py</code>; the numbers in the readouts match that script's output (Monte Carlo ones up to the stated error).</p>
+
+<h2>1. EM, one projection at a time</h2>
+<p>A point of the <b>data manifold</b> $D$ is a table of responsibilities, one row per observation, each row adding to 1; the <b>model manifold</b> $M$ is the set of complete-data distributions of the mixture. The <b>E-step</b> goes from the point $\xi$ of $M$ to the nearest point of $D$ (the e-projection): the responsibilities are the posterior. The <b>M-step</b> goes from the table to the nearest point of $M$ (the m-projection): weights and means are responsibility-weighted averages, (8.26).
+Press <i>step</i> and read the readout: the divergence $F$ falls at the M-step by exactly $\mathrm{KL}[p_{\xi_{t+1}}\Vert p_{\xi_t}]$ and at the next E-step by exactly the posterior divergence shown as <i>E part</i>; their sum is the gain in log-likelihood per observation. Try the start with equal means: it is a stationary point (a saddle) and EM, in exactly symmetric arithmetic, stays there for ever; nudge the means by $10^{-6}$ and the gap grows by the sample variance, about $2.67$ per step, until EM leaves for the maximum.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>start <select id="w1s"><option value="a">w = 0.5, μ = (−0.5, 0.5)</option><option value="b">equal means μ₁ = μ₂ = sample mean (a saddle)</option><option value="e">equal means ± 10⁻⁶ (the saddle, nudged)</option><option value="c">labels swapped, μ = (0.5, −0.5)</option><option value="d">both means near 3</option></select></label>
+    <button id="w1e" type="button">E-step</button><button id="w1m" type="button">M-step</button><button id="w1t" type="button">step (E + M)</button><button id="w1r" type="button">run 20 steps</button><button id="w1z" type="button">reset</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1l" viewBox="0 0 340 300" role="img" aria-label="Histogram of the 200 observations with the fitted mixture"></svg></div>
+    <div><svg id="w1v" viewBox="0 0 340 300" role="img" aria-label="The divergence F after each half-step"></svg></div>
+  </div>
+  <div class="stats" id="w1o"></div>
+</div>
+
+<h2>2. The two curves and the staircase (one observation)</h2>
+<p>With a single observation $y$ and the symmetric model $\tfrac12N(-m,1)+\tfrac12N(m,1)$, the data manifold is an interval (the responsibility $a$ of the component at $+m$) and the model manifold is a line (the number $m$), so the whole algorithm fits in a plane. The grey contours are the divergence $F(a,m)$. The M-step is the straight line $m=(2a-1)y$, because the m-projection is linear in the point of the m-flat $D$; the E-step is the sigmoid $a=\sigma(2my)$. The staircase between them is EM.
+Move $y$ across $1$: for $\lvert y\rvert&gt;1$ the crossing at $m=0$ is repelling (slope $y^2$), for $\lvert y\rvert&lt;1$ it is the only fixed point and the maximum. Start exactly at $m=0$ and EM never leaves it.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$y$ <input type="range" id="w2y" min="0.2" max="3" step="0.05" value="1.8"><output id="w2yo"></output></label>
+    <label>start $m_0$ <input type="range" id="w2m" min="0" max="2.5" step="0.05" value="0.3"><output id="w2mo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w2l" viewBox="0 0 340 300" role="img" aria-label="The plane of a and m with the E-step curve, the M-step line and the staircase"></svg></div>
+    <div><svg id="w2r" viewBox="0 0 340 300" role="img" aria-label="The log-likelihood of one observation as a function of m, with the iterates"></svg></div>
+  </div>
+  <div class="stats" id="w2o"></div>
+</div>
+
+<h2>3. How fast: the fraction of missing information</h2>
+<p>Near a fixed point EM contracts the error by the factor $1-I_o/I_c$: one minus the observed Fisher information over the complete-data information, i.e. the fraction of information the hidden label withholds, (8.30)–(8.31). For $\tfrac12N(-m,1)+\tfrac12N(m,1)$ the complete information is 1 and the factor is $E[y^2\operatorname{sech}^2(my)]$. Slide the true separation $m$: far apart (large $m$) the factor tends to $0$ and EM is exact in a step or two; as the components merge it tends to $1$.
+The second option feeds the algorithm data from a single Gaussian $N(0,1)$, where the fixed point is $m=0$ and the factor is exactly $1$: the iteration is $m\mapsto m-m^3+\dots$, and it crawls.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>data <select id="w3d"><option value="mix">0.5 N(−m,1) + 0.5 N(m,1)</option><option value="null">N(0,1): the null model</option></select></label>
+    <label>true $m$ <input type="range" id="w3m" min="0.1" max="4" step="0.05" value="1"><output id="w3mo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w3l" viewBox="0 0 340 300" role="img" aria-label="The EM map with a cobweb"></svg></div>
+    <div><svg id="w3v" viewBox="0 0 340 300" role="img" aria-label="The error against the number of steps"></svg></div>
+  </div>
+  <div class="stats" id="w3o"></div>
+</div>
+
+<h2>4. The identity (8.30) for the three-parameter mixture</h2>
+<p>For the mixture $w\,N(0,1)+(1-w)\,N(\Delta,1)$ the information about $\xi=(w,\mu_1,\mu_2)$ in the complete data is $G_X=\mathrm{diag}\big(1/w(1-w),\,w,\,1-w\big)$. The information in the visible data alone is $G_Y=E[(\partial\log p_Y)^2]$, computed here by quadrature. What is lost is $G_{X\mid Y}=E_y\mathrm{Cov}_{h\mid y}[\text{complete score}]$, and (8.30) says $G_X=G_Y+G_{X\mid Y}$.
+The eigenvalues of $G_X^{-1}G_{X\mid Y}$ (bars) are the fraction of the information about each direction that is missing; the largest is the speed of EM, and one eigenvalue is always $0$: the mixture mean $w\mu_1+(1-w)\mu_2$ is read off the data directly.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>$w$ <input type="range" id="w4w" min="0.05" max="0.95" step="0.01" value="0.35"><output id="w4wo"></output></label>
+    <label>separation $\Delta$ <input type="range" id="w4d" min="0.5" max="6" step="0.05" value="2.5"><output id="w4do"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w4l" viewBox="0 0 340 260" role="img" aria-label="The mixture density and its two components"></svg></div>
+    <div><svg id="w4r" viewBox="0 0 340 260" role="img" aria-label="The three eigenvalues of the missing-information fraction"></svg></div>
+  </div>
+  <div id="w4t"></div>
+  <div class="stats" id="w4o"></div>
+</div>
+
+<h2>5. Throwing information away: grouping and censoring</h2>
+<p>Replace an observation $x\sim N(\mu,\sigma^2)$ by the bin it fell in, or by $\min(x,c)$. The Fisher information of the reduced data is $g^T$, the loss is $g^{X\mid T}=E_t[\mathrm{Cov}(\text{score}\mid T=t)]$, and $g^X=g^T+g^{X\mid T}$ exactly, (8.28)–(8.31). Small bins lose $h^2/12\sigma^2$ of the information about $\mu$ and twice that about $\sigma$; coarse bins lose less than that law says. The two ellipses show the covariance of an efficient estimator from $N=50$ observations: full data (blue) and reduced data (orange), and the orange one is always the larger.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>reduction <select id="w5k"><option value="grp">grouping into bins</option><option value="cen">censoring at c</option></select></label>
+    <label><span id="w5lab">bin width $h$</span> <input type="range" id="w5h" min="0.1" max="3" step="0.05" value="1"><output id="w5ho"></output></label>
+    <label>$\mu$ <input type="range" id="w5m" min="-1" max="1.5" step="0.05" value="0.3"><output id="w5mo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 280" role="img" aria-label="The density with the bin edges or the censoring point"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 280" role="img" aria-label="The covariance ellipses of the full-data and reduced-data estimators"></svg></div>
+  </div>
+  <div class="stats" id="w5o"></div>
+</div>
+
+<h2>6. A wrong model, and where it sends the data</h2>
+<p>The truth is the curved family $N(u,u^2)$ of Chapter 7, a parabola in the plane of the observed point $(\bar x,\overline{x^2})$. The model used is wrong; the estimator is its maximum likelihood estimator, which sends the observed point to the model along the straight <b>q-ancillary leaves</b>. Where the truth sits on a leaf labelled $v^*$, the estimator converges to $v^*$ (Theorem 8.3: consistent iff $v^*=u$). The loss of information is the angle between that leaf and the truth (8.42): the efficiency is $\sin^2$ of it, and it equals the squared correlation between the true score and the model's score.
+Switch models: $N(v,1)$ is the sample mean ($\tfrac13$), $N(0,v^2)$ is $\sqrt{m_2/2}$ ($\tfrac89$ after relabelling), and $N(v,c\,v^2)$ with the wrong coefficient of variation $c$ is inconsistent but, once relabelled by $f(v)=v/\kappa$, almost efficient. The button simulates $N=4000$ observations, $10^5$ times, from the exact law of $(\bar x,\overline{x^2})$.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>model <select id="w6k"><option value="q5">N(v, c v²): wrong coefficient of variation</option><option value="q1">N(v, 1): mean only</option><option value="q4">N(0, v²): scale only</option></select></label>
+    <label>$c$ <input type="range" id="w6c" min="0.3" max="4" step="0.05" value="1.5"><output id="w6co"></output></label>
+    <label>true $u$ <input type="range" id="w6u" min="0.4" max="2" step="0.05" value="1"><output id="w6uo"></output></label>
+    <button id="w6b" type="button">simulate</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w6l" viewBox="0 0 340 300" role="img" aria-label="The plane of the observed point with the truth, the model and the leaves"></svg></div>
+    <div><svg id="w6r" viewBox="0 0 340 300" role="img" aria-label="Efficiency against the angle of the leaf"></svg></div>
+  </div>
+  <div class="stats" id="w6o"></div>
+</div>
+
+<h2>7. The decoder that ignores correlation</h2>
+<p>Neurons respond with mean $r(u)$ and covariance $V$ (the truth); the model ignores $V$ and uses the identity. Its maximum likelihood estimator is least squares, consistent for every $V$ (Theorem 8.3), and its efficiency is $\lvert r'\rvert^4/\big(r'^{\mathsf T}Vr'\cdot r'^{\mathsf T}V^{-1}r'\big)$: it equals $1$ exactly when $r'$ is an eigenvector of $V$ (Cauchy–Schwarz). So &ldquo;no loss&rdquo; is not a property of the model but of the pair $(V,r')$.
+With two neurons turn the tuning direction against the correlation axis. With a ring of $n$ neurons, bump tuning of width $a$ and Gaussian correlation of range $b$: short-range correlation costs almost nothing, correlation as wide as the tuning curve costs most of the information, uniform correlation costs nothing again, and cosine tuning is an eigenvector of every translation-invariant $V$.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>system <select id="w7k"><option value="two">two neurons</option><option value="ring">ring of n neurons</option></select></label>
+    <label>$\rho$ <input type="range" id="w7r" min="0" max="0.95" step="0.01" value="0.6"><output id="w7ro"></output></label>
+    <label><span id="w7ulab">$u$ (tuning direction)</span> <input type="range" id="w7u" min="0" max="3.14" step="0.01" value="0.7"><output id="w7uo"></output></label>
+    <label class="ringc">$n$ <input type="range" id="w7n" min="10" max="400" step="1" value="100"><output id="w7no"></output></label>
+    <label class="ringc">tuning width $a$ <input type="range" id="w7a" min="0.04" max="0.3" step="0.01" value="0.1"><output id="w7ao"></output></label>
+    <label class="ringc">range $b$ <input type="range" id="w7b" min="0.01" max="0.6" step="0.01" value="0.1"><output id="w7bo"></output></label>
+    <label class="ringc">tuning <select id="w7t"><option value="bump">Gaussian bump</option><option value="cos">cosine</option></select></label>
+    <label class="ringc">correlation <select id="w7c"><option value="gauss">Gaussian range b</option><option value="uniform">uniform</option></select></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w7l" viewBox="0 0 340 300" role="img" aria-label="The two-neuron plane, or the derivative of the tuning curve on the ring"></svg></div>
+    <div><svg id="w7v" viewBox="0 0 340 300" role="img" aria-label="Efficiency against the direction, or against the correlation range"></svg></div>
+  </div>
+  <div class="stats" id="w7o"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+// ---------- numerical core (no DOM): the same mathematics as code/hidden_variables.py
+const SQ2PI=Math.sqrt(2*Math.PI);
+const phi=x=>Math.exp(-0.5*x*x)/SQ2PI;
+function erf(x){
+ const ax=Math.abs(x);let r;
+ if(ax<3){let term=ax,sum=ax;for(let n=1;n<90;n++){term*=-ax*ax/n;sum+=term/(2*n+1)}r=2/Math.sqrt(Math.PI)*sum}
+ else{let f=0;for(let k=80;k>=1;k--)f=(k/2)/(ax+f);r=1-Math.exp(-ax*ax)/Math.sqrt(Math.PI)/(ax+f)}
+ return x<0?-r:r;
+}
+const Phi=x=>0.5*(1+erf(x/Math.SQRT2));
+const sigm=z=>1/(1+Math.exp(-z));
+
+// ----- the two-component mixture with unit variances, xi = [w1, mu1, mu2]
+function resp(y,x){
+ const w1=x[0],w2=1-x[0],n=y.length,R1=new Float64Array(n),lse=new Float64Array(n),c=-0.5*Math.log(2*Math.PI);
+ for(let i=0;i<n;i++){const a1=Math.log(w1)-0.5*(y[i]-x[1])**2+c,a2=Math.log(w2)-0.5*(y[i]-x[2])**2+c,m=Math.max(a1,a2),l=m+Math.log(Math.exp(a1-m)+Math.exp(a2-m));R1[i]=Math.exp(a1-l);lse[i]=l}
+ return {R1,lse};
+}
+function loglikMix(y,x){const {lse}=resp(y,x);let s=0;for(const v of lse)s+=v;return s}
+function mStepFromR(y,R1){ // (8.26): the m-projection of the point R of D onto M
+ let n1=0,n2=0,s1=0,s2=0;const n=y.length;
+ for(let i=0;i<n;i++){n1+=R1[i];n2+=1-R1[i];s1+=R1[i]*y[i];s2+=(1-R1[i])*y[i]}
+ return [n1/n,s1/n1,s2/n2];
+}
+function emStepMix(y,x){return mStepFromR(y,resp(y,x).R1)}
+function klJoint(xa,xb){ // KL[p_xa : p_xb] of the complete-data distributions
+ const wa=[xa[0],1-xa[0]],wb=[xb[0],1-xb[0]],ma=[xa[1],xa[2]],mb=[xb[1],xb[2]];let s=0;
+ for(let k=0;k<2;k++)s+=wa[k]*(Math.log(wa[k]/wb[k])+0.5*(ma[k]-mb[k])**2);return s;
+}
+function klRowsMix(R1,R2){let s=0;for(let i=0;i<R1.length;i++){const a=R1[i],b=R2[i];if(a>0)s+=a*Math.log(a/b);if(a<1)s+=(1-a)*Math.log((1-a)/(1-b))}return s/R1.length}
+function Fenergy(y,R1,x){ // F(R, xi) of the notes: divergence of the point R of D from the point xi of M, constant dropped
+ const w=[x[0],1-x[0]],m=[x[1],x[2]],n=y.length;let s=0;
+ for(let i=0;i<n;i++){const r=[R1[i],1-R1[i]];for(let k=0;k<2;k++){if(r[k]>0)s+=r[k]*(Math.log(r[k])-Math.log(w[k])+0.5*(y[i]-m[k])**2+0.5*Math.log(2*Math.PI))}}
+ return s/n;
+}
+
+// ----- quadrature on a grid for population quantities
+const DYG=0.02,YG=[];for(let i=0;i<=1400;i++)YG.push(-14+DYG*i);
+function popQuant(w1,m1,m2){
+ const GY=[[0,0,0],[0,0,0],[0,0,0]],GM=[[0,0,0],[0,0,0],[0,0,0]];
+ for(const y of YG){
+  const p1=w1*phi(y-m1),p2=(1-w1)*phi(y-m2),py=p1+p2,R1=p1/py,R2=p2/py;
+  const s1=[1/w1,y-m1,0],s2=[-1/(1-w1),0,y-m2],sY=[0,1,2].map(i=>R1*s1[i]+R2*s2[i]);
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+   GY[i][j]+=py*sY[i]*sY[j]*DYG;
+   GM[i][j]+=py*(R1*s1[i]*s1[j]+R2*s2[i]*s2[j]-sY[i]*sY[j])*DYG;
+  }
+ }
+ const GX=[[1/(w1*(1-w1)),0,0],[0,w1,0],[0,0,1-w1]];
+ return {GX,GY,GM};
+}
+function popEm(x,tr){ // EM when the data are the whole density tr = [w, mu1, mu2]
+ const w1=x[0];let n1=0,n2=0,s1=0,s2=0;
+ for(const y of YG){
+  const p1=w1*phi(y-x[1]),p2=(1-w1)*phi(y-x[2]),R1=p1/(p1+p2),py0=tr[0]*phi(y-tr[1])+(1-tr[0])*phi(y-tr[2]);
+  n1+=py0*R1;n2+=py0*(1-R1);s1+=py0*R1*y;s2+=py0*(1-R1)*y;
+ }
+ n1*=DYG;n2*=DYG;s1*=DYG;s2*=DYG;return [n1,s1/n1,s2/n2];
+}
+function eigSym3(A){ // Jacobi
+ const a=A.map(r=>r.slice());
+ for(let sweep=0;sweep<60;sweep++){
+  let off=0;for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)off+=a[i][j]*a[i][j];if(off<1e-30)break;
+  for(let p=0;p<2;p++)for(let q=p+1;q<3;q++){
+   if(Math.abs(a[p][q])<1e-300)continue;
+   const th=(a[q][q]-a[p][p])/(2*a[p][q]),t=Math.sign(th||1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;
+   for(let k=0;k<3;k++){const akp=a[k][p],akq=a[k][q];a[k][p]=c*akp-s*akq;a[k][q]=s*akp+c*akq}
+   for(let k=0;k<3;k++){const apk=a[p][k],aqk=a[q][k];a[p][k]=c*apk-s*aqk;a[q][k]=s*apk+c*aqk}
+  }
+ }
+ return [a[0][0],a[1][1],a[2][2]].sort((u,v)=>v-u);
+}
+function missingEigs(GX,GM){const d=[0,1,2].map(i=>1/Math.sqrt(GX[i][i]));return eigSym3([0,1,2].map(i=>[0,1,2].map(j=>d[i]*GM[i][j]*d[j])))}
+
+// ----- the symmetric model 0.5 N(-m,1) + 0.5 N(m,1)
+function symRate(m){let s=0;for(const y of YG)s+=phi(y-m)*y*y/Math.cosh(m*y)**2;return s*DYG}
+function symEm(mm,m){let s=0;for(const y of YG)s+=phi(y-m)*y*Math.tanh(mm*y);return s*DYG}
+function nullEm(mm){let s=0;for(const y of YG)s+=phi(y)*y*Math.tanh(mm*y);return s*DYG}
+
+// ----- grouping and censoring of N(mu, s^2)
+function groupedInfo(mu,s,h){
+ const K=Math.ceil((10*s+Math.abs(mu))/h)+2,g=[[0,0],[0,0]];
+ for(let k=-K;k<K;k++){
+  const z0=(k*h-mu)/s,z1=((k+1)*h-mu)/s,P=Phi(z1)-Phi(z0);if(P<1e-300)continue;
+  const d=[-(phi(z1)-phi(z0))/s,-(z1*phi(z1)-z0*phi(z0))/s];
+  for(let i=0;i<2;i++)for(let j=0;j<2;j++)g[i][j]+=d[i]*d[j]/P;
+ }
+ return g;
+}
+function scoreN(x,mu,s){return [(x-mu)/(s*s),((x-mu)**2-s*s)/s**3]}
+function simpson(f,a,b,n){const h=(b-a)/n;let s=f(a)+f(b);for(let i=1;i<n;i++)s+=f(a+i*h)*(i%2?4:2);return s*h/3}
+function censoredInfo(mu,s,c){
+ const lo=mu-12*s,hi=Math.max(mu+12*s,c+1);
+ const P=simpson(x=>phi((x-mu)/s)/s,c,hi,4000);
+ const sbar=[0,1].map(i=>simpson(x=>phi((x-mu)/s)/s*scoreN(x,mu,s)[i],c,hi,4000)/P);
+ const gL=[[0,0],[0,0]],gC=[[0,0],[0,0]];
+ for(let i=0;i<2;i++)for(let j=0;j<2;j++){
+  gL[i][j]=simpson(x=>phi((x-mu)/s)/s*scoreN(x,mu,s)[i]*scoreN(x,mu,s)[j],lo,c,4000);
+  gC[i][j]=simpson(x=>phi((x-mu)/s)/s*(scoreN(x,mu,s)[i]-sbar[i])*(scoreN(x,mu,s)[j]-sbar[j]),c,hi,4000);
+ }
+ const gT=[[0,0],[0,0]];for(let i=0;i<2;i++)for(let j=0;j<2;j++)gT[i][j]=gL[i][j]+P*sbar[i]*sbar[j];
+ return {gT,gC,P};
+}
+
+// ----- misspecified models of the Gaussian family with statistics (x, x^2); the truth is N(u, u^2)
+function qScore(model,c,x,v){
+ if(model==="q1")return x-v;
+ if(model==="q4")return -1/v+x*x/v**3;
+ return -1/v+(x-v)/(c*v*v)+(x-v)**2/(c*v**3);
+}
+function qD2(model,c,x,v){
+ if(model==="q1")return -1;
+ if(model==="q4")return 1/(v*v)-3*x*x/v**4;
+ return 1/(v*v)-1/(c*v*v)-4*(x-v)/(c*v**3)-3*(x-v)**2/(c*v**4);
+}
+function qThetaD(model,c,v){
+ if(model==="q1")return [1,0];
+ if(model==="q4")return [0,1/v**3];
+ return [-1/(c*v*v),1/(c*v**3)];
+}
+function qEta(model,c,v){
+ if(model==="q1")return [v,v*v+1];
+ if(model==="q4")return [0,v*v];
+ return [v,(1+c)*v*v];
+}
+function EpN(f,u){ // E[f(x)], x ~ N(u,u^2), trapezoid on z in [-10,10]
+ let s=0;const h=0.01;for(let i=0;i<=2000;i++){const z=-10+h*i;s+=f(u+u*z)*phi(z)}return s*h;
+}
+function pseudoTrue(model,c,u){
+ const f=v=>EpN(x=>qScore(model,c,x,v),u);
+ let a=1e-3,b=12,fa=f(a);
+ for(let i=0;i<70;i++){const m=0.5*(a+b),fm=f(m);if((fm>0)===(fa>0)){a=m;fa=fm}else b=m}
+ return 0.5*(a+b);
+}
+function kappaOf(model,c){return model==="q1"?1:model==="q4"?Math.SQRT2:(-1+Math.sqrt(1+8*c))/(2*c)}
+function misspecEff(model,c,u){
+ const v=pseudoTrue(model,c,u),th=qThetaD(model,c,v),G=[[u*u,2*u**3],[2*u**3,6*u**4]],det=G[0][0]*G[1][1]-G[0][1]*G[1][0];
+ const Gi=[[G[1][1]/det,-G[0][1]/det],[-G[1][0]/det,G[0][0]/det]],t=[1,4*u],d=[-th[1],th[0]];
+ const ip=(a,b)=>a[0]*(Gi[0][0]*b[0]+Gi[0][1]*b[1])+a[1]*(Gi[1][0]*b[0]+Gi[1][1]*b[1]);
+ const guu=ip(t,t),guv=ip(t,d),gvv=ip(d,d),loss=guv*guv/gvv,effA=1-loss/guu;
+ const A=-EpN(x=>qD2(model,c,x,v),u),B=EpN(x=>qScore(model,c,x,v)**2,u),h=1e-4*u;
+ const dvdu=(pseudoTrue(model,c,u+h)-pseudoTrue(model,c,u-h))/(2*h);
+ const varB=B/(A*A)/(dvdu*dvdu),effB=(1/guu)/varB;
+ const sp=x=>-1/u+(x-u)/(u*u)+(x-u)**2/u**3;
+ const cov=EpN(x=>sp(x)*qScore(model,c,x,v),u),vp=EpN(x=>sp(x)**2,u),vq=EpN(x=>qScore(model,c,x,v)**2,u);
+ return {v,kappa:v/u,guu,loss,effA,effB,effC:cov*cov/(vp*vq),varA:1/(guu-loss),A,B};
+}
+function qEstimator(model,c,a,b){return model==="q1"?a:model==="q4"?Math.sqrt(b):(-a+Math.sqrt(a*a+4*c*b))/(2*c)}
+
+// ----- Gaussian neurons: truth N(r(u), V), model N(r(u), I)
+function effFormula(rp,V){ // |r'|^4 / ((r'^T V r')(r'^T V^-1 r')) for a small dense V (two neurons)
+ const n=rp.length;let rr=0;for(const v of rp)rr+=v*v;
+ const Vr=V.map(row=>row.reduce((s,x,j)=>s+x*rp[j],0));
+ let a=0;for(let i=0;i<n;i++)a+=rp[i]*Vr[i];
+ // solve V z = r'
+ const M=V.map((row,i)=>row.concat([rp[i]]));
+ for(let i=0;i<n;i++){let p=i;for(let k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;[M[i],M[p]]=[M[p],M[i]];for(let k=i+1;k<n;k++){const f=M[k][i]/M[i][i];for(let j=i;j<=n;j++)M[k][j]-=f*M[i][j]}}
+ const z=new Array(n).fill(0);for(let i=n-1;i>=0;i--){let s=M[i][n];for(let j=i+1;j<n;j++)s-=M[i][j]*z[j];z[i]=s/M[i][i]}
+ let b=0;for(let i=0;i<n;i++)b+=rp[i]*z[i];
+ return rr*rr/(a*b);
+}
+const _ringCache={};
+function ringSpectrum(n,a,tuning){ // |DFT of r'|^2 for a ring of n neurons, stimulus u = 0.5
+ const key=n+"|"+a+"|"+tuning;if(_ringCache[key])return _ringCache[key];
+ const rp=new Float64Array(n);
+ for(let j=0;j<n;j++){
+  if(tuning==="cos")rp[j]=2*Math.PI*Math.sin(2*Math.PI*(j/n-0.5));
+  else{const d=((j/n)%1+1)%1-0.5;rp[j]=Math.exp(-d*d/(2*a*a))*d/(a*a)}
+ }
+ const P=new Float64Array(n);
+ for(let k=0;k<n;k++){let rr=0,ri=0;for(let j=0;j<n;j++){const ang=2*Math.PI*((j*k)%n)/n;rr+=rp[j]*Math.cos(ang);ri-=rp[j]*Math.sin(ang)}P[k]=rr*rr+ri*ri}
+ let sum=0;for(const v of rp)sum+=v;
+ return _ringCache[key]={rp,P,sum};
+}
+function ringRow(n,rho,b,corr){ // first row of the circulant covariance (1-rho) I + rho K
+ const row=new Float64Array(n);
+ if(corr==="uniform"){for(let j=0;j<n;j++)row[j]=(1-rho)*(j===0?1:0)+rho}
+ else{let k0=0;for(let k=-3;k<=3;k++)k0+=Math.exp(-k*k/(2*b*b));
+  for(let j=0;j<n;j++){let dd=j/n;dd=Math.min(dd,1-dd);let s=0;for(let k=-3;k<=3;k++)s+=Math.exp(-((dd+k)**2)/(2*b*b));row[j]=(1-rho)*(j===0?1:0)+rho*s/k0}}
+ return row;
+}
+function ringEff(n,a,rho,b,tuning,corr){
+ const {rp,P,sum}=ringSpectrum(n,a,tuning),row=ringRow(n,rho,b,corr);
+ let S0=0,S1=0,S2=0;
+ for(let k=0;k<n;k++){let lam=0;for(let j=0;j<n;j++)lam+=row[j]*Math.cos(2*Math.PI*((j*k)%n)/n);S0+=P[k];S1+=lam*P[k];S2+=P[k]/lam}
+ return {eff:S0*S0/(S1*S2),sumrp:sum,rp,row};
+}
+
+// the 200 observations of the script (three decimals): sum 129.938, sum of squares 617.762
+const Y200=[-1.52,-2.298,-1.047,1.989,1.807,0.875,0.967,0.437,2.24,-1.392,2.399,2.322,0.207,1.959,2.326,1.655,1.376,-2.487,-2.312,-0.01,-2.201,0.639,0.888,-2.065,0.325,2.126,-1.992,2.039,0.377,0.903,1.317,-2.244,1.398,0.061,1.339,-3.417,1.983,-0.297,-0.11,2.278,2.992,-1.49,4.482,1.493,0.081,1.901,-0.809,-0.657,1.989,0.16,1.704,-0.395,0.425,-1.935,0.536,0.752,-1.215,-0.115,-0.953,-2.134,2.093,1.105,-1.196,4.687,2.134,0.888,-1.041,1.99,0.142,-1.85,-2.237,-0.122,-2.043,-0.978,1.887,-1.909,-1.218,1.075,-0.425,-0.212,0.802,3.552,2.975,-0.374,0.773,-1.782,3.207,1.661,-0.278,3.828,2.254,0.589,1.567,3.209,2.4,-0.496,3.469,1.561,0.9,1.283,-1.48,-3.525,0.645,1.583,0.131,-1.418,-0.019,0.733,2.213,-0.499,-0.765,1.028,-1.915,-0.031,3.98,2.265,-1.595,1.805,2.244,-1.508,-0.01,1.052,1.208,-0.955,0.521,0.223,-0.584,-0.347,3.469,1.622,2.243,2.921,-0.045,1.126,1.338,-0.861,-0.637,2.7,1.918,-1.063,1.076,-2.186,2.556,2.291,0.37,1.48,0.449,-0.314,0.655,0.887,0.236,0.6,2.454,1.81,-1.292,3.279,0.702,1.22,0.938,2.972,-0.75,2.229,0.863,-1.268,1.026,-0.53,2.334,1.809,-1.128,0.892,-1.175,0.929,3.896,1.725,-0.216,2.216,1.826,2.138,-2.99,0.601,-1.3,2.338,0.015,0.65,0.974,2.727,0.948,-0.564,1.526,2.117,3.679,-0.172,1.88,1.238,0.356,0.688,3.172,0.46,0.345,1.018];
+// ---------- drawing helpers
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(S,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},S);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},S).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},S).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},S).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},S));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,S,G:el("g",{"clip-path":"url(#"+id+")"},S)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5),f6=v=>v.toFixed(6);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.S);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.S).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.S);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.S).textContent=(fy||f2)(v)})};
+const dots=(P,pts,col,r)=>pts.forEach(q=>el("circle",{cx:P.X(q[0]),cy:P.Y(q[1]),r:r||3.5,fill:col},P.G));
+function runs(P,xs,ys,col,w,dash){ // polyline split at non-finite values
+ let cur=[];const flush=()=>{if(cur.length>1)path(P.G,cur,col,w,dash);cur=[]};
+ for(let i=0;i<xs.length;i++){if(isFinite(xs[i])&&isFinite(ys[i]))cur.push([P.X(xs[i]),P.Y(ys[i])]);else flush()}flush();
+}
+function leg(S,x,y,items){items.forEach((it,k)=>{el("line",{x1:x,x2:x+18,y1:y+k*14,y2:y+k*14,stroke:it[0],"stroke-width":2.4,"stroke-dasharray":it[2]||""},S);el("text",{x:x+23,y:y+k*14+3.5,fill:"var(--muted)","font-size":10},S).textContent=it[1]})}
+
+// ---------- seeded randomness (for the one simulation): generator, normal, gamma (Marsaglia-Tsang)
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mkRand(seed){
+ const U=rng(seed);let spare=null;
+ const N01=()=>{if(spare!==null){const s=spare;spare=null;return s}let u=0,v=0;while(u===0)u=U();v=U();const r=Math.sqrt(-2*Math.log(u));spare=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v)};
+ const gam=k=>{if(k<1){return gam(k+1)*Math.pow(U(),1/k)}const d=k-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{x=N01();v=1+c*x}while(v<=0);v=v*v*v;const u=U();if(u<1-0.0331*x*x*x*x)return d*v;if(Math.log(u)<0.5*x*x+d*(1-v+Math.log(v)))return d*v}};
+ return {U,N01,gam};
+}
+
+// ===== widget 1: EM one projection at a time (the sample of the script)
+(function(){
+ const N=Y200.length,ybar=Y200.reduce((a,b)=>a+b,0)/N;
+ const starts={a:[0.5,-0.5,0.5],b:[0.5,ybar,ybar],c:[0.5,0.5,-0.5],d:[0.5,3,3.5],e:[0.5,ybar+1e-6,ybar-1e-6]};
+ let xs=starts.a.slice();for(let i=0;i<400;i++)xs=emStepMix(Y200,xs);
+ const Fstar=-loglikMix(Y200,xs)/N;
+ let st;
+ function reset(){const x=starts[g("w1s").value].slice();st={x,R:null,stale:true,t:0,hist:[],lastM:null,llOld:null};draw()}
+ function doE(){if(!st.stale&&st.R)return;st.R=resp(Y200,st.x).R1;st.stale=false;st.hist.push({k:"E",F:Fenergy(Y200,st.R,st.x)})}
+ function doM(){
+  if(!st.R)doE();
+  if(st.stale)return;
+  const xn=mStepFromR(Y200,st.R);st.lastM=klJoint(xn,st.x);st.llOld=loglikMix(Y200,st.x);st.x=xn;st.stale=true;st.t++;
+  st.hist.push({k:"M",F:Fenergy(Y200,st.R,xn)});
+ }
+ function draw(){
+  const x=st.x,L=g("w1l");clear(L);
+  const P=axes(L,44,14,286,244,[-4,5.5],[0,0.5],"200 observations and the mixture at ξ_t","y","density");
+  ticks(P,[-4,-2,0,2,4],[0,0.1,0.2,0.3,0.4,0.5],v=>v.toFixed(0),f2);
+  const bw=0.25,nb=38,H=new Array(nb).fill(0);for(const v of Y200){const j=Math.floor((v+4)/bw);if(j>=0&&j<nb)H[j]++}
+  for(let j=0;j<nb;j++){const d=H[j]/(N*bw);el("rect",{x:P.X(-4+j*bw)+0.5,y:P.Y(d),width:P.w*bw/9.5-1,height:P.y0+P.h-P.Y(d),fill:"var(--faint)",opacity:.35},P.G)}
+  const ys=[],tot=[],c1=[],c2=[];for(let i=0;i<=190;i++){const t=-4+9.5*i/190;ys.push(t);c1.push(x[0]*phi(t-x[1]));c2.push((1-x[0])*phi(t-x[2]));tot.push(c1[i]+c2[i])}
+  runs(P,ys,c1,"var(--s1)",1.6);runs(P,ys,c2,"var(--s2)",1.6);runs(P,ys,tot,"var(--ink)",2.2);
+  Y200.forEach((v,i)=>{const r=st.R&&!st.stale?st.R[i]:null;const col=r===null?"var(--faint)":`rgb(${Math.round(235*(1-r)+42*r)},${Math.round(104*(1-r)+120*r)},${Math.round(52*(1-r)+214*r)})`;el("circle",{cx:P.X(v),cy:P.y0+P.h-5-((i*7)%5)*3,r:2,fill:col,opacity:.9},P.G)});
+  const R=g("w1v");clear(R);
+  const hist=st.hist,Fs=hist.map(h=>h.F),fmax=Fs.length?Math.max(...Fs):2.3,fmin=Math.min(Fstar,...(Fs.length?Fs:[Fstar]));
+  const Q=axes(R,44,14,286,244,[0,Math.max(6,hist.length)],[fmin-0.02,fmax+0.03],"divergence F(R, ξ) after each half-step","half-steps (E, M, E, M, …)","F  (= −loglik/N after an E-step)");
+  ticks(Q,[],[]);
+  if(!hist.length)el("text",{x:Q.x0+Q.w/2,y:Q.y0+Q.h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":12},R).textContent="press E-step, M-step or step";
+  path(Q.G,[[Q.X(0),Q.Y(Fstar)],[Q.X(Math.max(6,hist.length)),Q.Y(Fstar)]],"var(--faint)",1.2,"5 3");
+  hist.forEach((h,i)=>{if(i>0)path(Q.G,[[Q.X(i-1),Q.Y(hist[i-1].F)],[Q.X(i),Q.Y(h.F)]],h.k==="E"?"var(--s1)":"var(--s2)",2.4)});
+  hist.forEach((h,i)=>el("circle",{cx:Q.X(i),cy:Q.Y(h.F),r:3,fill:h.k==="E"?"var(--s1)":"var(--s2)"},Q.G));
+  for(let k=0;k<=Math.max(6,hist.length);k+=2)el("text",{x:Q.X(k),y:Q.y0+Q.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},R).textContent=k;
+  el("text",{x:Q.x0+Q.w-4,y:Q.Y(Fstar)-5,"text-anchor":"end",fill:"var(--muted)","font-size":10},R).textContent="minimum: −loglik*/N = "+f5(Fstar);
+  // readouts
+  const ll=loglikMix(Y200,x),post=resp(Y200,x).R1;
+  let s=`<div>step <b>${st.t}</b>: ξ = (w ${f4(x[0])}, μ ${f4(x[1])}, ${f4(x[2])})</div><div>loglik <b>${f6(ll)}</b></div>`;
+  if(st.R){const F=Fenergy(Y200,st.R,x);s+=`<div>F(R, ξ) = <b>${f5(F)}</b>${st.stale?"":" = −loglik/N"}</div>`}
+  if(st.lastM!==null){const E=st.stale&&st.R?klRowsMix(st.R,post):0;s+=`<div>last M-step lowered F by KL[p_new : p_old] = <b>${f5(st.lastM)}</b></div>`;
+   if(st.stale)s+=`<div>the next E-step lowers it by (1/N) Σ KL[R_i ‖ posterior] = <b>${f5(E)}</b></div><div>loglik gain of this step / N = <b>${f5((ll-st.llOld)/N)}</b> = M part + E part = ${f5(st.lastM+E)}</div>`}
+  g("w1o").innerHTML=s;
+ }
+ g("w1e").addEventListener("click",()=>{doE();draw()});
+ g("w1m").addEventListener("click",()=>{doM();draw()});
+ g("w1t").addEventListener("click",()=>{doE();doM();draw()});
+ g("w1r").addEventListener("click",()=>{for(let i=0;i<20;i++){doE();doM()}draw()});
+ g("w1z").addEventListener("click",reset);g("w1s").addEventListener("change",reset);reset();
+})();
+
+// ===== widget 2: the staircase for one observation
+(function(){
+ function draw(){
+  const y=+g("w2y").value,m0=+g("w2m").value;g("w2yo").textContent=f2(y);g("w2mo").textContent=f2(m0);
+  let m=m0,a=0.5;const pts=[[m,a]],its=[];
+  for(let t=0;t<8;t++){a=sigm(2*y*m);pts.push([m,a]);m=(2*a-1)*y;pts.push([m,a]);its.push(m)}
+  let mstar=null;if(y>1){let lo=0.5*y,hi=y*1.5+1;const f=v=>v-y*Math.tanh(v*y);lo=1e-3;for(let i=0;i<100;i++){const mid=(lo+hi)/2;if(f(mid)<0)lo=mid;else hi=mid}mstar=(lo+hi)/2}
+  const xmax=Math.max(2.3,(mstar||0)*1.2),L=g("w2l");clear(L);
+  const P=axes(L,44,14,286,244,[-0.3,xmax],[0,1.1],"a (point of D) against m (point of M)","m","a");
+  ticks(P,[0,0.5,1,1.5,2,2.5].filter(v=>v<xmax),[0,0.25,0.5,0.75,1]);
+  const A=a_=>a_*Math.log(a_)+(1-a_)*Math.log(1-a_)+2*y*y*a_*(1-a_);
+  for(const Lv of [0.03,0.12,0.35,0.8,1.6,3.2]){
+   const xp=[],xn=[],ag=[];for(let i=0;i<=600;i++){const a_=1e-4+(1-2e-4)*i/600,v=2*(Lv-A(a_));ag.push(a_);if(v>=0){xp.push((2*a_-1)*y+Math.sqrt(v));xn.push((2*a_-1)*y-Math.sqrt(v))}else{xp.push(NaN);xn.push(NaN)}}
+   runs(P,xp,ag,"var(--faint)",0.9);runs(P,xn,ag,"var(--faint)",0.9);
+  }
+  const mg=[],ea=[],ma=[];for(let i=0;i<=200;i++){const t=-0.3+(xmax+0.3)*i/200;mg.push(t);ea.push(sigm(2*y*t));ma.push(0.5*(1+t/y))}
+  runs(P,mg,ea,"var(--s1)",2.2);runs(P,mg,ma,"var(--s2)",2.2);
+  path(P.G,pts.map(q=>[P.X(q[0]),P.Y(q[1])]),"var(--ink)",1.8);
+  dots(P,[[0,0.5]],"var(--faint)",4.5);if(mstar!==null)dots(P,[[mstar,sigm(2*y*mstar)]],"var(--s4)",4.5);dots(P,[[m0,0.5]],"var(--s2)",3);
+  leg(L,44+130,14+176,[["var(--s1)","E-step: a = σ(2my)"],["var(--s2)","M-step: m = (2a − 1)y"],["var(--ink)","EM from m₀"]]);
+  const R=g("w2r");clear(R);
+  const ll=t=>Math.log(0.5*phi(y-t)+0.5*phi(y+t)),xs=[],ls=[];for(let i=0;i<=200;i++){const t=-0.3+(xmax+0.3)*i/200;xs.push(t);ls.push(ll(t))}
+  const lmin=Math.min(...ls),lmax=Math.max(...ls);
+  const Q=axes(R,44,14,286,244,[-0.3,xmax],[lmin-0.05,lmax+0.1],"log p_Y(y; m): the likelihood of one observation","m","");
+  ticks(Q,[0,0.5,1,1.5,2,2.5].filter(v=>v<xmax),[]);
+  runs(Q,xs,ls,"var(--ink)",2.2);
+  dots(Q,[[m0,ll(m0)],...its.map(v=>[v,ll(v)])],"var(--s2)",3);path(Q.G,[[Q.X(0),Q.y0],[Q.X(0),Q.y0+Q.h]],"var(--faint)",1,"3 3");
+  g("w2o").innerHTML=`<div>iterates m<sub>t</sub> = <b>${its.slice(0,6).map(f5).join(", ")}</b></div>`+(mstar!==null?`<div>fixed point m* = <b>${f6(mstar)}</b>, slope y² sech²(m* y) = <b>${f5(y*y/Math.cosh(mstar*y)**2)}</b></div>`:`<div>only fixed point m = 0 (|y| ≤ 1), a maximum</div>`)+`<div>slope at m = 0: y² = <b>${f4(y*y)}</b> ${y*y>1?"(&gt; 1: repelling, a minimum of the likelihood)":"(&lt; 1: attracting)"}</div>`;
+ }
+ ["w2y","w2m"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: the speed of EM
+(function(){
+ let nullCache=null;
+ function nullRun(){
+  if(nullCache)return nullCache;
+  let m=1,it=0;const at={},traj=[1];
+  while(m>0.01&&it<100000){m=nullEm(m);it++;if(it<=200)traj.push(m);if(it===10||it===100||it===1000)at[it]=m}
+  return nullCache={steps:it,at,traj};
+ }
+ function draw(){
+  const mode=g("w3d").value,m=+g("w3m").value;g("w3mo").textContent=f2(m);
+  const L=g("w3l"),R=g("w3v");clear(L);clear(R);
+  if(mode==="mix"){
+   const rate=symRate(m);let mm=m+0.001;const errs=[0.001];
+   for(let t=0;t<20000;t++){mm=symEm(mm,m);errs.push(Math.abs(mm-m));if(errs[errs.length-1]<1e-10)break}
+   const steps=errs.length-1;let meas=NaN;for(let t=errs.length-1;t>0;t--){if(errs[t]>=1e-7){meas=errs[t]/errs[t-1];break}}
+   const mmax=m+1.8,P=axes(L,44,14,286,244,[0,mmax],[0,mmax],"EM map m → E[y tanh(m y)] and a cobweb","m_t","m_(t+1)");ticks(P,[0,1,2,3,4,5].filter(v=>v<mmax),[0,1,2,3,4,5].filter(v=>v<mmax));
+   path(P.G,[[P.X(0),P.Y(0)],[P.X(mmax),P.Y(mmax)]],"var(--faint)",1.2,"5 3");
+   const xs=[],ys=[];for(let i=0;i<=120;i++){const t=mmax*i/120;xs.push(t);ys.push(symEm(t,m))}runs(P,xs,ys,"var(--s1)",2.4);
+   let cur=m+1.2;const cw=[[P.X(cur),P.Y(0)]];for(let k=0;k<14;k++){const nx=symEm(cur,m);cw.push([P.X(cur),P.Y(nx)],[P.X(nx),P.Y(nx)]);cur=nx}path(P.G,cw,"var(--s2)",1.2);
+   dots(P,[[m,m]],"var(--s4)",4.5);
+   const tmax=Math.max(2,Math.min(steps,60)),Q=axes(R,44,14,286,244,[0,tmax],[-10.5,-2],"error |m_t − m| from a start 0.001 away","step t","log₁₀ error");ticks(Q,[0,1,2,3,4].map(i=>Math.round(tmax*i/4)),[-10,-8,-6,-4],v=>v.toFixed(0),v=>v.toFixed(0));
+   const ex=[],ey=[];for(let t=0;t<errs.length&&t<=60;t++){ex.push(t);ey.push(errs[t]>0?Math.log10(errs[t]):-12)}runs(Q,ex,ey,"var(--s1)",2.4);dots(Q,ex.map((t,i)=>[t,ey[i]]),"var(--s1)",2.5);
+   const lr=Math.log10(rate);if(rate>0&&rate<1)path(Q.G,[[Q.X(0),Q.Y(-3)],[Q.X(tmax),Q.Y(-3+lr*tmax)]],"var(--s2)",1.2,"4 3");
+   g("w3o").innerHTML=`<div>true m = <b>${f2(m)}</b>: rate 1 − I<sub>o</sub> = E[y² sech²(m y)] = <b>${f6(rate)}</b>, I<sub>o</sub>(m) = ${f6(1-rate)}</div><div>measured contraction <b>${isNaN(meas)?"(exact in one step)":f6(meas)}</b></div><div>steps from error 0.001 to below 1e-10: <b>${steps}</b></div>`;
+  }else{
+   const nr=nullRun(),P=axes(L,44,14,286,244,[0,1.2],[0,1.2],"EM map for N(0,1) data: m → E[Z tanh(m Z)]","m_t","m_(t+1)");ticks(P,[0,0.5,1],[0,0.5,1]);
+   path(P.G,[[P.X(0),P.Y(0)],[P.X(1.2),P.Y(1.2)]],"var(--faint)",1.2,"5 3");
+   const xs=[],ys=[];for(let i=0;i<=80;i++){const t=1.2*i/80;xs.push(t);ys.push(nullEm(t))}runs(P,xs,ys,"var(--s1)",2.4);
+   let cur=1;const cw=[[P.X(cur),P.Y(0)]];for(let k=0;k<30;k++){const nx=nullEm(cur);cw.push([P.X(cur),P.Y(nx)],[P.X(nx),P.Y(nx)]);cur=nx}path(P.G,cw,"var(--s2)",1.2);dots(P,[[0,0]],"var(--s4)",4.5);
+   const Q=axes(R,44,14,286,244,[0,200],[0,1],"m_t against the number of steps","step t","m_t");ticks(Q,[0,50,100,150,200],[0,0.25,0.5,0.75,1]);
+   runs(Q,nr.traj.map((_,i)=>i),nr.traj,"var(--s1)",2.4);const pr=nr.traj.map((_,i)=>1/Math.sqrt(2*i+1));runs(Q,nr.traj.map((_,i)=>i),pr,"var(--s2)",1.4,"4 3");
+   g("w3o").innerHTML=`<div>fixed point m = 0, slope 1: after 10, 100, 1000 steps from m = 1: m<sub>t</sub> = <b>${f5(nr.at[10])}, ${f5(nr.at[100])}, ${f5(nr.at[1000])}</b></div><div>prediction 1/√(2t+1): ${f5(1/Math.sqrt(21))}, ${f5(1/Math.sqrt(201))}, ${f5(1/Math.sqrt(2001))}</div><div>steps to get below 0.01: <b>${nr.steps}</b> (prediction 1/(2·0.01²) = 5000)</div>`;
+  }
+ }
+ g("w3d").addEventListener("change",draw);g("w3m").addEventListener("input",draw);draw();
+})();
+
+// ===== widget 4: the identity (8.30) for the three-parameter mixture
+(function(){
+ const tbl=(name,M)=>`<table class="t"><tr><th>${name}</th><th>w</th><th>μ₁</th><th>μ₂</th></tr>`+["w","μ₁","μ₂"].map((lab,i)=>`<tr><td>${lab}</td>${M[i].map(v=>`<td>${sg(v,4)}</td>`).join("")}</tr>`).join("")+`</table>`;
+ function draw(){
+  const w=+g("w4w").value,D=+g("w4d").value;g("w4wo").textContent=f2(w);g("w4do").textContent=f2(D);
+  const q=popQuant(w,0,D),ev=missingEigs(q.GX,q.GM);
+  let res=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++)res=Math.max(res,Math.abs(q.GX[i][j]-q.GY[i][j]-q.GM[i][j]));
+  const tr=[w,0,D],w0=w+0.15<0.99?w+0.15:w-0.15;let x=[w0,0.5,D-1.0],errs=[];for(let t=0;t<60;t++){x=popEm(x,tr);errs.push(Math.hypot(x[0]-tr[0],x[1]-tr[1],x[2]-tr[2]))}
+  const L=g("w4l");clear(L);
+  const P=axes(L,44,14,286,206,[-3,D+3],[0,0.5],"mixture density and its two components","y","");ticks(P,[-2,0,2,4,6].filter(v=>v<D+3),[0,0.2,0.4]);
+  const ys=[],tot=[],c1=[],c2=[];for(let i=0;i<=200;i++){const t=-3+(D+6)*i/200;ys.push(t);c1.push(w*phi(t));c2.push((1-w)*phi(t-D));tot.push(c1[i]+c2[i])}
+  runs(P,ys,c1,"var(--s1)",1.6);runs(P,ys,c2,"var(--s2)",1.6);runs(P,ys,tot,"var(--ink)",2.2);
+  const R=g("w4r");clear(R);
+  const Q=axes(R,44,14,286,206,[0,3],[0,1.05],"fraction of the information that is missing","","");ticks(Q,[],[0,0.25,0.5,0.75,1]);
+  ev.forEach((v,i)=>{el("rect",{x:Q.X(i+0.2),y:Q.Y(Math.max(v,0)),width:Q.w/3*0.6,height:Math.max(Q.y0+Q.h-Q.Y(Math.max(v,0)),0.5),fill:["var(--s2)","var(--s1)","var(--s3)"][i],opacity:.85},Q.G);el("text",{x:Q.X(i+0.5),y:Q.Y(Math.max(v,0))-5,"text-anchor":"middle",fill:"var(--ink)","font-size":11},R).textContent=f5(Math.max(v,0))});
+  ["largest","second","smallest"].forEach((lab,i)=>el("text",{x:Q.X(i+0.5),y:Q.y0+Q.h+13,"text-anchor":"middle",fill:"var(--muted)","font-size":10},R).textContent=lab);
+  let tl=0;for(let t=1;t<errs.length;t++)if(errs[t]>=1e-9)tl=t;const m50=tl>0?errs[tl]/errs[tl-1]:NaN;
+  if(m50===m50)path(Q.G,[[Q.X(0),Q.Y(m50)],[Q.X(3),Q.Y(m50)]],"var(--faint)",1.2,"5 3");
+  g("w4t").innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px">${tbl("G<sub>X</sub>",q.GX)}${tbl("G<sub>Y</sub>",q.GY)}${tbl("G<sub>X|Y</sub>",q.GM)}</div>`;
+  g("w4o").innerHTML=`<div>(8.30): largest |G<sub>X</sub> − G<sub>Y</sub> − G<sub>X|Y</sub>| = <b>${res.toExponential(1)}</b></div><div>eigenvalues of G<sub>X</sub><sup>−1</sup>G<sub>X|Y</sub>: <b>${ev.map(v=>f5(Math.max(v,0))).join(", ")}</b></div><div>EM on the whole density from (w±0.15, 0.5, Δ−1) (+ unless that leaves [0, 1]): contraction at the last step with error above 1e-9 <b>${m50===m50?f5(m50):"(converged in one step)"}</b> (dashed line)</div>`;
+ }
+ ["w4w","w4d"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 5: grouping and censoring
+(function(){
+ function groupedCond(mu,s,h){ // E_T[Cov(score | bin)] by Simpson inside each bin
+  const K=Math.ceil((10*s+Math.abs(mu))/h)+2,C=[[0,0],[0,0]];
+  for(let k=-K;k<K;k++){
+   const a=k*h,b=a+h,P=Phi((b-mu)/s)-Phi((a-mu)/s);if(P<1e-14)continue;
+   const f=x=>phi((x-mu)/s)/s,sc=x=>scoreN(x,mu,s),n=60;
+   const m=[0,1].map(i=>simpson(x=>f(x)*sc(x)[i],a,b,n)/P);
+   for(let i=0;i<2;i++)for(let j=0;j<2;j++)C[i][j]+=simpson(x=>f(x)*(sc(x)[i]-m[i])*(sc(x)[j]-m[j]),a,b,n);
+  }
+  return C;
+ }
+ function ellipse(P,Sg,N,col,w){const a=Sg[0][0]/N,b=Sg[0][1]/N,c=Sg[1][1]/N,tr=a+c,dt=Math.sqrt(((a-c)/2)**2+b*b),l1=tr/2+dt,l2=tr/2-dt,th=0.5*Math.atan2(2*b,a-c),pts=[];
+  for(let i=0;i<=100;i++){const t=2*Math.PI*i/100,u=Math.sqrt(l1)*Math.cos(t),v=Math.sqrt(l2)*Math.sin(t);pts.push([P.X(u*Math.cos(th)-v*Math.sin(th)),P.Y(u*Math.sin(th)+v*Math.cos(th))])}path(P.G,pts,col,w)}
+ const inv2=M=>{const d=M[0][0]*M[1][1]-M[0][1]*M[1][0];return [[M[1][1]/d,-M[0][1]/d],[-M[1][0]/d,M[0][0]/d]]};
+ function setMode(){
+  const cen=g("w5k").value==="cen",r=g("w5h");
+  g("w5lab").textContent=cen?"censoring point c":"bin width h";
+  r.min=cen?-2:0.1;r.max=cen?3.5:3;r.value=cen?1:1;draw();
+ }
+ function draw(){
+  const cen=g("w5k").value==="cen",h=+g("w5h").value,mu=+g("w5m").value,s=1;g("w5ho").textContent=f2(h);g("w5mo").textContent=f2(mu);
+  const gX=[[1/s**2,0],[0,2/s**2]];let gT,gC,extra="";
+  if(cen){const o=censoredInfo(mu,s,h);gT=o.gT;gC=o.gC;extra=`<div>P(x ≥ c) = <b>${f5(o.P)}</b></div>`}
+  else{gT=groupedInfo(mu,s,h);gC=groupedCond(mu,s,h);extra=`<div>small-bin laws h²/12σ² = <b>${f5(h*h/12/s**2)}</b> (μ), h²/6σ² = <b>${f5(h*h/6/s**2)}</b> (σ)</div>`}
+  const L=g("w5l");clear(L);
+  const P=axes(L,44,14,286,226,[-4,5],[0,0.45],cen?"density and the censoring point":"density and the bins","x","");ticks(P,[-4,-2,0,2,4],[0,0.2,0.4],v=>v.toFixed(0),f2);
+  const xs=[],ys=[];for(let i=0;i<=200;i++){const t=-4+9*i/200;xs.push(t);ys.push(phi((t-mu)/s)/s)}
+  if(cen){const fx=[],fy=[];for(let i=0;i<=100;i++){const t=h+(5-h)*i/100;fx.push(t);fy.push(phi((t-mu)/s)/s)}el("path",{d:"M"+P.X(h)+" "+P.Y(0)+fx.map((t,i)=>"L"+P.X(t)+" "+P.Y(fy[i])).join("")+"L"+P.X(5)+" "+P.Y(0)+"Z",fill:"var(--s2)",opacity:.35},P.G);path(P.G,[[P.X(h),P.y0],[P.X(h),P.y0+P.h]],"var(--s2)",1.6)}
+  else{for(let k=Math.ceil(-4/h);k*h<=5;k++)path(P.G,[[P.X(k*h),P.y0],[P.X(k*h),P.y0+P.h]],"var(--s2)",0.8)}
+  runs(P,xs,ys,"var(--ink)",2.2);
+  const R=g("w5r");clear(R);
+  const iX=inv2(gX),iT=inv2(gT),sx=1.5*Math.sqrt(Math.max(iX[0][0],iT[0][0])/50),sy=1.5*Math.sqrt(Math.max(iX[1][1],iT[1][1])/50);
+  const Q=axes(R,44,14,286,226,[-sx,sx],[-sy,sy],"1-s.d. ellipses of the estimator, N = 50","error of μ̂","error of σ̂");ticks(Q,[-sx*2/3,0,sx*2/3],[-sy*2/3,0,sy*2/3],f2,f2);
+  ellipse(Q,inv2(gX),50,"var(--s1)",2.2);ellipse(Q,inv2(gT),50,"var(--s2)",2.2);
+  let res=0;for(let i=0;i<2;i++)for(let j=0;j<2;j++)res=Math.max(res,Math.abs(gX[i][j]-gT[i][j]-gC[i][j]));
+  g("w5o").innerHTML=`<div>g<sup>T</sup>: μμ <b>${f5(gT[0][0])}</b>, σσ <b>${f5(gT[1][1])}</b> (g<sup>X</sup> = ${f4(gX[0][0])}, ${f4(gX[1][1])})</div><div>lost fraction: μ <b>${f5(gC[0][0]/gX[0][0])}</b>, σ <b>${f5(gC[1][1]/gX[1][1])}</b></div>${extra}<div>|g<sup>X</sup> − g<sup>T</sup> − g<sup>X|T</sup>| = <b>${res.toExponential(1)}</b></div>`;
+ }
+ g("w5k").addEventListener("change",setMode);["w5h","w5m"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 6: a wrong model and where it sends the data
+(function(){
+ let sim=null;
+ const G2=u=>[[u*u,2*u**3],[2*u**3,6*u**4]];
+ const effOfAngle=(u,phiA)=>{const G=G2(u),det=G[0][0]*G[1][1]-G[0][1]*G[1][0],Gi=[[G[1][1]/det,-G[0][1]/det],[-G[1][0]/det,G[0][0]/det]],t=[1,4*u],d=[Math.cos(phiA),Math.sin(phiA)];
+  const ip=(a,b)=>a[0]*(Gi[0][0]*b[0]+Gi[0][1]*b[1])+a[1]*(Gi[1][0]*b[0]+Gi[1][1]*b[1]);return 1-ip(t,d)**2/(ip(t,t)*ip(d,d))};
+ function draw(){
+  const key=g("w6k").value,c=+g("w6c").value,u=+g("w6u").value;g("w6co").textContent=f2(c);g("w6uo").textContent=f2(u);
+  g("w6c").disabled=key!=="q5";
+  const e=misspecEff(key,c,u),kap=e.kappa,v=e.v,th=qThetaD(key,c,v),d=[-th[1],th[0]];
+  const L=g("w6l");clear(L);
+  const xmax=1.8*u,ymax=6*u*u,P=axes(L,44,14,286,244,[0,xmax],[0,ymax],"the plane of the observed point (x̄, mean x²)","η₁ = E[x]","η₂ = E[x²]");ticks(P,[],[]);
+  const xs=[],M=[],Z=[],Mq=[];for(let i=0;i<=200;i++){const t=xmax*i/200;xs.push(t);M.push(2*t*t);Z.push(t*t)}
+  runs(P,xs,Z,"var(--faint)",1,"4 3");runs(P,xs,M,"var(--ink)",2.4);
+  // model curve and its leaves
+  const mq=[];for(let i=0;i<=200;i++){const vv=0.01+3*i/200,eq=qEta(key,c,vv);mq.push(eq)}
+  runs(P,mq.map(q=>q[0]),mq.map(q=>q[1]),"var(--s3)",1.6);
+  const leaf=(vv,col,w)=>{const t=qThetaD(key,c,vv),eq=qEta(key,c,vv),pts=[];const dd=[-t[1],t[0]];const L2=Math.hypot(dd[0],dd[1]);
+   for(const s_ of [-30,30])pts.push([P.X(eq[0]+s_*dd[0]/L2),P.Y(eq[1]+s_*dd[1]/L2)]);path(P.G,pts,col,w)};
+  for(const f of [0.5,0.7,0.85,1.15,1.3,1.5])leaf(v*f,"var(--s3)",0.8);
+  leaf(v,"var(--s2)",2.4);
+  dots(P,[[u,2*u*u]],"var(--s4)",5);const eq=qEta(key,c,v);dots(P,[[eq[0],eq[1]]],"var(--s3)",4);
+  leg(L,44+8,14+34,[["var(--ink)","truth M: N(u, u²)"],["var(--s3)","model M_q and its leaves"],["var(--s2)","leaf through the truth, labelled v*"]]);
+  const R=g("w6r");clear(R);
+  const Q=axes(R,44,14,286,244,[-90,90],[0,1.1],"efficiency against the angle of the leaf","angle of the leaf from the η₁ axis (degrees)","efficiency");ticks(Q,[-90,-45,0,45,90],[0,0.25,0.5,0.75,1],v=>v.toFixed(0),f2);
+  const an=[],ef=[];for(let a=-90;a<=90;a+=0.5){an.push(a);ef.push(effOfAngle(u,a*Math.PI/180))}runs(Q,an,ef,"var(--ink)",2.2);
+  let ang=Math.atan2(d[1],d[0])*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;dots(Q,[[ang,e.effA]],"var(--s2)",5);
+  let s=`<div>pseudo-true v* = <b>${f6(v)}</b> = κu with κ = <b>${f6(kap)}</b> (consistent iff κ = 1)</div><div>efficiency of the relabelled estimator: geometry (8.42) <b>${f5(e.effA)}</b>, sandwich <b>${f5(e.effB)}</b>, squared score correlation <b>${f5(e.effC)}</b></div><div>1/g_uu = ${f4(1/e.guu)} (Cramér–Rao); asymptotic N·Var = 1/ḡ = <b>${f5(e.varA)}</b>; leaf angle ${ang.toFixed(2)}°</div>`;
+  if(sim&&sim.key===key&&sim.c===c&&sim.u===u)s+=`<div>simulation (N = ${sim.N}, ${sim.R} data sets): mean of the q-MLE <b>${f5(sim.mv)}</b>, mean of f(q-MLE) = v̂/κ <b>${f5(sim.mu)}</b>, N·Var(f(q-MLE)) = <b>${f5(sim.nv)}</b> ± ${f5(sim.se)}</div>`;
+  g("w6o").innerHTML=s;
+ }
+ function simulate(){
+  const key=g("w6k").value,c=+g("w6c").value,u=+g("w6u").value,e=misspecEff(key,c,u),N=4000,R=100000,rd=mkRand(21),k=(N-1)/2;
+  let sv=0,su=0,s2=0;
+  for(let i=0;i<R;i++){const a=u+u/Math.sqrt(N)*rd.N01(),b=a*a+u*u*2*rd.gam(k)/N,vh=qEstimator(key,c,a,b),uh=vh/e.kappa;sv+=vh;su+=uh;s2+=uh*uh}
+  const mu=su/R,va=s2/R-mu*mu;sim={key,c,u,N,R,mv:sv/R,mu,nv:N*va,se:N*va*Math.sqrt(2/R)};draw();
+ }
+ ["w6k","w6c","w6u"].forEach(i=>g(i).addEventListener("input",draw));g("w6k").addEventListener("change",draw);g("w6b").addEventListener("click",simulate);draw();
+})();
+
+// ===== widget 7: the decoder that ignores correlation
+(function(){
+ function setMode(){
+  const ring=g("w7k").value==="ring";
+  document.querySelectorAll("#w7 .ringc").forEach(e=>e.style.display=ring?"flex":"none");
+  g("w7u").parentNode.style.display=ring?"none":"flex";
+  g("w7r").value=ring?0.5:0.6;draw();
+ }
+ function draw(){
+  const ring=g("w7k").value==="ring",rho=+g("w7r").value;g("w7ro").textContent=f2(rho);
+  const L=g("w7l"),R=g("w7v");clear(L);clear(R);
+  if(!ring){
+   const u=+g("w7u").value;g("w7uo").textContent=f2(u);
+   const rp=[-Math.sin(u),Math.cos(u)],V=[[1,rho],[rho,1]],eff=effFormula(rp,V);
+   const P=axes(L,44,14,286,244,[-2.11,2.11],[-1.8,1.8],"the plane of two neurons: V (blue ellipse) and r′(u)","x₁","x₂");ticks(P,[-1,0,1],[-1,0,1]);
+   // the 1-s.d. ellipse of V: eigenvectors (1,1)/sqrt2 with variance 1+rho and (1,-1)/sqrt2 with variance 1-rho
+   const ell=[];for(let i=0;i<=100;i++){const t=2*Math.PI*i/100,a=Math.sqrt(1+rho)*Math.cos(t),b=Math.sqrt(1-rho)*Math.sin(t);ell.push([P.X((a+b)/Math.SQRT2),P.Y((a-b)/Math.SQRT2)])}
+   path(P.G,ell,"var(--s1)",2);
+   path(P.G,[[P.X(-1.7),P.Y(-1.7)],[P.X(1.7),P.Y(1.7)]],"var(--faint)",1,"4 3");path(P.G,[[P.X(-1.7),P.Y(1.7)],[P.X(1.7),P.Y(-1.7)]],"var(--faint)",1,"4 3");
+   path(P.G,[[P.X(0),P.Y(0)],[P.X(1.6*rp[0]),P.Y(1.6*rp[1])]],"var(--s2)",3);dots(P,[[1.6*rp[0],1.6*rp[1]]],"var(--s2)",4);
+   const Q=axes(R,44,14,286,244,[0,180],[0,1.05],"efficiency against the direction of r′","direction of r′ (degrees)","efficiency");ticks(Q,[0,45,90,135,180],[0,0.25,0.5,0.75,1],v=>v.toFixed(0),f2);
+   const an=[],ef=[];for(let a=0;a<=180;a+=1){const t=a*Math.PI/180;an.push(a);ef.push(effFormula([Math.cos(t),Math.sin(t)],V))}runs(Q,an,ef,"var(--ink)",2.2);
+   dots(Q,[[((u*180/Math.PI+90)%180),eff]],"var(--s2)",5);
+   const gu=(rp[0]*(rp[0]-rho*rp[1])+rp[1]*(rp[1]-rho*rp[0]))/(1-rho*rho);
+   g("w7o").innerHTML=`<div>r′ = (${f4(rp[0])}, ${f4(rp[1])}); the eigenvectors of V are (1, 1) and (1, −1)</div><div>Fisher information r′ᵀV⁻¹r′ = <b>${f4(gu)}</b></div><div>efficiency |r′|⁴ / (r′ᵀVr′ · r′ᵀV⁻¹r′) = <b>${f6(eff)}</b>; loss <b>${f6(1-eff)}</b> of the information</div><div>along an axis the efficiency is 1 − ρ² = ${f4(1-rho*rho)}; along an eigenvector it is 1</div>`;
+  }else{
+   const n=+g("w7n").value,a=+g("w7a").value,b=+g("w7b").value,tun=g("w7t").value,cor=g("w7c").value;g("w7no").textContent=n;g("w7ao").textContent=f2(a);g("w7bo").textContent=f2(b);
+   const o=ringEff(n,a,rho,b,tun,cor);
+   const P=axes(L,44,14,286,244,[0,1],[-1.15,1.15],"r′_j (orange) and the correlation profile K (blue)","neuron position j/n","");ticks(P,[0,0.25,0.5,0.75,1],[]);
+   const mx=Math.max(...o.rp.map(Math.abs))||1,xs=[],ys=[];for(let j=0;j<n;j++){xs.push(j/n);ys.push(o.rp[j]/mx)}
+   runs(P,xs,ys,"var(--s2)",2.2);
+   const Kf=d=>{if(cor==="uniform")return 1;let k0=0,s=0;for(let k=-3;k<=3;k++){k0+=Math.exp(-k*k/(2*b*b));s+=Math.exp(-((d+k)**2)/(2*b*b))}return s/k0};
+   const kx=[],ky=[];for(let i=0;i<=200;i++){const x=i/200;kx.push(x);ky.push(-1.1+0.9*Kf(Math.abs(x-0.5)))}
+   runs(P,kx,ky,"var(--s1)",1.8);
+   const Q=axes(R,44,14,286,244,[0,0.6],[0,1.05],"efficiency against the correlation range b","b (ring circumference 1)","efficiency");ticks(Q,[0,0.1,0.2,0.3,0.4,0.5,0.6],[0,0.25,0.5,0.75,1]);
+   const bx=[],by=[];for(let i=0;i<=40;i++){const bb=0.01+0.59*i/40;bx.push(bb);by.push(ringEff(n,a,rho,bb,tun,cor).eff)}runs(Q,bx,by,"var(--ink)",2.2);dots(Q,[[b,o.eff]],"var(--s2)",5);
+   path(Q.G,[[Q.X(a),Q.y0],[Q.X(a),Q.y0+Q.h]],"var(--faint)",1,"3 3");
+   g("w7o").innerHTML=`<div>n = ${n}, tuning width a = ${f2(a)}, ρ = ${f2(rho)}, b = ${f2(b)} (${tun==="cos"?"cosine tuning":"Gaussian bump"}, ${cor==="uniform"?"uniform":"Gaussian-range"} correlation)</div><div>efficiency <b>${f4(o.eff)}</b>; loss <b>${f4(1-o.eff)}</b> of the information</div><div>Σ r′_j = ${o.sumrp.toExponential(1)}${Math.abs(o.sumrp)<1e-2?" (the total response is flat in u)":""}</div><div>dotted vertical line: b = the tuning width a</div>`;
+  }
+ }
+ g("w7k").addEventListener("change",setMode);["w7r","w7u","w7n","w7a","w7b","w7t","w7c"].forEach(i=>g(i).addEventListener("input",draw));setMode();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
