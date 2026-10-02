@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: eight widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. (5) The Legendre transform: slope as a coordinate and the tangent's intercept as the dual function. Then three on the three-outcome probability triangle. (6) Drag
+- **[Interactive companion](figures/interactive.html)**: nine widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) Tangent vectors and the Fisher metric on the Gaussians: Fisher ellipses over the half-plane, a tangent step, its Riemannian length and the KL it costs. (4) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. (6) The Legendre transform: slope as a coordinate and the tangent's intercept as the dual function. Then three on the three-outcome probability triangle. (6) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (7) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (8) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (8) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (9) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -169,6 +169,28 @@ $\mathrm{KL}[q{:}p]=-\log\sigma+\frac{\sigma^2+m^2}{2}-\frac12$. What you can se
   ($0.0050$ at $e=0.1$, $1.1250$ at $e=1.5$). That is (1.24) with $g=1$, the Fisher information of the mean at $\sigma=1$.
 - *Asymmetric as soon as the widths differ.* $q=N(1,0.5^2)$ gives $\mathrm{KL}[p{:}q]=2.8069$ but $\mathrm{KL}[q{:}p]=0.8181$; $q=N(0,2^2)$ gives
   $0.3181$ and $0.8069$. $\mathrm{KL}[p{:}q]$ punishes a $q$ that is too narrow where $p$ has mass; $\mathrm{KL}[q{:}p]$ punishes the reverse.
+
+**Tangent spaces and the metric, on the Gaussian manifold.** Intuition first. A *tangent vector* at a point is a velocity: pass a smooth curve of Gaussians through $N(\mu,\sigma^2)$ and record how fast the
+mean and the width are changing, $v=(\dot\mu,\dot\sigma)$. Collect all such velocities and you get the **tangent space** at that point, a flat plane attached to it. Every point has its own plane; they are
+copies of $\mathbb R^2$, but a vector in one plane is not a vector in another until you say how to compare them. A **Riemannian metric** is a rule for measuring the length of the vectors in each plane,
+$|v|^2=g_{ij}v^iv^j$, changing smoothly from point to point. Here it comes from the divergence, $ds^2=2D$, and for the Gaussians in the chart $(\mu,\sigma)$ it is
+
+$$
+g=\begin{bmatrix}1/\sigma^2&0\\0&2/\sigma^2\end{bmatrix},\qquad ds^2=\frac{d\mu^2+2\,d\sigma^2}{\sigma^2}.
+$$
+
+Why this shape: whether a change in the mean matters depends on how wide the bell is. A shift $d\mu$ is hard to notice when $\sigma$ is large and easy when $\sigma$ is small, so the same Euclidean
+step is *longer* where the Gaussian is narrow. Numbers from `code/dually_flat.py`: a Euclidean step of length $0.2$ along $\mu$ has Riemannian length $0.4000$ at $\sigma=0.5$, $0.2000$ at $\sigma=1$ and $0.1000$ at $\sigma=2$.
+At $(\mu,\sigma)=(1,2)$ the metric is $\operatorname{diag}(0.25,0.5)$ and the set of steps of unit Riemannian length (the *indicatrix*) is an ellipse with half-axes $2.0000$ along $\mu$ and $1.4142$ along $\sigma$;
+at $(1,0.5)$ it is $\operatorname{diag}(4,8)$ with half-axes $0.5000$ and $0.3536$. The ellipses shrink as $\sigma\to0$, which is the picture on the interactive page.
+
+The length is what you pay in divergence: for a small step $d$, $\mathrm{KL}\approx\tfrac12 d^\top g\,d$. At $(1,2)$ along the direction $(0.6,-0.8)$ the ratio $\mathrm{KL}/(\tfrac12ds^2)$ is $2.4540$ for a step of length 1,
+then $1.0737,\ 1.0070,\ 1.0007$ as the step is scaled by $0.1,\ 0.01,\ 0.001$: it tends to 1, with the error shrinking linearly in the step (the next term in the expansion is cubic). Large steps, especially near small $\sigma$ (at $(1,0.5)$ a step of $(0.12,-0.16)$ gives ratio
+$1.9660$), are far from the quadratic regime.
+
+The length does not depend on the chart. The step $(0.12,-0.16)$ at $(1,2)$ has $ds^2=0.0164$ in $(\mu,\sigma)$; in natural coordinates it becomes $d\theta=J\,d=(0.0700,-0.0200)$ and
+$d\theta^\top G_\theta d\theta=0.0164$ with $G_\theta=\nabla^2\psi$: the same number. That is the tensor law (1.130) at work: $g$ changes with the chart, but the *length of the same tangent vector* does not.
+Euclidean length is chart-dependent and misleading: the step above has Euclidean length $0.2000$ and Riemannian length $0.1281$ at $\sigma=2$, $0.5122$ at $\sigma=0.5$.
 
 **It is not a distance, not even after a square root.** Take three coins that land heads with probability $0.99$, $0.5$, $0.01$.
 Then $\mathrm{KL}[a{:}c]=4.503$ while $\mathrm{KL}[a{:}b]+\mathrm{KL}[b{:}c]=0.637+1.614=2.252$, so the

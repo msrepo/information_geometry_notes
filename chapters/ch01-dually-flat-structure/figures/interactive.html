@@ -81,7 +81,24 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="wkr"></div>
 </div>
 
-<h2>3. What "positive-definite Hessian" means</h2>
+<h2>3. Tangent space and the Riemannian metric on the Gaussians</h2>
+<p>A tangent vector at a Gaussian is a velocity $(\dot\mu,\dot\sigma)$: how fast its mean and width are changing. The metric measures its length by $|v|^2=(\dot\mu^2+2\dot\sigma^2)/\sigma^2$, so the same Euclidean step is long where the bell is narrow and short where it is wide. The ellipses (all drawn at the same scale: they are the steps of Riemannian length 0.15) show the metric at a grid of points; the bold one is at your chosen point. The orange arrow is a step $d$; the right plot compares the Gaussian at the start and at the end of the step, and the readout gives the divergence that step costs next to the quadratic $\tfrac12 ds^2$.</p>
+<div class="widget" id="wf">
+  <div class="controls">
+    <label>$\mu$ <input type="range" id="wfm" min="-2.5" max="2.5" step="0.05" value="1"><output id="wfmo"></output></label>
+    <label>$\sigma$ <input type="range" id="wfs" min="0.4" max="3" step="0.05" value="2"><output id="wfso"></output></label>
+    <label>direction <input type="range" id="wfp" min="0" max="360" step="5" value="305"><output id="wfpo"></output></label>
+    <label>step length <input type="range" id="wfl" min="0.02" max="1" step="0.01" value="0.2"><output id="wflo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="wfa" viewBox="0 0 340 330" width="100%" role="img" aria-label="The mu sigma half-plane with Fisher ellipses, the chosen point and a tangent step"></svg></div>
+    <div><svg id="wfb" viewBox="0 0 340 330" width="100%" role="img" aria-label="The Gaussian at the start and at the end of the step"></svg></div>
+  </div>
+  <div class="stats" id="wfr"></div>
+  <div class="cap" id="wfn"></div>
+</div>
+
+<h2>4. What "positive-definite Hessian" means</h2>
 <p>Near a point a function is its tangent plane plus a quadratic bowl $\tfrac12 d^\top H d$, and for a Bregman divergence that bowl is all that is left. Drag the entries of $H=\begin{bmatrix}a&b\\b&c\end{bmatrix}$. The left picture shades the sign of $d^\top Hd$ over all steps $d$ (blue positive, orange negative) with the unit ellipse $d^\top Hd=1$; the right plots the curvature along each direction $\varphi$. $H$ is positive-definite exactly when the curve never touches zero: an ellipse, two positive eigenvalues. Touch zero and there is a flat direction; go below and it is a saddle.</p>
 <div class="widget" id="wh">
   <div class="controls">
@@ -99,7 +116,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="whn"></div>
 </div>
 
-<h2>4. The Bregman divergence as a gap above a tangent</h2>
+<h2>5. The Bregman divergence as a gap above a tangent</h2>
 <p>Choose a convex $\psi$. Draw its tangent at the base point $x_0$ (solid orange); the vertical gap at the probe $x$ is $D_\psi[x{:}x_0]$. Draw the tangent at $x$ instead (dashed blue) and measure at $x_0$ and you get the other order, $D_\psi[x_0{:}x]$. The right plot shows both as $x$ moves, with the parabola $\tfrac12\psi''(x_0)(x-x_0)^2$ that they both hug near $x_0$.</p>
 <div class="widget" id="wb">
   <div class="controls">
@@ -115,7 +132,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="wbn"></div>
 </div>
 
-<h2>5. The Legendre transform: slope as a coordinate</h2>
+<h2>6. The Legendre transform: slope as a coordinate</h2>
 <p>Pick a convex $\psi$ and a point $\theta_0$. Its tangent has slope $\eta=\psi'(\theta_0)$ and crosses the vertical axis $\theta=0$ at height $\psi(\theta_0)-\eta\theta_0=-\psi^*(\eta)$. So the dual function is minus the intercept. Slide $\theta_0$ and the right plot traces $\psi^*$ point by point; its own tangent there has slope $\theta_0$, so the roles of point and slope are exchanged.</p>
 <div class="widget" id="wl">
   <div class="controls">
@@ -130,7 +147,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="wln"></div>
 </div>
 
-<h2>6. Two kinds of straight line</h2>
+<h2>7. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -145,7 +162,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>7. The Pythagorean theorem</h2>
+<h2>8. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -158,7 +175,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>8. Projecting onto a submanifold</h2>
+<h2>9. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -593,6 +610,41 @@ function draw(){
  g("wln").textContent="Closed form of the dual: ψ*(η) = "+p.sn+". The blue dashed line is the tangent of ψ* at η; its slope is θ₀ — the point and the slope have traded places.";
 }
 g("wlf").addEventListener("change",()=>{cur=+g("wlf").value;setRange();draw()});g("wlt").addEventListener("input",draw);setRange();draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",A=document.getElementById("wfa"),B=document.getElementById("wfb"),g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const pdf=(x,m,s)=>Math.exp(-((x-m)*(x-m))/(2*s*s))/(s*Math.sqrt(2*Math.PI));
+const klG=(m1,s1,m2,s2)=>Math.log(s2/s1)+(s1*s1+(m1-m2)*(m1-m2))/(2*s2*s2)-0.5;
+const K=0.15;
+function draw(){
+ while(A.firstChild)A.removeChild(A.firstChild);while(B.firstChild)B.removeChild(B.firstChild);
+ const mu=+g("wfm").value,sg=+g("wfs").value,ph=+g("wfp").value*Math.PI/180,L=+g("wfl").value;
+ g("wfmo").textContent=mu.toFixed(2);g("wfso").textContent=sg.toFixed(2);g("wfpo").textContent=g("wfp").value+"°";g("wflo").textContent=L.toFixed(2);
+ const d=[L*Math.cos(ph),L*Math.sin(ph)],mq=mu+d[0],sq=Math.max(sg+d[1],0.05);
+ const x0=36,y0=18,W=296,H=250,xr=[-3,3],yr=[0,3.2],X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*W,Y=v=>y0+H-(v-yr[0])/(yr[1]-yr[0])*H;
+ el("rect",{x:x0,y:y0,width:W,height:H,fill:"var(--soft)",stroke:"var(--line)"},A);
+ el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},A).textContent="ellipses: steps of Riemannian length "+K;
+ el("text",{x:x0+W/2,y:y0+H+28,"text-anchor":"middle",fill:"var(--muted)","font-size":11},A).textContent="μ";el("text",{x:x0-8,y:y0+14,"text-anchor":"end",fill:"var(--muted)","font-size":11},A).textContent="σ";
+ const ell=(m,s,col,w,op)=>{const a=K*s,b=K*s/Math.SQRT2,pts=[];for(let k=0;k<=60;k++){const t=2*Math.PI*k/60;pts.push([X(m+a*Math.cos(t)),Y(s+b*Math.sin(t))])}
+  el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join("")+"Z",fill:"none",stroke:col,"stroke-width":w,opacity:op},A)};
+ for(const m of [-2.5,-1.5,-0.5,0.5,1.5,2.5])for(const s of [0.5,1,1.5,2,2.5])ell(m,s,"var(--s1)",1,.6);
+ ell(mu,sg,"var(--ink)",2.4,1);
+ el("line",{x1:X(mu),y1:Y(sg),x2:X(mq),y2:Y(sq),stroke:"var(--s2)","stroke-width":3},A);
+ el("circle",{cx:X(mu),cy:Y(sg),r:5,fill:"var(--ink)"},A);el("circle",{cx:X(mq),cy:Y(sq),r:4,fill:"var(--s2)"},A);
+ const bx=36,by=18,bw=296,bh=250,N=300,xs=[],pa=[],pb=[];for(let i=0;i<=N;i++){const x=-8+16*i/N;xs.push(x);pa.push(pdf(x,mu,sg));pb.push(pdf(x,mq,sq))}
+ const ym=Math.max(...pa,...pb)*1.1,BX=v=>bx+(v+8)/16*bw,BY=v=>by+bh-v/ym*bh;
+ el("rect",{x:bx,y:by,width:bw,height:bh,fill:"var(--soft)",stroke:"var(--line)"},B);
+ el("text",{x:bx+6,y:by+14,fill:"var(--muted)","font-size":11},B).textContent="the Gaussian at the start (black) and at the end (orange)";
+ const path=(ys,col,w)=>el("path",{d:xs.map((x,i)=>(i?"L":"M")+BX(x)+" "+BY(ys[i])).join(""),fill:"none",stroke:col,"stroke-width":w},B);
+ path(pa,"var(--ink)",2.4);path(pb,"var(--s2)",2.4);
+ const ds2=(d[0]*d[0]+2*d[1]*d[1])/(sg*sg),kl=klG(mu,sg,mq,sq),f=v=>v.toFixed(4);
+ g("wfr").innerHTML=`<div>Euclidean length <b>${f(L)}</b></div><div>Riemannian length ds <b>${f(Math.sqrt(ds2))}</b></div><div>½ ds² <b>${f(0.5*ds2)}</b></div><div>KL[start : end] <b>${f(kl)}</b></div><div>KL / (½ds²) <b>${(0.5*ds2>1e-12?kl/(0.5*ds2):0).toFixed(3)}</b></div>`;
+ g("wfn").textContent="Shrink the step and the ratio goes to 1: the metric is the quadratic part of the divergence. Move σ down and the ellipses shrink, so the same Euclidean arrow becomes a longer Riemannian step.";
+}
+["wfm","wfs","wfp","wfl"].forEach(i=>g(i).addEventListener("input",draw));draw();
 })();
 </script>
 </body>

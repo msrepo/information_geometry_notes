@@ -123,6 +123,34 @@ def check_gaussian_charts():
     print("   m2 for mu = 1 and sigma = 0.5, 1, 2, 3: " + ", ".join(f"{1 + s_ ** 2:.2f}" for s_ in (0.5, 1, 2, 3)))
 
 
+def check_fisher_gaussian():
+    head("   Tangent vectors and the Fisher metric on the Gaussians (the widget in section 3 of the interactive page)")
+    def metric(mu, sg): return np.diag([1 / sg ** 2, 2 / sg ** 2])
+    def length2(mu, sg, d): return float(np.array(d) @ metric(mu, sg) @ np.array(d))
+    for mu, sg in ((1.0, 2.0), (1.0, 0.5)):
+        print(f"   at (mu, sigma) = ({mu}, {sg}): g = diag(1/sigma^2, 2/sigma^2) = diag({1 / sg ** 2:.4g}, {2 / sg ** 2:.4g}); unit ellipse half-axes "
+              f"{sg:.4f} along mu and {sg / math.sqrt(2):.4f} along sigma")
+    print("   the same Euclidean step of length 0.2 along mu has different Riemannian length at different points:")
+    for sg in (0.5, 1.0, 2.0):
+        l = math.sqrt(length2(0.0, sg, (0.2, 0.0)))
+        print(f"      sigma = {sg}: ds = {l:.4f}")
+    print("   KL between the Gaussian at a point and the one a small step away, against (1/2) ds^2:")
+    for (mu, sg, d) in ((1.0, 2.0, (0.12, -0.16)), (1.0, 0.5, (0.12, -0.16)), (1.0, 2.0, (0.6, -0.8))):
+        ds2 = length2(mu, sg, d); kl_ = klg(mu, sg, mu + d[0], sg + d[1])
+        print(f"      at ({mu}, {sg}) step {d}: ds^2 = {ds2:.4f}, (1/2) ds^2 = {0.5 * ds2:.4f}, KL = {kl_:.4f}, ratio {kl_ / (0.5 * ds2):.4f}")
+    print("   shrinking the step along the direction (0.6, -0.8) at (1, 2): the ratio KL / ((1/2) ds^2) tends to 1")
+    for sc in (1.0, 0.1, 0.01, 0.001):
+        d = (0.6 * sc, -0.8 * sc)
+        print(f"      scale {sc}: ratio {klg(1.0, 2.0, 1.0 + d[0], 2.0 + d[1]) / (0.5 * length2(1.0, 2.0, d)):.4f}")
+    mu, sg, d = 1.0, 2.0, np.array([0.12, -0.16])
+    J = np.array([[1 / sg ** 2, -2 * mu / sg ** 3], [0, 1 / sg ** 3]])                # d theta / d (mu, sigma)
+    Gth = np.array([[sg ** 2, 2 * mu * sg ** 2], [2 * mu * sg ** 2, 2 * sg ** 4 + 4 * mu ** 2 * sg ** 2]])   # Hessian of psi = Cov[(x, x^2)]
+    dth = J @ d
+    print(f"   the same step in natural coordinates: d theta = J d = ({dth[0]:.4f}, {dth[1]:.4f}); length^2 = d theta^T G_theta d theta = {dth @ Gth @ dth:.4f}, "
+          f"the same {length2(mu, sg, d):.4f} (the tensor law)")
+    print(f"   Euclidean length of the step (0.12, -0.16) is {math.hypot(0.12, -0.16):.4f}; its Riemannian length at sigma = 2 is {math.sqrt(length2(1.0, 2.0, (0.12, -0.16))):.4f}, at sigma = 0.5 it is {math.sqrt(length2(1.0, 0.5, (0.12, -0.16))):.4f}")
+
+
 # ------------------------------------------------------------------ 1. divergence = local squared distance
 
 def check_divergence():
@@ -972,7 +1000,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
