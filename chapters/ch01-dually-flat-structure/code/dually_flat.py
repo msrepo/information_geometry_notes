@@ -655,6 +655,49 @@ def check_pythagoras_gaussian():
               f"sum - KL[P:R] = {resid:+.4f}; predicted (theta_Q - theta_R).(eta_Q - eta_P) = {pred:+.4f}; check D_psi(R:P) = {Dpsi(thR, thP):.4f}")
     print("   with D_psi[theta_X : theta_Y] = KL[Y : X] the statement D(R:P) = D(Q:P) + D(R:Q) reads KL[P:R] = KL[P:Q] + KL[Q:R]: the m-geodesic P->Q (straight in eta = (mu, mu^2 + sigma^2)) meets the e-geodesic Q->R (straight in theta) at a right angle")
 
+def check_projection_gaussian():
+    head("   Projection onto the zero-mean Gaussians S = {N(0, sigma^2)} (the widget in section 10 of the interactive page)")
+    mu_p, sg_p = 1.5, 1.0
+    sg_hat = math.sqrt(mu_p ** 2 + sg_p ** 2)
+    kl_min = klg(mu_p, sg_p, 0.0, sg_hat)
+    print(f"   P = N({mu_p}, {sg_p}^2). m-projection (minimise KL[P:R] over R = N(0, s^2)): s_hat^2 = E_P[x^2] = mu^2 + sigma^2 = {sg_hat ** 2:.4f}, s_hat = {sg_hat:.4f}; "
+          f"KL[P:R_hat] = {kl_min:.4f} = (1/2) ln(1 + mu^2/sigma^2) = {0.5 * math.log(1 + mu_p ** 2 / sg_p ** 2):.4f}")
+    grid = np.linspace(0.3, 4.0, 370001); vals = np.array([klg(mu_p, sg_p, 0.0, g) for g in grid])
+    print(f"   brute force over s in [0.3, 4]: minimum {vals.min():.4f} at s = {grid[int(np.argmin(vals))]:.4f}")
+    thP, thH = gauss_theta(mu_p, sg_p), gauss_theta(0.0, sg_hat); etP, etH = gauss_eta(thP), gauss_eta(thH)
+    print(f"   orthogonality: eta_P = {np.round(etP, 4).tolist()}, eta_R_hat = {np.round(etH, 4).tolist()}, so eta_P - eta_R_hat = {np.round(etP - etH, 4).tolist()} (only the first moment differs); "
+          f"S is theta1 = 0 with tangent (0, 1) in theta, and the pairing (eta_P - eta_R_hat).(0, 1) = {(etP - etH) @ np.array([0.0, 1.0]):.1e}")
+    ms = [(1 - t) * etP + t * etH for t in (0.0, 0.25, 0.5, 0.75, 1.0)]
+    print("   the m-geodesic from P to R_hat (straight in eta) keeps mu^2 + sigma^2 = " + f"{mu_p ** 2 + sg_p ** 2:.4f}" + ": points (mu, sigma) = "
+          + ", ".join(f"({m[0]:.3f}, {math.sqrt(m[1] - m[0] ** 2):.3f})" for m in ms) + "  (an arc of the circle mu^2 + sigma^2 = const)")
+    worst = max(abs(klg(mu_p, sg_p, 0.0, g) - (kl_min + klg(0.0, sg_hat, 0.0, g))) for g in np.linspace(0.3, 5.0, 2000))
+    print(f"   Pythagoras KL[P:R] = KL[P:R_hat] + KL[R_hat:R] for 2000 members R = N(0, s^2): largest gap {worst:.1e}; e.g. s = 0.5: {klg(mu_p, sg_p, 0.0, 0.5):.4f} = {kl_min:.4f} + {klg(0.0, sg_hat, 0.0, 0.5):.4f}; s = 3: {klg(mu_p, sg_p, 0.0, 3.0):.4f} = {kl_min:.4f} + {klg(0.0, sg_hat, 0.0, 3.0):.4f}")
+    # the other order: e-projection = minimise KL[R:P]
+    sg_e = sg_p
+    valsr = np.array([klg(0.0, g, mu_p, sg_p) for g in grid])
+    print(f"   the other order, minimise KL[R:P] over R = N(0, s^2): s = sigma_P = {sg_e:.4f} (brute force {grid[int(np.argmin(valsr))]:.4f}), value mu^2/(2 sigma^2) = {mu_p ** 2 / (2 * sg_p ** 2):.4f} (grid {valsr.min():.4f}); "
+          f"the two feet differ: {sg_hat:.4f} against {sg_e:.4f}")
+    gap2 = max(abs(klg(mu_p, sg_p, 0.0, g) - (klg(mu_p, sg_p, 0.0, sg_e) + klg(0.0, sg_e, 0.0, g))) for g in np.linspace(0.3, 5.0, 2000))
+    print(f"   the m-split KL[P:R] = KL[P:R_e] + KL[R_e:R] taken around the e-foot R_e is the wrong split: it fails by up to {gap2:.3f}")
+    gap_e = max(abs(klg(0.0, g, mu_p, sg_p) - (klg(0.0, g, 0.0, sg_e) + klg(0.0, sg_e, mu_p, sg_p))) for g in np.linspace(0.3, 5.0, 2000))
+    print(f"   the e-foot has its own split with the other order: KL[R:P] = KL[R:R_e] + KL[R_e:P] for 2000 members R: largest gap {gap_e:.1e}; "
+          f"S = {{mu = 0}} is a straight line in theta (theta1 = 0) and in eta (eta1 = 0), so it is flat in both senses and both projections work, with different feet and different splits")
+    print(f"   the e-geodesic from P to R_e (straight in theta) is horizontal: sigma stays {sg_p}, mu goes {mu_p} -> 0; in the metric diag(1/sigma^2, 2/sigma^2) horizontal and vertical are orthogonal: "
+          f"g((1,0),(0,1)) = 0")
+    # maximum likelihood link
+    rng = np.random.default_rng(3); x = rng.normal(mu_p, sg_p, size=200000)
+    sg_mle = math.sqrt(float(np.mean(x ** 2)))
+    ll = lambda g: -np.mean(np.log(g * math.sqrt(2 * math.pi)) + x ** 2 / (2 * g ** 2))
+    gg = np.linspace(0.5, 3.5, 30001); best = gg[int(np.argmax([ll(g) for g in gg[::10]])) * 10] if False else gg[int(np.argmax(np.array([ll(g) for g in gg])))]
+    print(f"   maximum likelihood link: 200000 draws from P; the best zero-mean sigma by likelihood is {best:.4f}, which is sqrt(mean x^2) = {sg_mle:.4f}, close to s_hat = {sg_hat:.4f}")
+    # dual case: e-projection onto the m-flat set of fixed mean c
+    c = -0.5
+    sg_e2 = sg_p
+    k2 = klg(c, sg_e2, mu_p, sg_p)
+    worst2 = max(abs(klg(c, g, mu_p, sg_p) - (klg(c, g, c, sg_e2) + k2)) for g in np.linspace(0.3, 5.0, 2000))
+    print(f"   dual example: S_c = {{N({c}, s^2)}} is m-flat (eta1 = {c} is a straight line in eta); minimising KL[R:P] gives s = sigma_P = {sg_e2}, KL[R_hat:P] = (c - mu)^2/(2 sigma^2) = {k2:.4f}; "
+          f"KL[R:P] = KL[R:R_hat] + KL[R_hat:P] for 2000 members: largest gap {worst2:.1e}")
+
 # ------------------------------------------------------------------ 7. projections and alternating minimisation
 
 def golden(f, lo, hi, iters=200):
@@ -1202,10 +1245,39 @@ def fig_fisher_rao(out):
         "The Gaussian manifold drawn as the upper half-plane with x = mu/sqrt(2) and y = sigma. Its geodesics for the Fisher metric are vertical lines and semicircles centred on the axis y = 0. The geodesic from N(0, 1) to N(1.5, 1.5^2) is a semicircle of length 1.3070; the straight chord between the same points has length 1.3448.", body))
 
 
+def fig_projection_gaussian(out):
+    body = []
+    mu_p, sg_p = 1.5, 1.0; sg_hat = math.sqrt(mu_p ** 2 + sg_p ** 2)
+    L = Panel(body, 56, 46, 260, 240, (-0.4, 2.2), (0.3, 2.3))
+    L.frame([0, 1, 2], [0.5, 1, 1.5, 2], "μ", "σ", "the (μ, σ) plane", grid=False)
+    L.line([0, 0], [0.3, 2.3], "ln s0")                                                  # S: the zero-mean Gaussians
+    th = np.linspace(math.atan2(sg_p, mu_p), math.pi / 2, 60)
+    L.line(sg_hat * np.cos(th), sg_hat * np.sin(th), "ln s2")                              # m-geodesic: mu^2 + sigma^2 = const
+    L.line([mu_p, 0.0], [sg_p, sg_p], "ln s1")                                             # e-geodesic: horizontal
+    L.dot(mu_p, sg_p, "f0"); L.text(mu_p, sg_p, "P", "v", dx=8, dy=-6)
+    L.dot(0, sg_hat, "f2"); L.text(0, sg_hat, "R̂ (m-foot)", "v", dx=8, dy=-5)
+    L.dot(0, sg_p, "f1"); L.text(0, sg_p, "R_e (e-foot)", "v", dx=8, dy=14)
+    L.text(0, 2.2, "S: μ = 0", "sm", dx=6, dy=4)
+    R = Panel(body, 400, 46, 260, 240, (0.3, 4.0), (0, 3))
+    R.frame([1, 2, 3, 4], [0, 1, 2, 3], "σ of the zero-mean Gaussian N(0, σ²)", "divergence", "along S", grid=False)
+    gs = np.linspace(0.3, 4.0, 300)
+    k_hat = klg(mu_p, sg_p, 0.0, sg_hat)
+    R.line(gs, [klg(mu_p, sg_p, 0.0, g) for g in gs], "ln s2")
+    R.line(gs, [k_hat + klg(0.0, sg_hat, 0.0, g) for g in gs], "dash s0")
+    R.line(gs, [klg(0.0, g, mu_p, sg_p) for g in gs], "ln s1")
+    R.dot(sg_hat, k_hat, "f2"); R.dot(sg_p, klg(0.0, sg_p, mu_p, sg_p), "f1")
+    body.append('<line class="ln s2" x1="60" y1="330" x2="92" y2="330"/><text class="sm" x="98" y="334">KL[P:R] and, on top of it (dashed), KL[P:R̂] + KL[R̂:R]: they coincide, minimum 0.5893 at σ = 1.8028</text>')
+    body.append('<line class="ln s1" x1="60" y1="350" x2="92" y2="350"/><text class="sm" x="98" y="354">the other order KL[R:P]: minimum μ²/(2σ²) = 1.1250 at σ = σ_P = 1.0, a different foot</text>')
+    body.append('<text class="sm" x="60" y="376">Left: the m-geodesic from P (orange) is the circle μ² + σ² = 3.25 and meets S at a right angle.</text>')
+    body.append('<text class="sm" x="60" y="394">The e-geodesic (blue) is horizontal and also meets S at a right angle, but at a different foot, R_e.</text>')
+    (out / "projection-gaussian.svg").write_text(svg(700, 410, "Projecting a Gaussian onto the zero-mean Gaussians",
+        "Left: the (mu, sigma) plane with the vertical line S of zero-mean Gaussians, the Gaussian P = N(1.5, 1), the m-geodesic from P to S, an arc of the circle mu^2 + sigma^2 = 3.25 that meets S at R-hat = N(0, 3.25), and the horizontal e-geodesic that meets S at N(0, 1). Right: KL[P:R] along S and KL[P:R-hat] + KL[R-hat:R] coincide, with minimum 0.5893 at sigma = 1.8028, while KL[R:P] has its minimum 1.1250 at sigma = 1.", body))
+
+
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_gaussian(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_projection_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
@@ -1213,6 +1285,6 @@ def make_figures():
 
 if __name__ == "__main__":
     check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
-    check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_em(); check_coordinates()
+    check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_projection_gaussian(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

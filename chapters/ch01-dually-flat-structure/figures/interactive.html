@@ -192,7 +192,23 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>10. Projecting onto a submanifold</h2>
+<h2>10. Projection onto the zero-mean Gaussians</h2>
+<p>$S=\{N(0,\sigma^2)\}$ is the vertical axis. Drag $P$. The orange curve is the m-geodesic from $P$ (straight in $\eta$): it keeps $\mu^2+\sigma^2$ fixed, so it is a circle arc, and it lands on $S$ at $\hat R$ with $\hat\sigma^2=\mu_P^2+\sigma_P^2$ (the second moment is kept: this is maximum likelihood). The blue line is the e-geodesic (straight in $\theta$): horizontal, landing at the foot that keeps $P$'s width. The right plot shows $\mathrm{KL}[P{:}R]$ along $S$ and the Pythagorean split $\mathrm{KL}[P{:}\hat R]+\mathrm{KL}[\hat R{:}R]$ (they coincide), and the other order, with its own minimum. Slide $R$ along $S$ to test the split at any member.</p>
+<div class="widget" id="wg">
+  <div class="controls">
+    <label>$\mu_P$ <input type="range" id="wgm" min="-3" max="3" step="0.05" value="1.5"><output id="wgmo"></output></label>
+    <label>$\sigma_P$ <input type="range" id="wgs" min="0.4" max="2.5" step="0.05" value="1"><output id="wgso"></output></label>
+    <label>test member $R=N(0,s^2)$, $s$ <input type="range" id="wgr" min="0.3" max="4" step="0.05" value="0.5"><output id="wgro"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="wga" viewBox="0 0 340 330" width="100%" role="img" aria-label="The mu sigma plane with the zero-mean Gaussians, P, and the two feet"></svg></div>
+    <div><svg id="wgb" viewBox="0 0 340 330" width="100%" role="img" aria-label="Divergence along the zero-mean Gaussians in both orders and the Pythagorean split"></svg></div>
+  </div>
+  <div class="stats" id="wgr_"></div>
+  <div class="cap" id="wgn"></div>
+</div>
+
+<h2>11. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -708,6 +724,47 @@ function draw(){
  g("wqn").textContent=Math.abs(ph)<1e-9?"Right angle: the stacked bar and the direct bar have the same length, for every distance t, on either side of Q.":"Tilted: the gap equals the pairing that the right angle sets to zero. The theorem is the law of cosines with the cosine term switched off.";
 }
 ["wqm","wqs","wqt","wqp"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",A=document.getElementById("wga"),B=document.getElementById("wgb"),g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const klG=(m1,s1,m2,s2)=>Math.log(s2/s1)+(s1*s1+(m1-m2)*(m1-m2))/(2*s2*s2)-0.5;
+function frame(P,x0,y0,w,h,xr,yr,title,xl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ el("text",{x:x0+w/2,y:y0+h+28,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h;
+ const id="wgc"+Math.round(Math.random()*1e7),c=el("clipPath",{id},el("defs",{},P));el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||""},P);
+function draw(){
+ while(A.firstChild)A.removeChild(A.firstChild);while(B.firstChild)B.removeChild(B.firstChild);
+ const mp=+g("wgm").value,sp=+g("wgs").value,sr=+g("wgr").value;
+ g("wgmo").textContent=mp.toFixed(2);g("wgso").textContent=sp.toFixed(2);g("wgro").textContent=sr.toFixed(2);
+ const sh=Math.sqrt(mp*mp+sp*sp),kh=klG(mp,sp,0,sh),ke=klG(0,sp,mp,sp);
+ const L=frame(A,36,18,296,250,[-3.2,3.2],[0.2,3.8],"(μ, σ) plane; S = the vertical axis μ = 0","μ");
+ path(L.G,[[L.X(0),L.Y(0.2)],[L.X(0),L.Y(3.8)]],"var(--faint)",3);
+ const a0=Math.atan2(sp,mp),arc=[];for(let i=0;i<=60;i++){const a=a0+(Math.PI/2-a0)*i/60;arc.push([L.X(sh*Math.cos(a)),L.Y(sh*Math.sin(a))])}
+ path(L.G,arc,"var(--s2)",2.6);path(L.G,[[L.X(mp),L.Y(sp)],[L.X(0),L.Y(sp)]],"var(--s1)",2.2);
+ el("circle",{cx:L.X(mp),cy:L.Y(sp),r:5,fill:"var(--ink)"},L.G);el("text",{x:L.X(mp)+8,y:L.Y(sp)-7,fill:"var(--ink)","font-size":12},L.G).textContent="P";
+ el("circle",{cx:L.X(0),cy:L.Y(sh),r:5,fill:"var(--s2)"},L.G);el("text",{x:L.X(0)+8,y:L.Y(sh)-6,fill:"var(--ink)","font-size":11},L.G).textContent="R̂ (m-foot)";
+ el("circle",{cx:L.X(0),cy:L.Y(sp),r:5,fill:"var(--s1)"},L.G);el("text",{x:L.X(0)+8,y:L.Y(sp)+14,fill:"var(--ink)","font-size":11},L.G).textContent="R_e (e-foot)";
+ el("circle",{cx:L.X(0),cy:L.Y(sr),r:4,fill:"var(--s3)"},L.G);
+ const kmax=6,R=frame(B,36,18,296,250,[0.3,4],[0,kmax],"divergence along S","σ of N(0, σ²)");
+ const gs=[];for(let i=0;i<=300;i++)gs.push(0.3+3.7*i/300);
+ path(R.G,gs.map(s=>[R.X(s),R.Y(klG(mp,sp,0,s))]),"var(--s2)",2.4);
+ path(R.G,gs.map(s=>[R.X(s),R.Y(kh+klG(0,sh,0,s))]),"var(--ink)",1.4,"4 4");
+ path(R.G,gs.map(s=>[R.X(s),R.Y(klG(0,s,mp,sp))]),"var(--s1)",2.4);
+ el("circle",{cx:R.X(sh),cy:R.Y(kh),r:5,fill:"var(--s2)"},R.G);el("circle",{cx:R.X(sp),cy:R.Y(ke),r:5,fill:"var(--s1)"},R.G);
+ el("line",{x1:R.X(sr),x2:R.X(sr),y1:18,y2:268,stroke:"var(--s3)","stroke-width":1.2},R.G);
+ const lhs=klG(mp,sp,0,sr),rhs=kh+klG(0,sh,0,sr),f=v=>v.toFixed(4);
+ g("wgr_").innerHTML=`<div>m-foot σ̂ <b>${f(sh)}</b></div><div>KL[P:R̂] <b>${f(kh)}</b></div><div>KL[P:R] at s <b>${f(lhs)}</b></div><div>KL[P:R̂] + KL[R̂:R] <b>${f(rhs)}</b></div><div>gap <b>${(lhs-rhs).toExponential(1)}</b></div><div>e-foot σ <b>${f(sp)}</b>, KL[R_e:P] <b>${f(ke)}</b></div>`;
+ g("wgn").textContent="Orange: KL[P:R] and, dashed, the Pythagorean split around R̂ (they coincide). Blue: the other order, minimised at the e-foot. The green line is the test member R.";
+}
+["wgm","wgs","wgr"].forEach(i=>g(i).addEventListener("input",draw));draw();
 })();
 </script>
 </body>

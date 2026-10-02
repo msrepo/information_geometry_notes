@@ -11,7 +11,7 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: ten widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels.
+- **[Interactive companion](figures/interactive.html)**: eleven widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels.
   (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) Tangent vectors and the Fisher metric on the Gaussians:
   Fisher ellipses over the half-plane, a tangent step, its Riemannian length and the KL it costs. (4) What a positive-definite Hessian looks like: drag a 2×2 matrix
   and watch the ellipse, eigen-directions and curvature by direction. (5) The Bregman divergence as the gap above a tangent, for five choices of the convex function.
@@ -19,7 +19,8 @@ status: read
   triangle: drag two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities) and the Fisher–Rao geodesic part ways.
   (8) Pythagoras on the Gaussians: the 3-4-5 triangle's cousin, stacking two KL divergences against the direct one, with a tilt away from the right angle.
   (9) Build a right-angled triangle on the probability triangle and tilt it to see the Pythagorean theorem fail by exactly the amount the proof predicts.
-  (10) Project a point onto a straight line or a curved arc, for either order of the KL divergence, and count the critical points.
+  (10) Projection onto the zero-mean Gaussians: both feet, both orders of KL, and the Pythagorean split along the family.
+  (11) Project a point onto a straight line or a curved arc on the probability triangle, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
   `python3 code/dually_flat.py --figures`. `make verify` runs it, in about a second.
@@ -703,6 +704,33 @@ Worked examples (all in the notes' script):
   (largest gap $1.5\times10^{-8}$, limited by the minimiser's tolerance).
 
 <img src="figures/projection.svg" alt="Left: level sets of KL[P:Q] in the probability triangle for P = (0.15, 0.25, 0.60), an e-flat line S curved in this chart, and the m-geodesic from P to its projection P-hat = (0.2718, 0.5342, 0.194). Right: KL[P:Q(s)] along S and KL[P:P-hat] + KL[P-hat:Q(s)] coincide, with minimum 0.398369 at s = 0.4586.">
+
+### The projection theorem on the Gaussians
+
+The projection theorem answers: *given a point $P$ and a family $S$ inside the manifold, which member of $S$ is closest to $P$?* In the plane the answer is the foot of the perpendicular, and flatness of $S$ (a line) makes it unique. The same holds here, with "closest" meaning smallest divergence and "perpendicular" meaning the pairing of §6 vanishes.
+A Gaussian example where every step can be seen: let $S=\{N(0,\sigma^2)\}$, the **zero-mean Gaussians**. In the $(\mu,\sigma)$ plane it is the vertical axis $\mu=0$. It is a straight line in $\theta$ ($\theta_1=\mu/\sigma^2=0$) and also in $\eta$ ($\eta_1=\mu=0$), so it is flat in both senses.
+Take $P=N(1.5,1^2)$ and ask for the member of $S$ that minimises $\mathrm{KL}[P{:}R]$, the direction of model fitting.
+
+*Find the foot by the geometry.* The foot $\hat R$ is where the m-geodesic from $P$ (straight in $\eta$) meets $S$ at a right angle. Write the pairing: $\eta_P=(1.5,\ 3.25)$ and a point $\hat R=N(0,\hat\sigma^2)$ has $\eta=(0,\ \hat\sigma^2)$, so $\eta_P-\eta_{\hat R}=(1.5,\ 3.25-\hat\sigma^2)$. The tangent of $S$ in $\theta$ is $(0,1)$ ($\theta_1$ stays $0$, $\theta_2$ moves).
+Orthogonality is $(\eta_P-\eta_{\hat R})\cdot(0,1)=3.25-\hat\sigma^2=0$, so $\hat\sigma^2=3.25$: **the foot keeps the second moment of $P$**, $\hat\sigma^2=\mu_P^2+\sigma_P^2$ and $\hat\sigma=1.8028$.
+Along the way the m-geodesic keeps $\mu^2+\sigma^2=3.25$: it is an arc of a circle in the $(\mu,\sigma)$ plane, passing through $(1.500,1.000)$, $(1.125,1.409)$, $(0.750,1.639)$, $(0.375,1.763)$ and ending at $(0,1.803)$. Because the metric is diagonal here, "perpendicular" is the usual perpendicular in the picture: the circle arrives horizontally at the vertical axis.
+
+*Check against brute force.* The minimum of $\mathrm{KL}[P{:}N(0,s^2)]$ over $s\in[0.3,4]$ is $0.5893$ at $s=1.8028$; the closed form is $\mathrm{KL}[P{:}\hat R]=\tfrac12\ln(1+\mu_P^2/\sigma_P^2)=0.5893$.
+
+*Why it is the minimum, not just a critical point (Pythagoras).* For every $R=N(0,s^2)$ in $S$, $\mathrm{KL}[P{:}R]=\mathrm{KL}[P{:}\hat R]+\mathrm{KL}[\hat R{:}R]$: at $s=0.5$, $5.3069=0.5893+4.7175$; at $s=3$, $0.7792=0.5893+0.1898$; over 2000 members the largest gap is $5.3\times10^{-15}$.
+The second term is $\ge0$ and vanishes only at $R=\hat R$: that is uniqueness (Theorem 1.5). The right panel of the figure below plots both sides, and they coincide.
+
+<img src="figures/projection-gaussian.svg" alt="Left: the (mu, sigma) plane with the vertical line S of zero-mean Gaussians, the Gaussian P = N(1.5, 1), the m-geodesic from P to S, an arc of the circle mu^2 + sigma^2 = 3.25 that meets S at R-hat = N(0, 3.25), and the horizontal e-geodesic that meets S at N(0, 1). Right: KL[P:R] along S and KL[P:R-hat] + KL[R-hat:R] coincide, with minimum 0.5893 at sigma = 1.8028, while KL[R:P] has its minimum 1.1250 at sigma = 1.">
+
+*This is maximum likelihood.* Fitting a zero-mean Gaussian to data means maximising the likelihood over $\sigma$, which is minimising $\mathrm{KL}[\text{data}{:}R]$; the answer is the **second moment**, $\hat\sigma^2=\overline{x^2}$. With $200\,000$ draws from $P$ the best $\sigma$ by likelihood is $1.8027$, equal to $\sqrt{\overline{x^2}}=1.8027$, and close to the population value $1.8028$.
+In the geometry: the m-projection onto an e-flat family matches the dual coordinates ($\eta_2$) that the family can express, and ignores the rest ($\eta_1$, the mean, which $S$ has no freedom to match). Matching moments *is* the m-projection.
+
+*The other order has its own foot.* Minimise $\mathrm{KL}[R{:}P]$ over $S$ instead: the minimiser keeps $P$'s width, $s=\sigma_P=1.0$, with value $\mu_P^2/(2\sigma_P^2)=1.1250$ (grid agrees). Its path from $P$ is the e-geodesic, which is **horizontal** ($\sigma$ fixed, $\mu$ going $1.5\to0$) and also meets $S$ at a right angle, at a different point.
+Here the split is $\mathrm{KL}[R{:}P]=\mathrm{KL}[R{:}R_e]+\mathrm{KL}[R_e{:}P]$ (largest gap over 2000 members $1.8\times10^{-15}$), the mirror image. Using the wrong split around the wrong foot fails by up to $11.375$: the theorem pairs each projection with *its* order of $\mathrm{KL}$.
+Both versions work because $S$ is flat in both senses; the next example has only one.
+
+*Only one flat structure: the dual case.* Fix the mean at $c=-0.5$: $S_c=\{N(-0.5,s^2)\}$ is a straight line in $\eta$ ($\eta_1=-0.5$) but not in $\theta$, so it is m-flat only. Minimising $\mathrm{KL}[R{:}P]$ (the e-projection) gives $s=\sigma_P=1.0$ with value $(c-\mu_P)^2/(2\sigma_P^2)=2.0000$, and the split $\mathrm{KL}[R{:}P]=\mathrm{KL}[R{:}\hat R]+\mathrm{KL}[\hat R{:}P]$ holds for 2000 members to $1.8\times10^{-15}$.
+So for a family that is flat in only one sense, only one of the two projections is guaranteed to be the unique minimiser; the circle counterexample earlier shows what fails for a curved family.
 
 ### Orthogonality is necessary, not sufficient
 
