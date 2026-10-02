@@ -109,7 +109,7 @@ Amari, S. *Information Geometry and Its Applications*. Applied Mathematical Scie
 | Ch. | Title | Notes |
 |---:|---|---|
 | 1 | Manifold, Divergence and Dually Flat Structure | [read online](https://msrepo.github.io/information_geometry_notes/ch01-dually-flat-structure/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch01-dually-flat-structure/figures/interactive.html) · [source](chapters/ch01-dually-flat-structure/notes.md) · [code](chapters/ch01-dually-flat-structure/code/) |
-| 2 | Exponential Families and Mixture Families of Probability Distributions | to come |
+| 2 | Exponential Families and Mixture Families of Probability Distributions | [read online](https://msrepo.github.io/information_geometry_notes/ch02-exponential-and-mixture-families/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch02-exponential-and-mixture-families/figures/interactive.html) · [source](chapters/ch02-exponential-and-mixture-families/notes.md) · [code](chapters/ch02-exponential-and-mixture-families/code/) |
 | 3 | Invariant Geometry of Manifold of Probability Distributions | to come |
 | 4 | α-Geometry, Tsallis q-Entropy and Positive-Definite Matrices | to come |
 | 5 | Elements of Differential Geometry | to come |
