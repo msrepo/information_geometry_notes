@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alpha Geometry Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:140px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+svg.drag{touch-action:none;cursor:crosshair}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+table.t tr.hl td{background:var(--soft)}
+</style>
+</head>
+<body>
+<main>
+<h1>The α-geometry, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 4 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Eight small experiments on the chapter's objects: the α-geodesic and the curvature of the simplex, Kurose's Pythagorean identity, the α-mean, apportionment of seats, α-integration, the Tsallis escort metric, the $(u,v)$-divergence and positive-definite matrices.
+Every number is computed in the browser with the same formulas as <code>code/alpha_geometry.py</code>, and the default state of each widget reproduces numbers printed by that script.
+Throughout, $D_\alpha[p:q]=\frac4{1-\alpha^2}\sum\{\frac{1-\alpha}2p_i+\frac{1+\alpha}2q_i-p_i^{(1-\alpha)/2}q_i^{(1+\alpha)/2}\}$ as in (3.96): $\alpha=-1$ is $\mathrm{KL}[p:q]$ and $\alpha=1$ its dual.</p>
+
+<h2>1. The α-geodesic of the simplex, and what its parameter is</h2>
+<p>Pick $p$ and $q$ in the triangle of distributions on three outcomes (drag the two dots, or use the sliders) and an $\alpha$. The curve is the normalised α-geodesic (4.27): take $p^{(1-\alpha)/2}$ on the straight line between $p$ and $q$ and rescale to total mass 1. At $\alpha=-1$ it is the straight mixture line; at $\alpha=1$ it is the exponential family through $p$ and $q$.
+The right panel shows two things the book does not spell out. The un-normalised curve (4.22) of $\mathbb R^3_+$ leaves the simplex: its total mass dips below $1$ in the middle (blue). And the normalised curve is the geodesic of the induced connection only as a set: its affine parameter $\tau$ (orange) is $\int c^2$ with $c$ the normalising constant, not the $t$ of (4.27). Move $\alpha$ to $\pm1$ and the orange curve straightens onto the diagonal.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w1a" min="-3" max="3" step="0.1" value="0"><output id="w1ao"></output></label>
+    <label>$p_1$ <input type="range" id="w1p1" min="0.02" max="0.96" step="0.01" value="0.3"><output id="w1p1o"></output></label>
+    <label>$p_2$ <input type="range" id="w1p2" min="0.02" max="0.96" step="0.01" value="0.1"><output id="w1p2o"></output></label>
+    <label>$q_1$ <input type="range" id="w1q1" min="0.02" max="0.96" step="0.01" value="0.3"><output id="w1q1o"></output></label>
+    <label>$q_2$ <input type="range" id="w1q2" min="0.02" max="0.96" step="0.01" value="0.6"><output id="w1q2o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1l" class="drag" viewBox="0 0 400 350" role="img" aria-label="The simplex of three outcomes with the normalised alpha-geodesic between p and q"></svg></div>
+    <div><svg id="w1r" viewBox="0 0 340 300" role="img" aria-label="Total mass of the un-normalised alpha-geodesic and the affine parameter against the path parameter"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>α-geodesic / total mass</span><span><span class="sw" style="border-color:var(--faint)"></span><span class="sw dash" style="border-color:var(--faint)"></span>α = −1 reference / diagonal</span><span><span class="sw" style="border-color:var(--s2)"></span>affine parameter τ(s)</span></div>
+  <div class="stats" id="w1s"></div>
+</div>
+
+<h2>2. Kurose's Pythagorean theorem</h2>
+<p>On the simplex the plain Pythagorean identity of Chapter 1 fails for $\alpha\neq\pm1$, and Theorem 4.5 repairs it with a product term:
+$D_\alpha[p:r]=D_\alpha[p:q]+D_\alpha[q:r]-\frac{1-\alpha^2}4D_\alpha[p:q]D_\alpha[q:r]$ when the α-geodesic $p\to q$ is orthogonal to the $-\alpha$-geodesic $q\to r$. Here $p,q$ are fixed ($p=(0.6,0.3,0.1)$, $q=(0.1,0.3,0.6)$) and $r$ is the point at distance parameter $s$ along the $-\alpha$-geodesic leaving $q$ in the Fisher-orthogonal direction (its tangent scaled to $0.9\min q$ at $s=1$).
+Slide $\alpha$ and $s$ and compare the plain sum with the corrected one: the correction is positive for $\lvert\alpha\rvert&lt;1$ (positive curvature, like the sphere) and negative beyond, and the formula matches to rounding in every state.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w2a" min="-3" max="3" step="0.1" value="0.5"><output id="w2ao"></output></label>
+    <label>$s$ <input type="range" id="w2s" min="0.1" max="1" step="0.05" value="0.6"><output id="w2so"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w2l" viewBox="0 0 400 350" role="img" aria-label="The simplex with p, q, r, the alpha-geodesic from p to q and the minus alpha geodesic from q to r"></svg></div>
+    <div id="w2tab"></div>
+  </div>
+</div>
+
+<h2>3. The α-mean and why only powers are scale-free</h2>
+<p>The α-mean (4.33) averages $x^{(1-\alpha)/2}$ and takes the root back. It runs from the maximum ($\alpha\to-\infty$) through the arithmetic mean ($-1$), $\frac14(\sqrt x+\sqrt y)^2$ ($0$), the geometric mean ($1$) and the harmonic mean ($3$) to the minimum, decreasing in $\alpha$ (4.47). Theorem 4.7 says these are the only <i>scale-free</i> means of the quasi-arithmetic form: $m(cx,cy)=c\,m(x,y)$.
+Test the scale-freeness with the slider $c$: the α-mean passes at every $c$; the quasi-arithmetic mean built from $h(x)=x+x^2$ fails.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w3a" min="-8" max="8" step="0.1" value="0"><output id="w3ao"></output></label>
+    <label>$x$ <input type="range" id="w3x" min="0.1" max="10" step="0.1" value="1"><output id="w3xo"></output></label>
+    <label>$y$ <input type="range" id="w3y" min="0.1" max="10" step="0.1" value="4"><output id="w3yo"></output></label>
+    <label>$c$ <input type="range" id="w3c" min="0.5" max="10" step="0.1" value="3.7"><output id="w3co"></output></label>
+  </div>
+  <svg id="w3v" viewBox="0 0 700 250" role="img" aria-label="The alpha-mean of x and y against alpha"></svg>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>4. Dividing seats: the divisor methods are D<sub>α</sub> minimisers</h2>
+<p>Share $n$ seats among states of given populations so that $q_i=n_i/n$ is closest to the population shares $p_i$ in $D_\alpha[p:q]$. The cost is separable and convex in each $n_i$, so the next seat always goes to the state maximising $p_i/d_\alpha(n_i)$ with the divisor $d_\alpha(k)=\lvert(k+1)^b-k^b\rvert^{-1/a}$, $a=\frac{1-\alpha}2$, $b=\frac{1+\alpha}2$.
+At $\alpha=3$ ($\chi^2$) this is $d=2k+1$, Webster's rule; at $\alpha=-3$ it is $\sqrt{k(k+1)}$, Hill–Huntington; at $\alpha=-1$ ($\mathrm{KL}[p:q]$) the logarithmic mean (Theil–Schrage); $\alpha\to+\infty$ gives Jefferson ($d=k+1$) and $\alpha\to-\infty$ Adams ($d=k$). The page checks the greedy answer against brute-force enumeration of every allocation, and prints the classical rules on the same populations.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>pop 1 <input type="range" id="w4p0" min="0.1" max="30" step="0.1" value="1.3"><output id="w4p0o"></output></label>
+    <label>pop 2 <input type="range" id="w4p1" min="0.1" max="30" step="0.1" value="6.6"><output id="w4p1o"></output></label>
+    <label>pop 3 <input type="range" id="w4p2" min="0.1" max="30" step="0.1" value="21.1"><output id="w4p2o"></output></label>
+    <label>pop 4 <input type="range" id="w4p3" min="0.1" max="30" step="0.1" value="6.8"><output id="w4p3o"></output></label>
+  </div>
+  <div class="controls">
+    <label>seats $n$ <input type="range" id="w4n" min="3" max="20" step="1" value="9"><output id="w4no"></output></label>
+    <label>$\alpha$ <input type="range" id="w4a" min="-10" max="10" step="0.1" value="3"><output id="w4ao"></output></label>
+    <button type="button" id="w4m">α → −∞ (Adams)</button><button type="button" id="w4pl">α → +∞ (Jefferson)</button>
+  </div>
+  <div id="w4tab"></div>
+</div>
+
+<h2>5. α-integration: the best way to merge distributions</h2>
+<p>Given distributions $p_1,p_2,p_3$ with weights $w_i$, the α-integration (4.67) averages $p_i^{(1-\alpha)/2}$ with the weights and renormalises. Theorem 4.9: it minimises the α-risk $R_\alpha[q]=\sum w_iD_\alpha[p_i:q]$. By (4.47) a smaller $\alpha$ is more optimistic (towards the maximum), a larger one more pessimistic.
+The table lists $R_\alpha[q_{\alpha'}]-R_\alpha[q_\alpha]$: every off-diagonal entry is positive, whatever the weights. Note the book's convention: $\alpha=-1$ is the ordinary mixture and $\alpha=+1$ the normalised geometric mean (the product of experts), the reverse of the sentence after Theorem 4.10.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>$w_1$ <input type="range" id="w5w1" min="0" max="1" step="0.05" value="0.5"><output id="w5w1o"></output></label>
+    <label>$w_2$ <input type="range" id="w5w2" min="0" max="1" step="0.05" value="0.3"><output id="w5w2o"></output></label>
+    <label>$w_3$ <input type="range" id="w5w3" min="0" max="1" step="0.05" value="0.2"><output id="w5w3o"></output></label>
+    <label>$\alpha$ <input type="range" id="w5a" min="-4" max="4" step="0.1" value="0"><output id="w5ao"></output></label>
+  </div>
+  <svg id="w5v" viewBox="0 0 700 250" role="img" aria-label="Three distributions on four outcomes and their alpha-integration"></svg>
+  <div id="w5tab"></div>
+</div>
+
+<h2>6. The escort metric is a conformal copy of the Fisher metric</h2>
+<p>The q-free energy $\psi_q(\theta)=-\log_q p_0$ is convex on the simplex; its gradient is the escort distribution $\eta_i=p_i^q/h_q(p)$, $h_q=\sum p_i^q$, and its Hessian is the $q$-metric (4.92). The book (4.116)–(4.117) says it is the Fisher metric times $\sigma=1/h_q$. Differentiate $\psi_q$ numerically (it is defined only implicitly, by the normalisation) and divide the Hessian entrywise by the Fisher metric in the same $\theta$-chart: every entry is the same number, and it is $q/h_q$, not $1/h_q$.
+For $q&lt;1$ the escort distribution is pulled towards the uniform one. The divergence of this flat structure is $\tilde D_q[p:r]=\frac1{(1-q)h_q[r]}(1-\sum p_i^{1-q}r_i^q)$ (4.95) with $r$ fixed below; it equals $q\,D_{2q-1}[p:r]/h_q[r]$.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>$q$ <input type="range" id="w6q" min="0.2" max="2.5" step="0.05" value="0.6"><output id="w6qo"></output></label>
+    <label>$p_0$ <input type="range" id="w6p0" min="0.02" max="1" step="0.01" value="0.4"><output id="w6p0o"></output></label>
+    <label>$p_1$ <input type="range" id="w6p1" min="0.02" max="1" step="0.01" value="0.3"><output id="w6p1o"></output></label>
+    <label>$p_2$ <input type="range" id="w6p2" min="0.02" max="1" step="0.01" value="0.2"><output id="w6p2o"></output></label>
+    <label>$p_3$ <input type="range" id="w6p3" min="0.02" max="1" step="0.01" value="0.1"><output id="w6p3o"></output></label>
+  </div>
+  <svg id="w6v" viewBox="0 0 700 200" role="img" aria-label="A distribution on four outcomes and its escort distribution"></svg>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>p</span><span><span class="sw" style="border-color:var(--s2)"></span>escort distribution p̃ = p<sup>q</sup>/h<sub>q</sub></span></div>
+  <div id="w6tab"></div>
+  <div class="stats" id="w6s"></div>
+</div>
+
+<h2>7. The $(u,v)$-divergence, and two misprints</h2>
+<p>A pair of increasing functions $u,v$ gives the Bregman divergence $D_{u,v}[m:m']=\int_0^{m}vu'+\int_0^{m'}uv'-u(m)v(m')$ (4.127) with $\theta=u(m)$ and $\eta=v(m)$ affine and dual affine. Pick a family. For the $(\alpha,\beta)$-divergence the integral is compared with the closed form (4.133); for the $\alpha$-divergence ($\alpha$ of $D_\alpha$ slider) $u,v$ carry the constants of (4.137); for the $\beta$-divergence the page shows (4.140) as printed, which is not even zero at $m'=m$, next to the standard formula that (4.127) produces from $u=m$, $v=m^\beta/\beta$ (the printed $v=m^{1+\beta}/\beta$ of (4.139) gives yet another number).
+The last line is the Hessian of $D$ in $m'$ at $m'=m$ for the $(\alpha,\beta)$ family: it is $u'v'$, not the $v'/u'$ printed in (4.130).</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>family <select id="w7f"><option value="ab">(α,β)-divergence (4.133)</option><option value="al">α-divergence (4.137–4.138)</option><option value="be">β-divergence (4.139–4.140)</option></select></label>
+    <label>$\alpha$ <input type="range" id="w7a" min="0.1" max="3" step="0.1" value="0.5"><output id="w7ao"></output></label>
+    <label>$\beta$ <input type="range" id="w7b" min="0.1" max="3" step="0.1" value="2"><output id="w7bo"></output></label>
+    <label>$\alpha$ of $D_\alpha$ <input type="range" id="w7d" min="-3" max="3" step="0.1" value="0"><output id="w7do"></output></label>
+    <label>$m$ <input type="range" id="w7m" min="0.1" max="4" step="0.1" value="1.7"><output id="w7mo"></output></label>
+    <label>$m'$ <input type="range" id="w7n" min="0.1" max="4" step="0.1" value="0.6"><output id="w7no"></output></label>
+  </div>
+  <div id="w7tab"></div>
+</div>
+
+<h2>8. Positive-definite matrices: which divergences survive a change of basis?</h2>
+<p>For $2\times2$ matrices $P,Q$ the page evaluates six divergences before and after the congruence $P\mapsto L^{\mathsf T}PL$, $Q\mapsto L^{\mathsf T}QL$. Theorem 4.16: the KL-divergence (4.151), $\operatorname{tr}(PQ^{-1})-\log\det(PQ^{-1})-n$, is invariant under every invertible $L$ (it is twice the Gaussian KL of $N(0,P)$ from $N(0,Q)$); so is any function of the eigenvalues of $PQ^{-1}$, such as the $(\alpha,\beta)$-log-det divergence (4.182). The Euclidean, von Neumann and α-divergences of (4.163), (4.166), (4.179) and (4.176) are invariant under rotations only.
+Turn $L$ into a rotation and they come back.</p>
+<div class="widget" id="w8">
+  <div class="controls">
+    <label>$P_{11}$ <input type="range" id="w8a" min="0.3" max="3" step="0.05" value="1.4"><output id="w8ao"></output></label>
+    <label>$P_{12}$ <input type="range" id="w8b" min="-1" max="1" step="0.05" value="0.3"><output id="w8bo"></output></label>
+    <label>$P_{22}$ <input type="range" id="w8c" min="0.3" max="3" step="0.05" value="0.9"><output id="w8co"></output></label>
+    <label>$Q_{11}$ <input type="range" id="w8d" min="0.3" max="3" step="0.05" value="0.8"><output id="w8do"></output></label>
+    <label>$Q_{12}$ <input type="range" id="w8e" min="-1" max="1" step="0.05" value="-0.2"><output id="w8eo"></output></label>
+    <label>$Q_{22}$ <input type="range" id="w8f" min="0.3" max="3" step="0.05" value="1.3"><output id="w8fo"></output></label>
+  </div>
+  <div class="controls">
+    <label>$L_{11}$ <input type="range" id="w8l11" min="-3" max="3" step="0.1" value="2"><output id="w8l11o"></output></label>
+    <label>$L_{12}$ <input type="range" id="w8l12" min="-3" max="3" step="0.1" value="0.5"><output id="w8l12o"></output></label>
+    <label>$L_{21}$ <input type="range" id="w8l21" min="-3" max="3" step="0.1" value="-0.3"><output id="w8l21o"></output></label>
+    <label>$L_{22}$ <input type="range" id="w8l22" min="-3" max="3" step="0.1" value="1.5"><output id="w8l22o"></output></label>
+    <label>rotation by <input type="range" id="w8rot" min="0" max="180" step="5" value="0"><output id="w8roto"></output></label>
+  </div>
+  <div class="controls">
+    <label>log-det $\alpha$ <input type="range" id="w8al" min="-2" max="2" step="0.1" value="0.5"><output id="w8alo"></output></label>
+    <label>$\beta$ <input type="range" id="w8be" min="-2" max="2" step="0.1" value="1.5"><output id="w8beo"></output></label>
+  </div>
+  <div id="w8tab"></div>
+  <div class="stats" id="w8s"></div>
+</div>
+</main>
+<script>
+"use strict";
+// ===================================================================== pure numerics (no DOM)
+const EPS=1e-9,isOne=a=>Math.abs(a-1)<EPS,isM1=a=>Math.abs(a+1)<EPS,sum=v=>v.reduce((s,x)=>s+x,0);
+const hrep=(p,a)=>isOne(a)?Math.log(p):Math.pow(p,(1-a)/2);
+const hinv=(t,a)=>isOne(a)?Math.exp(t):Math.pow(t,2/(1-a));
+const hinvp=(t,a)=>isOne(a)?Math.exp(t):2/(1-a)*Math.pow(t,(1+a)/(1-a));
+function D1(m,n,a){
+ if(isOne(a))return m-n+n*Math.log(n/m);
+ if(isM1(a))return n-m+m*Math.log(m/n);
+ return 4/(1-a*a)*((1-a)/2*m+(1+a)/2*n-Math.pow(m,(1-a)/2)*Math.pow(n,(1+a)/2));
+}
+const Dalpha=(m,n,a)=>{let s=0;for(let i=0;i<m.length;i++)s+=D1(m[i],n[i],a);return s};
+// normalised alpha-geodesic (4.27) of S_n and its tangent d/ds
+function normPath(p,q,a,s){
+ const tp=p.map(x=>hrep(x,a)),tq=q.map(x=>hrep(x,a)),t=tp.map((x,i)=>(1-s)*x+s*tq[i]);
+ const m=t.map(x=>hinv(x,a)),dm=t.map((x,i)=>hinvp(x,a)*(tq[i]-tp[i])),tot=sum(m),r=m.map(x=>x/tot),sd=sum(dm);
+ return {r,dr:dm.map((x,i)=>(x-r[i]*sd)/tot),mass:tot};
+}
+// affine time of the normalised path: tau(s) = int c^2 / int_0^1 c^2, c = (total mass)^(-(1-a)/2)
+function tauCurve(p,q,a,N){
+ const c2=[];for(let k=0;k<=N;k++){const s=k/N,tot=normPath(p,q,a,s).mass,c=isOne(a)?1:Math.pow(tot,-(1-a)/2);c2.push(c*c)}
+ const cum=[0];for(let k=1;k<=N;k++)cum.push(cum[k-1]+(c2[k]+c2[k-1])/2/N);
+ return cum.map(v=>v/cum[N]);
+}
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+// -alpha path from q with initial tangent w, normalised
+function etaPath(q,w,a,s){
+ let dE,e0;
+ if(isM1(a)){dE=q.map(x=>1/x);e0=q.map(Math.log)}else if(isOne(a)){dE=[1,1,1];e0=q.slice()}
+ else{dE=q.map(x=>(1+a)/2*Math.pow(x,(a-1)/2));e0=q.map(x=>Math.pow(x,(1+a)/2))}
+ const e=e0.map((x,i)=>x+s*w[i]*dE[i]);
+ const m=isM1(a)?e.map(Math.exp):(isOne(a)?e:e.map(x=>Math.pow(x,2/(1+a))));
+ const tot=sum(m);return m.map(x=>x/tot);
+}
+function kurose(p,q,a,s){
+ const u=normPath(p,q,a,1).dr;let w=cross3([1,1,1],u.map((x,i)=>x/q[i]));
+ const mx=Math.max(...w.map(Math.abs));const mq=Math.min(...q);w=w.map(x=>x/mx*0.9*mq);
+ const r=etaPath(q,w,a,s);
+ const ok=r.every(x=>isFinite(x)&&x>0);
+ if(!ok)return {ok:false,w};
+ const Dpq=Dalpha(p,q,a),Dqr=Dalpha(q,r,a),Dpr=Dalpha(p,r,a),corr=(1-a*a)/4*Dpq*Dqr;
+ return {ok,w,r,Dpq,Dqr,Dpr,plain:Dpq+Dqr,corr,formula:Dpq+Dqr-corr};
+}
+// alpha-mean (4.33)
+function amean(x,y,a){
+ if(a===Infinity)return Math.min(x,y);if(a===-Infinity)return Math.max(x,y);
+ if(isOne(a))return Math.sqrt(x*y);
+ const e=(1-a)/2;return Math.pow(0.5*(Math.pow(x,e)+Math.pow(y,e)),1/e);
+}
+// apportionment
+function logDiv(k,a){
+ if(isOne(a))return (k+1)*Math.log(k+1)-(k>0?k*Math.log(k):0);
+ if(isM1(a))return k>0?-Math.log(Math.log1p(1/k)):-Infinity;
+ const aa=(1-a)/2,bb=(1+a)/2;let core;
+ if(bb>0)core=bb*Math.log(k+1)+Math.log1p(-Math.pow(k/(k+1),bb));
+ else core=k>0?bb*Math.log(k)+Math.log1p(-Math.pow(k/(k+1),-bb)):Infinity;
+ return -core/aa;
+}
+function greedyAlloc(pop,n,a){
+ const k=pop.map(()=>0);
+ for(let t=0;t<n;t++){let best=-Infinity,j=0;pop.forEach((p,i)=>{const v=Math.log(p)-logDiv(k[i],a);if(v>best){best=v;j=i}});k[j]++}
+ return k;
+}
+function divisorAlloc(pop,n,d){
+ const k=pop.map(()=>0);
+ for(let t=0;t<n;t++){let best=-Infinity,j=0;pop.forEach((p,i)=>{const v=p/d(k[i]);if(v>best){best=v;j=i}});k[j]++}
+ return k;
+}
+function bruteAlloc(pop,n,a){
+ const tot=sum(pop),p=pop.map(x=>x/tot),s=pop.length;let best=Infinity,arg=[];
+ const cur=new Array(s).fill(0);
+ function cost(){
+  let c=0;
+  for(let i=0;i<s;i++){
+   const q=cur[i]/n;
+   if(isOne(a))c+=p[i]-q+(q>0?q*Math.log(q/p[i]):0);
+   else if(isM1(a)){if(q===0)return Infinity;c+=q-p[i]+p[i]*Math.log(p[i]/q)}
+   else{if(q===0&&a<=-1)return Infinity;c+=4/(1-a*a)*((1-a)/2*p[i]+(1+a)/2*q-Math.pow(p[i],(1-a)/2)*(q>0?Math.pow(q,(1+a)/2):0))}
+  }
+  return c;
+ }
+ (function rec(i,left){
+  if(i===s-1){cur[i]=left;const c=cost(),tol=isFinite(best)?1e-13*Math.max(1,Math.abs(best)):0;if(c<best-tol){best=c;arg=[cur.slice()]}else if(c<=best+tol)arg.push(cur.slice());return}
+  for(let k=0;k<=left;k++){cur[i]=k;rec(i+1,left-k)}
+ })(0,n);
+ return arg;
+}
+// alpha-integration (4.67) and risk
+function integ(P,w,a){
+ const n=P[0].length,t=new Array(n).fill(0);P.forEach((p,k)=>p.forEach((x,i)=>{t[i]+=w[k]*hrep(x,a)}));
+ const m=t.map(x=>hinv(x,a)),s=sum(m);return m.map(x=>x/s);
+}
+const risk=(P,w,q,a)=>P.reduce((s,p,k)=>s+w[k]*Dalpha(p,q,a),0);
+// q-families (4.84)-(4.85)
+function logq(u,q){return Math.abs(q-1)<EPS?Math.log(u):(Math.pow(u,1-q)-1)/(1-q)}
+function pOfTheta(th,q){
+ if(Math.abs(q-1)<EPS){const e=th.map(Math.exp),z=1+sum(e);return [1/z].concat(e.map(x=>x/z))}
+ const ex=1/(1-q);
+ const g=x=>Math.pow(x,ex)+sum(th.map(t=>Math.pow((1-q)*t+x,ex)))-1;
+ let mlow=0;th.forEach(t=>{mlow=Math.max(mlow,-(1-q)*t)});
+ let lo=Math.max(-40,Math.log(Math.max(mlow,1e-300))+1e-12),hi=40;
+ if(mlow===0)lo=-40;
+ const slo=Math.sign(g(Math.exp(lo)));
+ for(let it=0;it<200;it++){const mid=(lo+hi)/2;if(Math.sign(g(Math.exp(mid)))===slo)lo=mid;else hi=mid}
+ const x=Math.exp((lo+hi)/2);
+ return [Math.pow(x,ex)].concat(th.map(t=>Math.pow((1-q)*t+x,ex)));
+}
+const thetaOfP=(p,q)=>Math.abs(q-1)<EPS?p.slice(1).map(x=>Math.log(x/p[0])):p.slice(1).map(x=>(Math.pow(x,1-q)-Math.pow(p[0],1-q))/(1-q));
+const psiQ=(th,q)=>-logq(pOfTheta(th,q)[0],q);
+function qGeometry(p,q){
+ const th=thetaOfP(p,q),n=th.length,h=1e-3;
+ const H=[];for(let i=0;i<n;i++){H.push([]);for(let j=0;j<n;j++){
+  const f=(a,b)=>{const t=th.slice();t[i]+=a;t[j]+=b;return psiQ(t,q)};
+  H[i].push((f(h,h)-f(h,-h)-f(-h,h)+f(-h,-h))/(4*h*h))}}
+ const J=p.map(()=>[]);const e=1e-6;
+ for(let j=0;j<n;j++){const a=th.slice(),b=th.slice();a[j]+=e;b[j]-=e;const pa=pOfTheta(a,q),pb=pOfTheta(b,q);for(let i=0;i<=n;i++)J[i][j]=(pa[i]-pb[i])/(2*e)}
+ const G=[];for(let i=0;i<n;i++){G.push([]);for(let j=0;j<n;j++){let s=0;for(let k=0;k<=n;k++)s+=J[k][i]*J[k][j]/p[k];G[i].push(s)}}
+ return {th,H,G};
+}
+function Dtilde(p,r,q){if(Math.abs(q-1)<EPS){let k=0;for(let i=0;i<p.length;i++)k+=r[i]*Math.log(r[i]/p[i]);return k}let s=0,h=0;for(let i=0;i<p.length;i++){s+=Math.pow(p[i],1-q)*Math.pow(r[i],q);h+=Math.pow(r[i],q)}return (1-s)/((1-q)*h)}
+// (u,v)-divergence by quadrature of (4.127), s = m t^4 to smooth endpoint singularities
+function integ0(f,m,N){
+ // int_0^m f(s) ds with s = m t^4, composite 3-point Gauss-Legendre in t (no endpoint evaluations)
+ const xs=[-Math.sqrt(0.6),0,Math.sqrt(0.6)],ws=[5/9,8/9,5/9],h=1/N;let s=0;
+ for(let k=0;k<N;k++){const a=k*h;for(let j=0;j<3;j++){const t=a+h*(xs[j]+1)/2;s+=h/2*ws[j]*f(m*Math.pow(t,4))*4*m*Math.pow(t,3)}}
+ return s;
+}
+function Duv(m,mp,u,du,v,dv,N){return integ0(s=>v(s)*du(s),m,N)+integ0(s=>u(s)*dv(s),mp,N)-u(m)*v(mp)}
+// 2x2 symmetric matrices
+function eig2(M){const a=M[0][0],b=M[0][1],c=M[1][1],m=(a+c)/2,d=Math.sqrt(((a-c)/2)**2+b*b),th=0.5*Math.atan2(2*b,a-c);return {l:[m+d,m-d],v:[[Math.cos(th),Math.sin(th)],[-Math.sin(th),Math.cos(th)]]}}
+function mfun(M,f){const e=eig2(M),r=[[0,0],[0,0]];for(let k=0;k<2;k++){const fl=f(e.l[k]);for(let i=0;i<2;i++)for(let j=0;j<2;j++)r[i][j]+=fl*e.v[k][i]*e.v[k][j]}return r}
+const mm=(A,B)=>[[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]];
+const tr2=A=>A[0][0]+A[1][1],tp=A=>[[A[0][0],A[1][0]],[A[0][1],A[1][1]]],det2=A=>A[0][0]*A[1][1]-A[0][1]*A[1][0];
+const inv2=A=>{const d=det2(A);return [[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]]};
+const madd=(A,B,x=1,y=1)=>A.map((r,i)=>r.map((v,j)=>x*v+y*B[i][j]));
+const congr=(L,A)=>mm(mm(tp(L),A),L);
+function Dstein(P,Q){const M=mm(P,inv2(Q));return tr2(M)-Math.log(det2(M))-2}
+function Dfro(P,Q){let s=0;for(let i=0;i<2;i++)for(let j=0;j<2;j++)s+=(P[i][j]-Q[i][j])**2;return 0.5*s}
+function Dvn(P,Q){const lP=mfun(P,Math.log),lQ=mfun(Q,Math.log);return tr2(madd(madd(mm(P,lP),mm(P,lQ),1,-1),madd(Q,P,1,-1)))}
+function DalphaMat(P,Q,a){const Pa=mfun(P,x=>Math.pow(x,(1-a)/2)),Qb=mfun(Q,x=>Math.pow(x,(1+a)/2));return 4/(1-a*a)*(-tr2(mm(Pa,Qb))+(1-a)/2*tr2(P)+(1+a)/2*tr2(Q))}
+function DabMat(P,Q,al,be){const s=al+be,Ps=mfun(P,x=>Math.pow(x,s)),Qs=mfun(Q,x=>Math.pow(x,s));return al/s*tr2(Ps)+be/s*tr2(Qs)-tr2(mm(mfun(P,x=>Math.pow(x,al)),mfun(Q,x=>Math.pow(x,be))))}
+function pqEigs(P,Q){const Qh=mfun(Q,x=>1/Math.sqrt(x));return eig2(mm(mm(Qh,P),Qh)).l}
+function Dlogdet(P,Q,al,be){
+ const lam=pqEigs(P,Q);
+ if(Math.abs(al)<EPS&&Math.abs(be)<EPS)return 0.5*sum(lam.map(l=>Math.log(l)**2));
+ if(Math.abs(be)<EPS)return (sum(lam.map(l=>Math.pow(l,-al)+al*Math.log(l)))-2)/(al*al);
+ if(Math.abs(al)<EPS)return (sum(lam.map(l=>Math.pow(l,be)-be*Math.log(l)))-2)/(be*be);
+ if(Math.abs(al+be)<1e-6)be+=1e-6;
+ return sum(lam.map(l=>Math.log((al*Math.pow(l,be)+be*Math.pow(l,-al))/(al+be))))/(al*be);
+}
+const isPD=A=>A[0][0]>1e-3&&det2(A)>1e-3;
+
+// ===================================================================== DOM helpers
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P),root:P};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5),f6=v=>v.toFixed(6),f8=v=>v.toFixed(8);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.root);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.root).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.root);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.root).textContent=(fy||f2)(v)})};
+const num=id=>+g(id).value;
+const out=(id,v)=>{g(id).textContent=v};
+// simplex drawing helpers
+const TRI=[[200,36],[40,306],[360,306]];
+const xyOf=p=>[p[0]*TRI[0][0]+p[1]*TRI[1][0]+p[2]*TRI[2][0],p[0]*TRI[0][1]+p[1]*TRI[1][1]+p[2]*TRI[2][1]];
+function baryOf(x,y){const a=TRI[1][0]-TRI[0][0],b=TRI[2][0]-TRI[0][0],c=TRI[1][1]-TRI[0][1],d=TRI[2][1]-TRI[0][1],det=a*d-b*c,X=x-TRI[0][0],Y=y-TRI[0][1],b1=(d*X-b*Y)/det,b2=(-c*X+a*Y)/det;return [1-b1-b2,b1,b2]}
+function clampBary(b,lo=0.02){let v=b.map(x=>Math.max(x,lo));const s=sum(v);return v.map(x=>x/s)}
+function drawTriangle(S){
+ el("polygon",{points:TRI.map(q=>q.join(",")).join(" "),fill:"var(--soft)",stroke:"var(--faint)","stroke-width":1.2},S);
+ [0.25,0.5,0.75].forEach(t=>{for(let k=0;k<3;k++){const o=[0,1,2].filter(j=>j!==k),a=[0,0,0],c=[0,0,0];a[k]=t;a[o[0]]=1-t;c[k]=t;c[o[1]]=1-t;const A=xyOf(a),C=xyOf(c);el("line",{x1:A[0],y1:A[1],x2:C[0],y2:C[1],stroke:"var(--line)","stroke-width":.7},S)}});
+ [["p₀ = 1",TRI[0][0],TRI[0][1]-8],["p₁ = 1",TRI[1][0],TRI[1][1]+16],["p₂ = 1",TRI[2][0],TRI[2][1]+16]].forEach(([t,x,y])=>el("text",{x,y,"text-anchor":"middle",fill:"var(--muted)","font-size":11},S).textContent=t);
+}
+const pt3=(a,b)=>[1-a-b,a,b];
+
+// ===================================================================== widget 1: alpha-geodesic of the simplex
+(function(){
+ const st={p:[0.6,0.3,0.1],q:[0.1,0.3,0.6]};
+ const S=g("w1l"),R=g("w1r");
+ function syncSliders(){g("w1p1").value=st.p[1];g("w1p2").value=st.p[2];g("w1q1").value=st.q[1];g("w1q2").value=st.q[2]}
+ function draw(){
+  const a=num("w1a");out("w1ao",f2(a));
+  out("w1p1o",f2(st.p[1]));out("w1p2o",f2(st.p[2]));out("w1q1o",f2(st.q[1]));out("w1q2o",f2(st.q[2]));
+  clear(S);drawTriangle(S);
+  const curve=al=>{const o=[];for(let k=0;k<=100;k++)o.push(xyOf(normPath(st.p,st.q,al,k/100).r));return o};
+  if(Math.abs(a+1)>1e-6)path(S,curve(-1),"var(--faint)",1.2,"5 3");
+  path(S,curve(a),"var(--s1)",2.8);
+  [[st.p,"p","var(--ink)"],[st.q,"q","var(--s2)"]].forEach(([pt,lab,col])=>{const [x,y]=xyOf(pt);el("circle",{cx:x,cy:y,r:7,fill:col,stroke:"var(--surface)","stroke-width":2,style:"cursor:grab"},S);el("text",{x:x+10,y:y-9,fill:"var(--ink)","font-size":13},S).textContent=lab});
+  // right: total mass and affine time against s
+  clear(R);const P=axes(R,40,16,285,240,[0,1],[0,1.12],"mass of (4.22) and affine time τ(s)","s (path parameter)","");
+  ticks(P,[0,0.25,0.5,0.75,1],[0,0.25,0.5,0.75,1],f2,f2);
+  path(P.G,[[P.X(0),P.Y(0)],[P.X(1),P.Y(1)]],"var(--faint)",1,"5 3");
+  const N=400,tau=tauCurve(st.p,st.q,a,N),mass=[],tp=[];
+  for(let k=0;k<=N;k++){const s=k/N;mass.push([P.X(s),P.Y(normPath(st.p,st.q,a,s).mass)]);tp.push([P.X(s),P.Y(tau[k])])}
+  path(P.G,mass,"var(--s1)",2.2);path(P.G,tp,"var(--s2)",2.2);
+  const m5=normPath(st.p,st.q,a,0.5).mass,t=s=>tau[Math.round(s*N)];
+  g("w1s").innerHTML=`<div>D<sub>α</sub>[p:q] <b>${f5(Dalpha(st.p,st.q,a))}</b></div><div>D<sub>α</sub>[q:p] = D<sub>−α</sub>[p:q] <b>${f5(Dalpha(st.q,st.p,a))}</b></div><div>curvature (1−α²)/4 <b>${f4((1-a*a)/4)}</b></div><div>mass of (4.22) at t = ½ <b>${f6(m5)}</b></div><div>τ(¼), τ(½), τ(¾) <b>${f4(t(0.25))}, ${f4(t(0.5))}, ${f4(t(0.75))}</b></div><div>max |τ(s) − s| <b>${f4(Math.max(...tau.map((v,k)=>Math.abs(v-k/N))))}</b></div>`;
+ }
+ ["w1a"].forEach(i=>g(i).addEventListener("input",draw));
+ const setP=(which,i,v)=>{const pt=st[which].slice();pt[i]=v;const other=i===1?2:1;if(pt[1]+pt[2]>0.98)pt[other]=Math.max(0.02,0.98-pt[i]);pt[0]=1-pt[1]-pt[2];st[which]=pt;syncSliders();draw()};
+ g("w1p1").addEventListener("input",e=>setP("p",1,+e.target.value));g("w1p2").addEventListener("input",e=>setP("p",2,+e.target.value));
+ g("w1q1").addEventListener("input",e=>setP("q",1,+e.target.value));g("w1q2").addEventListener("input",e=>setP("q",2,+e.target.value));
+ let drag=null;
+ const svgPt=ev=>{const r=S.getBoundingClientRect();return [(ev.clientX-r.left)/r.width*400,(ev.clientY-r.top)/r.height*350]};
+ S.addEventListener("pointerdown",ev=>{const [x,y]=svgPt(ev),dp=Math.hypot(...xyOf(st.p).map((v,i)=>v-[x,y][i])),dq=Math.hypot(...xyOf(st.q).map((v,i)=>v-[x,y][i]));if(Math.min(dp,dq)<24){drag=dp<=dq?"p":"q";S.setPointerCapture(ev.pointerId)}});
+ S.addEventListener("pointermove",ev=>{if(!drag)return;const [x,y]=svgPt(ev);st[drag]=clampBary(baryOf(x,y),0.02);syncSliders();draw()});
+ S.addEventListener("pointerup",()=>{drag=null});
+ syncSliders();draw();
+})();
+
+// ===================================================================== widget 2: Kurose
+(function(){
+ const p=[0.6,0.3,0.1],q=[0.1,0.3,0.6],S=g("w2l");
+ function draw(){
+  const a=num("w2a"),s=num("w2s");out("w2ao",f2(a));out("w2so",f2(s));
+  const k=kurose(p,q,a,s);
+  clear(S);drawTriangle(S);
+  const pa=[];for(let i=0;i<=100;i++)pa.push(xyOf(normPath(p,q,a,i/100).r));path(S,pa,"var(--s1)",2.6);
+  if(k.ok){const pb=[];for(let i=0;i<=60;i++)pb.push(xyOf(etaPath(q,k.w,a,s*i/60)));path(S,pb,"var(--s2)",2.6)}
+  [[p,"p",9,-8],[q,"q",-18,14],[k.ok?k.r:null,"r",9,-8]].forEach(([pt,lab,dx,dy])=>{if(!pt)return;const [x,y]=xyOf(pt);el("circle",{cx:x,cy:y,r:5.5,fill:"var(--ink)",stroke:"var(--surface)","stroke-width":2},S);el("text",{x:x+dx,y:y+dy,fill:"var(--ink)","font-size":13},S).textContent=lab});
+  if(!k.ok){g("w2tab").innerHTML="<p class='cap'>r leaves the simplex for this α and s: reduce s.</p>";return}
+  g("w2tab").innerHTML=`<table class="t"><tr><th></th><th>value</th></tr>
+  <tr><td>D<sub>α</sub>[p:q]</td><td>${f6(k.Dpq)}</td></tr>
+  <tr><td>D<sub>α</sub>[q:r]</td><td>${f6(k.Dqr)}</td></tr>
+  <tr><td>D<sub>α</sub>[p:r] (measured)</td><td><b>${f6(k.Dpr)}</b></td></tr>
+  <tr><td>plain sum D[p:q] + D[q:r]</td><td>${f6(k.plain)}</td></tr>
+  <tr><td>correction (1−α²)/4 · D[p:q] D[q:r]</td><td>${sg(k.corr,6)}</td></tr>
+  <tr class="hl"><td>(4.29): sum − correction</td><td><b>${f6(k.formula)}</b></td></tr>
+  <tr><td>measured − (4.29)</td><td>${(k.Dpr-k.formula).toExponential(1)}</td></tr>
+  <tr><td>measured − plain sum</td><td>${sg(k.Dpr-k.plain,6)}</td></tr></table>
+  <div class="cap">Blue: the α-geodesic p → q. Orange: the −α-geodesic from q, started Fisher-orthogonally to the blue one. The last row is the failure of the plain identity.</div>`;
+ }
+ ["w2a","w2s"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===================================================================== widget 3: alpha-mean
+(function(){
+ const S=g("w3v");
+ function draw(){
+  const a=num("w3a"),x=num("w3x"),y=num("w3y"),c=num("w3c");out("w3ao",f2(a));out("w3xo",f2(x));out("w3yo",f2(y));out("w3co",f2(c));
+  clear(S);const lo=Math.min(x,y),hi=Math.max(x,y),P=axes(S,60,14,600,200,[-8,8],[lo-0.05*(hi-lo+0.1),hi+0.05*(hi-lo+0.1)],"α-mean of x and y against α","α","");
+  ticks(P,[-8,-6,-4,-2,0,2,4,6,8],[lo,(lo+hi)/2,hi],v=>v.toFixed(0),f2);
+  [[hi,"var(--faint)"],[lo,"var(--faint)"]].forEach(([v,col])=>path(P.G,[[P.X(-8),P.Y(v)],[P.X(8),P.Y(v)]],col,1,"5 3"));
+  const pts=[];for(let k=0;k<=200;k++){const al=-8+16*k/200;pts.push([P.X(al),P.Y(amean(x,y,al))])}
+  path(P.G,pts,"var(--s1)",2.4);
+  [-3,-1,0,1,3].forEach(al=>el("circle",{cx:P.X(al),cy:P.Y(amean(x,y,al)),r:3,fill:"var(--faint)"},P.G));
+  el("circle",{cx:P.X(a),cy:P.Y(amean(x,y,a)),r:5.5,fill:"var(--s2)",stroke:"var(--surface)","stroke-width":1.5},P.G);
+  const m=amean(x,y,a),sf=amean(c*x,c*y,a)-c*m;
+  const h=v=>v+v*v,hi_=v=>(-1+Math.sqrt(1+4*v))/2,mh=(u,w)=>hi_((h(u)+h(w))/2),sfh=mh(c*x,c*y)-c*mh(x,y);
+  g("w3s").innerHTML=`<div>m<sub>α</sub>(x, y) <b>${f4(m)}</b></div><div>arithmetic (α = −1) <b>${f4((x+y)/2)}</b></div><div>geometric (α = 1) <b>${f4(Math.sqrt(x*y))}</b></div><div>harmonic (α = 3) <b>${f4(2*x*y/(x+y))}</b></div><div>max / min <b>${f4(Math.max(x,y))} / ${f4(Math.min(x,y))}</b></div><div>m(cx, cy) − c m(x, y), α-mean <b>${Math.abs(sf)<1e-12?"0 (rounding)":sf.toExponential(1)}</b></div><div>same for h(x) = x + x² <b>${f4(sfh)}</b></div>`;
+ }
+ ["w3a","w3x","w3y","w3c"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===================================================================== widget 4: apportionment
+(function(){
+ const rules=[["Jefferson (d = k+1)",60,k=>k+1],["Webster (d = k+½)",3,k=>k+0.5],["Hill–Huntington (d = √(k(k+1)))",-3,k=>k===0?1e-9:Math.sqrt(k*(k+1))],["Theil–Schrage (log mean)",-1,k=>k===0?1e-9:1/Math.log1p(1/k)],["Adams (d = k)",-60,k=>k===0?1e-9:k],["Dean (harmonic mean of k, k+1)",null,k=>k===0?1e-9:k*(k+1)/(k+0.5)]];
+ let alpha=3;
+ function draw(){
+  const pop=[0,1,2,3].map(i=>num("w4p"+i)),n=num("w4n");[0,1,2,3].forEach(i=>out("w4p"+i+"o",f2(pop[i])));out("w4no",n);
+  g("w4a").value=Math.max(-10,Math.min(10,alpha));out("w4ao",alpha.toFixed(1));
+  const gr=greedyAlloc(pop,n,alpha),br=bruteAlloc(pop,n,alpha),agree=br.some(b=>b.every((v,i)=>v===gr[i]));
+  const ds=[0,1,2,3,4,5].map(k=>Math.exp(logDiv(k,alpha)));
+  let rows=rules.map(([name,al,d])=>{const r=divisorAlloc(pop,n,d),same=r.every((v,i)=>v===gr[i]);return `<tr${same?' class="hl"':""}><td>${name}</td><td>${al===null?"–":(Math.abs(al)===60?(al>0?"+∞ (60)":"−∞ (−60)"):String(al).replace("-","−"))}</td><td>${r.join(", ")}</td></tr>`}).join("");
+  g("w4tab").innerHTML=`<div class="stats"><div>seats minimising D<sub>α</sub>[p:q], α = ${alpha.toFixed(1)}: <b>${gr.join(", ")}</b></div><div>brute force over all ${Math.round((n+1)*(n+2)*(n+3)/6)} allocations: <b>${br.map(b=>b.join(", ")).join(" | ")}</b> (${agree?"agrees":"DISAGREES"})</div><div>divisor d<sub>α</sub>(k), k = 0…5: <b>${ds.map(v=>v<1e-8?"0":v.toPrecision(4)).join(", ")}</b></div></div>
+  <table class="t"><tr><th>classical rule on the same populations</th><th>its α</th><th>seats</th></tr>${rows}</table><div class="cap">Highlighted: the rule gives the same seats as the D<sub>α</sub>-optimum at the current α. Dean's method is not of the form d<sub>α</sub>.</div>`;
+ }
+ [0,1,2,3].forEach(i=>g("w4p"+i).addEventListener("input",draw));g("w4n").addEventListener("input",draw);
+ g("w4a").addEventListener("input",()=>{alpha=num("w4a");draw()});
+ g("w4m").addEventListener("click",()=>{alpha=-60;draw()});g("w4pl").addEventListener("click",()=>{alpha=60;draw()});draw();
+})();
+
+// ===================================================================== widget 5: alpha-integration
+(function(){
+ const P=[[0.10,0.25,0.10,0.55],[0.35,0.15,0.45,0.05],[0.05,0.45,0.20,0.30]],grid=[-3,-1,0,1,3],S=g("w5v");
+ function draw(){
+  let w=[num("w5w1"),num("w5w2"),num("w5w3")];[1,2,3].forEach(i=>out("w5w"+i+"o",f2(w[i-1])));out("w5ao",f2(num("w5a")));
+  const sw=sum(w);if(sw<1e-9){g("w5tab").innerHTML="<p class='cap'>set a positive weight</p>";return}
+  w=w.map(x=>x/sw);const a=num("w5a"),q=integ(P,w,a);
+  clear(S);const A=axes(S,50,14,610,210,[0,4],[0,0.65],"","outcome","probability");
+  ticks(A,[0.5,1.5,2.5,3.5],[0,0.2,0.4,0.6],v=>"x"+Math.floor(v),f2);
+  const cols=["var(--s1)","var(--s3)","var(--s4)"];
+  for(let i=0;i<4;i++){
+   P.forEach((p,k)=>el("rect",{x:A.X(i+0.05+k*0.18),y:A.Y(p[i]),width:A.X(0.15)-A.X(0),height:A.Y(0)-A.Y(p[i]),fill:cols[k],opacity:.45},A.G));
+   el("rect",{x:A.X(i+0.6),y:A.Y(q[i]),width:A.X(0.3)-A.X(0),height:A.Y(0)-A.Y(q[i]),fill:"var(--ink)",opacity:.8},A.G);
+  }
+  const rf=(al,qq)=>risk(P,w,qq,al),qs=grid.map(al=>integ(P,w,al));
+  let head="<tr><th>R<sub>α</sub>[q<sub>α′</sub>] − R<sub>α</sub>[q<sub>α</sub>]</th>"+grid.map(g2=>`<th>α′ = ${g2>0?"+":(g2<0?"−":"")}${Math.abs(g2)}</th>`).join("")+"</tr>";
+  let rows=grid.map(al=>{const base=rf(al,integ(P,w,al));return `<tr><td>α = ${al>0?"+":(al<0?"−":"")}${Math.abs(al)}</td>`+grid.map((g2,j)=>`<td>${j===grid.indexOf(al)?"<b>0</b>":f5(rf(al,qs[j])-base)}</td>`).join("")+"</tr>"}).join("");
+  g("w5tab").innerHTML=`<div class="key"><span><span class="sw" style="background:var(--s1);height:8px;border:0;width:12px"></span>p₁</span><span><span class="sw" style="background:var(--s3);height:8px;border:0;width:12px"></span>p₂</span><span><span class="sw" style="background:var(--s4);height:8px;border:0;width:12px"></span>p₃</span><span><span class="sw" style="background:var(--ink);height:8px;border:0;width:12px"></span>q<sub>α</sub> (the α-integration at α = ${a.toFixed(1)})</span></div>
+  <div class="stats"><div>weights <b>${w.map(f3).join(", ")}</b></div><div>q<sub>α</sub> = <b>${q.map(f4).join(", ")}</b></div><div>R<sub>α</sub>[q<sub>α</sub>] = <b>${f6(rf(a,q))}</b></div></div>
+  <table class="t">${head}${rows}</table><div class="cap">Rows α: the risk used; columns α′: the integration plugged in. α = −1 is the ordinary mixture ${integ(P,w,-1).map(f4).join(", ")}; α = +1 the normalised geometric mean ${integ(P,w,1).map(f4).join(", ")}.</div>`;
+ }
+ ["w5w1","w5w2","w5w3","w5a"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===================================================================== widget 6: Tsallis escort
+(function(){
+ const r=[0.15,0.35,0.25,0.25],S=g("w6v");
+ function draw(){
+  const q=num("w6q");out("w6qo",f2(q));let p=[0,1,2,3].map(i=>num("w6p"+i));[0,1,2,3].forEach(i=>out("w6p"+i+"o",f2(p[i])));
+  const sp=sum(p);p=p.map(x=>x/sp);
+  const hq=sum(p.map(x=>Math.pow(x,q))),esc=p.map(x=>Math.pow(x,q)/hq);
+  clear(S);const A=axes(S,50,14,610,160,[0,4],[0,0.8],"","outcome","probability");ticks(A,[0.5,1.5,2.5,3.5],[0,0.2,0.4,0.6,0.8],v=>"x"+Math.floor(v),f2);
+  for(let i=0;i<4;i++){
+   el("rect",{x:A.X(i+0.15),y:A.Y(p[i]),width:A.X(0.3)-A.X(0),height:A.Y(0)-A.Y(p[i]),fill:"var(--s1)",opacity:.6},A.G);
+   el("rect",{x:A.X(i+0.55),y:A.Y(esc[i]),width:A.X(0.3)-A.X(0),height:A.Y(0)-A.Y(esc[i]),fill:"var(--s2)",opacity:.7},A.G);
+  }
+  const geo=qGeometry(p,q),n=3;let lo=Infinity,hi=-Infinity,cells="";
+  for(let i=0;i<n;i++){cells+="<tr><td>θ<sub>"+(i+1)+"</sub></td>";for(let j=0;j<n;j++){const v=geo.H[i][j]/geo.G[i][j];lo=Math.min(lo,v);hi=Math.max(hi,v);cells+=`<td>${f6(v)}</td>`}cells+="</tr>"}
+  g("w6tab").innerHTML=`<table class="t"><tr><th>Hess ψ<sub>q</sub> / Fisher, entrywise</th><th>θ<sub>1</sub></th><th>θ<sub>2</sub></th><th>θ<sub>3</sub></th></tr>${cells}</table>`;
+  const Dt=Dtilde(p,r,q),viaAlpha=q*Dalpha(p,r,2*q-1)/sum(r.map(x=>Math.pow(x,q)));
+  g("w6s").innerHTML=`<div>h<sub>q</sub>(p) <b>${f6(hq)}</b></div><div>escort p̃ <b>${esc.map(f4).join(", ")}</b></div><div>ratio range <b>${f6(lo)} … ${f6(hi)}</b></div><div>q/h<sub>q</sub> <b>${f6(q/hq)}</b></div><div>1/h<sub>q</sub> (as printed in 4.117) <b>${f6(1/hq)}</b></div><div>D̃<sub>q</sub>[p:r] for r = (0.15, 0.35, 0.25, 0.25) <b>${f8(Dt)}</b></div><div>q D<sub>2q−1</sub>[p:r] / h<sub>q</sub>[r] <b>${f8(viaAlpha)}</b></div>`;
+ }
+ ["w6q","w6p0","w6p1","w6p2","w6p3"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===================================================================== widget 7: (u,v)-divergence
+(function(){
+ function draw(){
+  const fam=g("w7f").value,al=num("w7a"),be=num("w7b"),m=num("w7m"),n=num("w7n");out("w7ao",f2(al));out("w7bo",f2(be));out("w7do",num("w7d").toFixed(1));out("w7mo",f2(m));out("w7no",f2(n));
+  const N=200;let html="";
+  if(fam==="ab"){
+   const u=s=>Math.pow(s,al)/al,du=s=>Math.pow(s,al-1),v=s=>Math.pow(s,be)/be,dv=s=>Math.pow(s,be-1);
+   const D=Duv(m,n,u,du,v,dv,N),cl=(al*Math.pow(m,al+be)+be*Math.pow(n,al+be)-(al+be)*Math.pow(m,al)*Math.pow(n,be))/(al*be*(al+be));
+   const hh=1e-3,F=x=>Duv(m,x,u,du,v,dv,N),hess=(F(m+hh)-2*F(m)+F(m-hh))/(hh*hh);
+   html=`<table class="t"><tr><th>u = m<sup>α</sup>/α, v = m<sup>β</sup>/β</th><th>value</th></tr><tr><td>quadrature of (4.127)</td><td><b>${f8(D)}</b></td></tr><tr><td>closed form (4.133)</td><td><b>${f8(cl)}</b></td></tr><tr><td>difference</td><td>${Math.abs(D-cl).toExponential(1)}</td></tr>
+   <tr><td>Hessian of D[m : m′] in m′ at m′ = m (numerical)</td><td>${f6(hess)}</td></tr><tr><td>u′(m) v′(m) = m<sup>α+β−2</sup></td><td>${f6(du(m)*dv(m))}</td></tr><tr><td>v′(m)/u′(m) as printed in (4.130)</td><td>${f6(dv(m)/du(m))}</td></tr></table>`;
+  }else if(fam==="al"){
+   const a=num("w7d");
+   if(Math.abs(Math.abs(a)-1)<1e-6){html=`<table class="t"><tr><th>α-divergence, α = ${a.toFixed(1)}</th><th>value</th></tr><tr><td>D<sub>α</sub>[m:m′] from (3.96)</td><td><b>${f8(D1(m,n,a))}</b></td></tr></table><p class="cap">At α = ±1 the representations u, v of (4.137) are the limits log m and m; move the slider off ±1 to compare the quadrature.</p>`}
+   else{
+   const u=s=>2/(1-a)*Math.pow(s,(1-a)/2),du=s=>Math.pow(s,-(1+a)/2),v=s=>2/(1+a)*Math.pow(s,(1+a)/2),dv=s=>Math.pow(s,(a-1)/2);
+   const D=Duv(m,n,u,du,v,dv,N),cl=D1(m,n,a);
+   html=`<table class="t"><tr><th>α-divergence, α = ${a.toFixed(1)}</th><th>value</th></tr><tr><td>quadrature of (4.127) with the constants of (4.137)</td><td><b>${f8(D)}</b></td></tr><tr><td>D<sub>α</sub>[m:m′] from (3.96)</td><td><b>${f8(cl)}</b></td></tr><tr><td>difference</td><td>${Math.abs(D-cl).toExponential(1)}</td></tr></table>`}
+  }else{
+   const u=s=>s,du=s=>1,v1=s=>Math.pow(s,1+be)/be,dv1=s=>(1+be)/be*Math.pow(s,be),v2=s=>Math.pow(s,be)/be,dv2=s=>Math.pow(s,be-1);
+   const D1_=Duv(m,n,u,du,v1,dv1,N),D2=Duv(m,n,u,du,v2,dv2,N);
+   const pr=(Math.pow(m,be+1)+(be+1)*n-Math.pow(n,be+1)-(be+1)*m*Math.pow(n,be))/(be*(be+1)),std=(Math.pow(m,be+1)+be*Math.pow(n,be+1)-(be+1)*m*Math.pow(n,be))/(be*(be+1)),dg=(Math.pow(m,be+1)+(be+1)*m-Math.pow(m,be+1)-(be+1)*m*Math.pow(m,be))/(be*(be+1));
+   html=`<table class="t"><tr><th>β-divergence, β = ${be.toFixed(2)}</th><th>value</th></tr><tr><td>(4.127) with u = m, v = m<sup>1+β</sup>/β as printed in (4.139)</td><td>${f6(D1_)}</td></tr><tr><td>(4.127) with u = m, v = m<sup>β</sup>/β</td><td><b>${f6(D2)}</b></td></tr><tr><td>standard formula (1/(β(β+1)))[m<sup>β+1</sup> + β m′<sup>β+1</sup> − (β+1) m m′<sup>β</sup>]</td><td><b>${f6(std)}</b></td></tr><tr><td>(4.140) as printed</td><td>${f6(pr)}</td></tr><tr><td>(4.140) as printed, at m′ = m</td><td>${sg(dg,4)} (not zero)</td></tr></table>`;
+  }
+  g("w7tab").innerHTML=html+`<div class="cap">The quadrature substitutes s = m t⁴ and applies composite 3-point Gauss–Legendre with ${N} panels.</div>`;
+ }
+ ["w7f","w7a","w7b","w7d","w7m","w7n"].forEach(i=>{g(i).addEventListener("input",draw);g(i).addEventListener("change",draw)});draw();
+})();
+
+// ===================================================================== widget 8: matrices
+(function(){
+ function draw(){
+  const P=[[num("w8a"),num("w8b")],[num("w8b"),num("w8c")]],Q=[[num("w8d"),num("w8e")],[num("w8e"),num("w8f")]];
+  ["a","b","c","d","e","f"].forEach(k=>out("w8"+k+"o",f2(num("w8"+k))));
+  const rot=num("w8rot");out("w8roto",rot+"°");["l11","l12","l21","l22"].forEach(k=>out("w8"+k+"o",f2(num("w8"+k))));
+  const th=rot*Math.PI/180,L=rot>0?[[Math.cos(th),-Math.sin(th)],[Math.sin(th),Math.cos(th)]]:[[num("w8l11"),num("w8l12")],[num("w8l21"),num("w8l22")]];
+  const al=num("w8al"),be=num("w8be");out("w8alo",f2(al));out("w8beo",f2(be));
+  if(!isPD(P)||!isPD(Q)){g("w8tab").innerHTML="<p class='cap'>P and Q must be positive definite (P₁₂² &lt; P₁₁P₂₂).</p>";g("w8s").innerHTML="";return}
+  const P2=congr(L,P),Q2=congr(L,Q);
+  if(!isPD(P2)||!isPD(Q2)){g("w8tab").innerHTML="<p class='cap'>L must be invertible.</p>";g("w8s").innerHTML="";return}
+  const D=[["KL / Stein (4.151)",Dstein],["Frobenius (4.163)",Dfro],["von Neumann (4.166)",Dvn],["α = 0 (4.179)",(A,B)=>DalphaMat(A,B,0)],["(α,β) = (1.3, 0.7) (4.176)",(A,B)=>DabMat(A,B,1.3,0.7)],[`log-det (α,β) = (${al.toFixed(1)}, ${be.toFixed(1)}) (4.182)`,(A,B)=>Dlogdet(A,B,al,be)]];
+  const rows=D.map(([name,f])=>{const a=f(P,Q),b=f(P2,Q2),inv=Math.abs(a-b)<1e-9*Math.max(1,Math.abs(a));return `<tr${inv?' class="hl"':""}><td>${name}</td><td>${f6(a)}</td><td>${f6(b)}</td><td>${inv?"invariant":(b/a).toFixed(3)+" ×"}</td></tr>`}).join("");
+  g("w8tab").innerHTML=`<table class="t"><tr><th>D[P:Q] before and after P → LᵀPL, Q → LᵀQL</th><th>before</th><th>after</th><th>ratio</th></tr>${rows}</table>`;
+  const e1=pqEigs(P,Q).slice().sort((x,y)=>x-y),e2=pqEigs(P2,Q2).slice().sort((x,y)=>x-y);
+  g("w8s").innerHTML=`<div>eigenvalues of PQ⁻¹: <b>${e1.map(f6).join(", ")}</b></div><div>after: <b>${e2.map(f6).join(", ")}</b></div><div>det L = <b>${f3(det2(L))}</b></div>`;
+ }
+ ["a","b","c","d","e","f"].forEach(k=>g("w8"+k).addEventListener("input",draw));
+ ["l11","l12","l21","l22","rot","al","be"].forEach(k=>g("w8"+k).addEventListener("input",draw));draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>

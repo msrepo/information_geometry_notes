@@ -1,0 +1,87 @@
+<svg viewBox="0 0 800 415" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Flat versus invariant on the simplex</title>
+<desc>Left: the ratio of the third to the first singular value of the stacked mixed derivative of the alpha-divergence on the three-outcome simplex against alpha: it vanishes only at alpha equal to minus one and plus one, where the divergence is Bregman (rank 2). Right: the largest violation of information monotonicity under merging two outcomes among 20000 random pairs: none for the alpha-divergence, and about 0.2 to 0.27 for the Euclidean divergence, the beta-divergences and the q-escort divergence at q = 0.5 and 0.8 (no violation found for the escort divergence at q = 1.5).</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="70" y1="257.6" x2="380" y2="257.6"/>
+<text class="sm" x="64" y="261.1" text-anchor="end">0</text>
+<line class="gd" x1="70" y1="187.1" x2="380" y2="187.1"/>
+<text class="sm" x="64" y="190.6" text-anchor="end">0.02</text>
+<line class="gd" x1="70" y1="116.5" x2="380" y2="116.5"/>
+<text class="sm" x="64" y="120.0" text-anchor="end">0.04</text>
+<line class="gd" x1="70.0" y1="60" x2="70.0" y2="300"/>
+<text class="sm" x="70.0" y="315" text-anchor="middle">−2</text>
+<line class="gd" x1="147.5" y1="60" x2="147.5" y2="300"/>
+<text class="sm" x="147.5" y="315" text-anchor="middle">−1</text>
+<line class="gd" x1="225.0" y1="60" x2="225.0" y2="300"/>
+<text class="sm" x="225.0" y="315" text-anchor="middle">0</text>
+<line class="gd" x1="302.5" y1="60" x2="302.5" y2="300"/>
+<text class="sm" x="302.5" y="315" text-anchor="middle">1</text>
+<line class="gd" x1="380.0" y1="60" x2="380.0" y2="300"/>
+<text class="sm" x="380.0" y="315" text-anchor="middle">2</text>
+<line class="ax" x1="70" y1="300" x2="380" y2="300"/>
+<line class="ax" x1="70" y1="60" x2="70" y2="300"/>
+<text class="lab" x="225.0" y="332" text-anchor="middle">α</text>
+<text class="lab" transform="translate(30,180.0) rotate(-90)" text-anchor="middle">s<tspan dy="3.5" font-size="8.5">3</tspan><tspan dx="3" dy="-3.5">/ s</tspan><tspan dy="3.5" font-size="8.5">1</tspan></text>
+<text class="hd" x="70" y="48">Is D<tspan dy="3.5" font-size="8.5">α</tspan><tspan dx="3" dy="-3.5">Bregman on S</tspan><tspan dy="3.5" font-size="8.5">2</tspan><tspan dy="-3.5">? third singular value</tspan></text>
+<polyline class="ln s1" points="70.0,91.1 73.9,93.9 77.8,97.2 81.6,101.2 85.5,105.8 89.4,111.0 93.2,116.8 97.1,123.3 101.0,130.4 104.9,138.2 108.8,146.6 112.6,155.6 116.5,165.2 120.4,175.3 124.3,186.0 128.1,197.1 132.0,208.6 135.9,220.5 139.8,232.7 143.6,245.1 147.5,257.6 151.4,245.0 155.2,232.4 159.1,219.9 163.0,207.6 166.9,195.5 170.8,183.8 174.6,172.4 178.5,161.6 182.4,151.4 186.2,141.8 190.1,132.9 194.0,124.7 197.9,117.4 201.8,111.0 205.6,105.5 209.5,100.9 213.4,97.3 217.2,94.8 221.1,93.2 225.0,92.7 228.9,93.2 232.8,94.8 236.6,97.3 240.5,100.9 244.4,105.5 248.3,111.0 252.1,117.4 256.0,124.7 259.9,132.9 263.8,141.8 267.6,151.4 271.5,161.6 275.4,172.4 279.2,183.8 283.1,195.5 287.0,207.6 290.9,219.9 294.8,232.4 298.6,245.0 302.5,257.6 306.4,245.1 310.2,232.7 314.1,220.5 318.0,208.6 321.9,197.1 325.8,186.0 329.6,175.3 333.5,165.2 337.4,155.6 341.2,146.6 345.1,138.2 349.0,130.4 352.9,123.3 356.8,116.8 360.6,111.0 364.5,105.8 368.4,101.2 372.2,97.2 376.1,93.9 380.0,91.1"/>
+<circle class="f2 ring" cx="147.5" cy="257.6" r="4.5"/>
+<circle class="f2 ring" cx="302.5" cy="257.6" r="4.5"/>
+<text class="sm" x="147.5" y="276.6" text-anchor="middle">rank 2: KL</text>
+<text class="sm" x="302.5" y="276.6" text-anchor="middle">rank 2: dual KL</text>
+<text class="sm" x="225.0" y="83.8" text-anchor="middle">rank 3 for every other α</text>
+<text class="hd" x="470" y="60">Largest D[Tp:Tr] − D[p:r] (T merges two outcomes)</text>
+<text class="sm" x="562" y="97.0" text-anchor="end">D<tspan dy="3.5" font-size="8.5">α</tspan><tspan dy="-3.5">, α = 0.5</tspan></text>
+<rect class="f1" style="opacity:0.85" x="582.5" y="81.0" width="1.5" height="24.0"/>
+<text class="v" x="587.5" y="97.0">≤ 0</text>
+<text class="sm" x="562" y="127.0" text-anchor="end">escort, q = 1.5</text>
+<rect class="f1" style="opacity:0.85" x="582.5" y="111.0" width="1.5" height="24.0"/>
+<text class="v" x="587.5" y="127.0">≤ 0</text>
+<text class="sm" x="562" y="157.0" text-anchor="end">β-divergence, β = 2</text>
+<rect class="f2" style="opacity:0.85" x="582.5" y="141.0" width="124.1" height="24.0"/>
+<text class="v" x="711.6" y="157.0">+0.199</text>
+<text class="sm" x="562" y="187.0" text-anchor="end">Euclidean (β = 1)</text>
+<rect class="f2" style="opacity:0.85" x="582.5" y="171.0" width="123.4" height="24.0"/>
+<text class="v" x="710.9" y="187.0">+0.197</text>
+<text class="sm" x="562" y="217.0" text-anchor="end">β-divergence, β = 0.5</text>
+<rect class="f2" style="opacity:0.85" x="582.5" y="201.0" width="141.1" height="24.0"/>
+<text class="v" x="728.6" y="217.0">+0.226</text>
+<text class="sm" x="562" y="247.0" text-anchor="end">escort, q = 0.8</text>
+<rect class="f2" style="opacity:0.85" x="582.5" y="231.0" width="144.5" height="24.0"/>
+<text class="v" x="732.0" y="247.0">+0.231</text>
+<text class="sm" x="562" y="277.0" text-anchor="end">escort, q = 0.5</text>
+<rect class="f2" style="opacity:0.85" x="582.5" y="261.0" width="171.0" height="24.0"/>
+<text class="v" x="758.5" y="277.0">+0.274</text>
+<line class="ax" x1="582.5" y1="76" x2="582.5" y2="290"/>
+<text class="sm" x="582.5" y="304" text-anchor="middle">0</text>
+<text class="sm" x="645.0" y="304" text-anchor="middle">0.1</text>
+<text class="sm" x="707.5" y="304" text-anchor="middle">0.2</text>
+<text class="sm" x="770.0" y="304" text-anchor="middle">0.3</text>
+<text class="sm" x="70" y="375">Left: the mixed derivative of D<tspan dy="3.5" font-size="8.5">α</tspan><tspan dx="3" dy="-3.5">stacked over 14 × 14 points of S</tspan><tspan dy="3.5" font-size="8.5">2</tspan><tspan dx="3" dy="-3.5">has rank 2 for α = ±1 (as any Bregman</tspan></text>
+<text class="sm" x="70" y="390">divergence must, in any coordinates) and rank 3 otherwise. Right: invariance means D[Tp:Tr] ≤ D[p:r];</text>
+<text class="sm" x="70" y="405">the other flat divergences (Euclidean, β, q-escort) violate it, by up to about 0.27 here.</text>
+</svg>
