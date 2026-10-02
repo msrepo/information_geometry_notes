@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Series Geometry Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+.warn{color:var(--s2)}
+</style>
+</head>
+<body>
+<main>
+<h1>Time series geometry, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 10 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+A stationary Gaussian series is summarised by its power spectrum $S(\omega)=|H(e^{i\omega})|^2$, one variance per frequency; the sign convention is the book's, $H(z)=(1+bz^{-1})/(1+az^{-1})$, i.e. $x_t=-a\,x_{t-1}+\varepsilon_t+b\,\varepsilon_{t-1}$, so $a=-0.6$ means $x_t=0.6\,x_{t-1}+\varepsilon_t$.
+Integrals over frequency use a grid of 1024 points, exact for the trigonometric polynomials involved; Toeplitz computations (finite records) are exact linear algebra. Everything is the same mathematics as <code>code/time_series_geometry.py</code>, and the default readouts equal its printed numbers.</p>
+
+<h2>1. Two coordinate systems for one spectrum</h2>
+<p>The cosine coefficients of $S$ are the autocovariances $r^*_t=\mathbb E[x_sx_{s-t}]$, the m-affine coordinates; those of $1/S$ are the inverse autocovariances $r_t$, the e-affine coordinates (10.39)&ndash;(10.42). An AR($p$) model is exactly the one with $r_t=0$ for $t>p$, a set of linear conditions in the e-coordinates, hence e-flat; an MA($q$) model has $r^*_t=0$ for $t>q$, hence m-flat. Pick a family and move its parameters: the bars show $r^*_t$ (orange) and $r_t$ (blue) for $t=0,\dots,7$, and notice which sequence stops and which never does. ARMA(1,1) has neither stopping.</p>
+<div class="widget" id="w0">
+  <div class="controls">
+    <label>family <select id="w0m"><option value="ar2">AR(2): a = (1, a₁, a₂)</option><option value="ma2">MA(2): b = (1, b₁, b₂)</option><option value="arma">ARMA(1,1): (a, b)</option></select></label>
+    <label><span id="w0n1">a₁</span> <input type="range" id="w0p" min="-1.9" max="1.9" step="0.05" value="-0.9"><output id="w0po"></output></label>
+    <label><span id="w0n2">a₂</span> <input type="range" id="w0q" min="-0.95" max="0.95" step="0.05" value="0.5"><output id="w0qo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w0l" viewBox="0 0 340 312" role="img" aria-label="The spectrum and its autocovariances"></svg></div>
+    <div><svg id="w0r" viewBox="0 0 340 312" role="img" aria-label="The inverse spectrum and its inverse autocovariances"></svg></div>
+  </div>
+  <div class="stats" id="w0s"></div>
+</div>
+
+<h2>2. The e-geodesic and the m-geodesic between two models</h2>
+<p>Between two spectra there are two natural straight lines: the <b>m-geodesic</b> $S_t=(1-t)S_1+tS_2$ (mix the spectra) and the <b>e-geodesic</b> $1/S_t=(1-t)/S_1+t/S_2$ (mix the inverse spectra). Between two AR(2) models the e-geodesic never leaves AR(2): $r_3,r_4,\dots$ stay $0$. The m-geodesic does leave: its $r_3,r_4,\dots$ become non-zero. For MA(2) the roles swap, and for ARMA(1,1) (where $\gamma_{k+1}/\gamma_k=-a$ for $k\ge2$) neither geodesic keeps the ratio constant. Drag $t$ and read the table.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>pair <select id="w1m"><option value="ar2">AR(2): (1, −0.9, 0.5) → (1, 0.4, 0.3)</option><option value="ma2">MA(2): (1, 0.5, 0.2) → (1, −0.6, 0.3)</option><option value="arma">ARMA(1,1): (−0.5, 0.3) → (0.6, −0.4)</option></select></label>
+    <label>$t$ <input type="range" id="w1t" min="0" max="1" step="0.05" value="0.5"><output id="w1to"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1l" viewBox="0 0 340 290" role="img" aria-label="The two spectra and the two geodesics"></svg></div>
+    <div><svg id="w1r" viewBox="0 0 340 290" role="img" aria-label="Coordinates that should vanish along each geodesic"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw dash" style="color:var(--faint)"></span>the two end models S₁, S₂</span><span><span class="sw" style="color:var(--s1)"></span>e-geodesic (bars: left of each pair)</span><span><span class="sw" style="color:var(--s2)"></span>m-geodesic (bars: right of each pair)</span></div>
+  <div id="w1tab"></div>
+</div>
+
+<h2>3. What a record of $n$ observations knows: the normalisations</h2>
+<p>The book writes the Kullback&ndash;Leibler divergence of two series as $\frac1{2\pi}\int(S_1/S_2-1-\log S_1/S_2)\,d\omega$ (10.37). Take two actual Gaussian records of $n$ observations, with their exact Toeplitz covariance matrices, and compute $\mathrm{KL}/n$: it tends to half of that, $\frac1{4\pi}\int(\dots)$. Likewise the exact Fisher information of $n$ observations of ARMA(1,1), divided by $n$, tends to $\frac1{4\pi}\int\partial_i\log S\,\partial_j\log S\,d\omega$, whose closed form is shown; the book's metric (10.36) is $2\pi$ times that. The difference between the exact value and the limit is a constant (a boundary term), not growing with $n$.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$S_1$: ARMA(1,1) $a$ <input type="range" id="w2a" min="-0.9" max="0.9" step="0.05" value="-0.5"><output id="w2ao"></output></label>
+    <label>$b$ <input type="range" id="w2b" min="-0.9" max="0.9" step="0.05" value="0.3"><output id="w2bo"></output></label>
+    <label>$S_2$: AR(1) $a$ <input type="range" id="w2c" min="-0.9" max="0.9" step="0.05" value="-0.3"><output id="w2co"></output></label>
+    <label>$n$ <input type="range" id="w2n" min="4" max="160" step="1" value="64"><output id="w2no"></output></label>
+  </div>
+  <div id="w2tab"></div>
+  <div class="cap">KL columns: exact Gaussian KL of $n$ observations of $S_1$ against $S_2$. Fisher block: $S_1$ in the coordinates $(a,b)$ at unit gain; the exact value uses central differences of the Toeplitz covariance.</div>
+</div>
+
+<h2>4. Projection onto AR($p$): Yule&ndash;Walker, Pythagoras, prediction error</h2>
+<p>The m-projection of a spectrum $S$ onto AR($p$) is the Yule&ndash;Walker model: it has the same $r^*_0,\dots,r^*_p$ as $S$. Its divergence is $D[S:S_p]=\tfrac12\log(\sigma_p^2/\sigma_\infty^2)$, the log-ratio of the order-$p$ and infinite-order prediction error variances, and the Pythagorean relation (10.57) says $D[S:S_0]=D[S:S_p]+D[S_p:S_0]$ for white noise $S_0$. At $p=1$ there is a second projection, the e-projection (minimising $D[S':S]$), which is a different AR(1) model; it is shown dashed. The divergences here are Kullback&ndash;Leibler rates per observation, $\frac1{4\pi}\int$, half the printed (10.37).</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>true $S$ <select id="w3m"><option value="ma1">MA(1): b</option><option value="arma">ARMA(1,1): (a, b)</option><option value="ar2">AR(2): (a₁, a₂)</option></select></label>
+    <label><span id="w3n1">b</span> <input type="range" id="w3x" min="-0.9" max="0.9" step="0.05" value="0.5"><output id="w3xo"></output></label>
+    <label><span id="w3n2">b</span> <input type="range" id="w3y" min="-0.9" max="0.9" step="0.05" value="0.3"><output id="w3yo"></output></label>
+    <label>order $p$ <input type="range" id="w3p" min="0" max="6" step="1" value="2"><output id="w3po"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w3l" viewBox="0 0 340 290" role="img" aria-label="The spectrum and its projections"></svg></div>
+    <div><svg id="w3r" viewBox="0 0 340 290" role="img" aria-label="Pythagorean decomposition for each order"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="color:var(--ink)"></span>S</span><span><span class="sw" style="color:var(--s1)"></span>m-projection S_p (Yule–Walker); bars: D[S_p : S₀]</span><span><span class="sw dash" style="color:var(--s2)"></span>e-projection (p = 1 only); bars: D[S : S_p] on top</span></div>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>5. Maximum entropy, and the hypothesis the book leaves out</h2>
+<p>Theorem 10.2: among all spectra with the same $r^*_0,\dots,r^*_p$ as $S$, the Yule&ndash;Walker AR($p$) model has the largest entropy rate. Here $S_p$ is the AR($p$) projection of the MA(1) with $b=0.5$; add $\delta(\omega)=c_a\cos((p+1)\omega)+c_b\cos((p+2)\omega)$, which has no components of order $\le p$ and therefore keeps $r^*_0..r^*_p$ fixed, and watch the entropy fall (quadratically, with the second-order prediction $-\tfrac14\,\mathrm{mean}(\delta^2/S_p^2)$). Now switch on <b>white noise $c$</b>: that moves $r^*_0$ and the entropy grows without bound, like $\tfrac12\log c$, so the theorem as printed (which lists only $r^*_1,\dots,r^*_p$) needs the zeroth coefficient fixed too.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>order $p$ <input type="range" id="w4p" min="0" max="3" step="1" value="1"><output id="w4po"></output></label>
+    <label>$c_a$ <input type="range" id="w4a" min="-0.5" max="0.5" step="0.05" value="0.4"><output id="w4ao"></output></label>
+    <label>$c_b$ <input type="range" id="w4b" min="-0.5" max="0.5" step="0.05" value="0"><output id="w4bo"></output></label>
+    <label>$\log_{10}c$ of added white noise <input type="range" id="w4c" min="-3" max="3" step="0.25" value="-3"><output id="w4co"></output></label>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 262" role="img" aria-label="The spectra and the entropy change"></svg>
+  <div class="stats" id="w4s"></div>
+</div>
+
+<h2>6. ARMA(1,1): the line where the model disappears</h2>
+<p>For $H(z)=(1+bz^{-1})/(1+az^{-1})$ numerator and denominator cancel when $a=b$: every such model is white noise. The per-observation Fisher information is $G=\left[\begin{smallmatrix}1/(1-a^2)&-1/(1-ab)\\-1/(1-ab)&1/(1-b^2)\end{smallmatrix}\right]$ with $\det G=(a-b)^2/((1-a^2)(1-b^2)(1-ab)^2)$, which vanishes quadratically on the diagonal. In the cepstral coordinates $(c_1,c_2)=(2(b-a),\,a^2-b^2)$, Euclidean coordinates for the book's metric, the whole diagonal goes to one point, and the two triangles $b&gt;a$ and $b&lt;a$ land on the two half-planes: the figure the book draws as two blobs touching at a point.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>$a$ <input type="range" id="w5a" min="-0.95" max="0.95" step="0.05" value="-0.5"><output id="w5ao"></output></label>
+    <label>$b$ <input type="range" id="w5b" min="-0.95" max="0.95" step="0.05" value="0.3"><output id="w5bo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 312" role="img" aria-label="The parameter square and the diagonal"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 312" role="img" aria-label="The cepstral image of the parameter square"></svg></div>
+  </div>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>7. The edge of the stable region</h2>
+<p>For AR(1), $x_t=\phi x_{t-1}+\varepsilon_t$, the Fisher information per observation $1/(1-\phi^2)$ blows up at the unit root, but the Fisher arc length from $0$ is only $\arcsin\phi\to\pi/2$: the boundary is at finite distance. The Kullback&ndash;Leibler divergence from white noise to the AR(1) model stays below $\tfrac12$, while the divergence from the AR(1) model to white noise is infinite in the limit. For MA(1) with $b\to1$ the spectrum acquires a zero, so $1/S$ stops being integrable: the inverse autocovariances $r_t$ blow up while the autocovariances stay finite and $\int(\log S)^2$ stays finite, so (10.13) holds but the e-chart does not exist at the edge.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>distance from the edge $1-\phi=10^{-s}$, $s$ <input type="range" id="w6s" min="0.05" max="3" step="0.05" value="1"><output id="w6so"></output></label>
+  </div>
+  <svg id="w6v" viewBox="0 0 700 262" role="img" aria-label="Fisher information, arc length and divergences against the distance from the edge"></svg>
+  <div class="key"><span><span class="sw" style="color:var(--s1)"></span>Fisher information 1/(1−φ²) (middle) and arc length (left)</span><span><span class="sw" style="color:var(--s2)"></span>KL[AR(1) : white] (middle)</span><span><span class="sw" style="color:var(--s3)"></span>KL[white : AR(1)] (right)</span></div>
+  <div class="stats" id="w6t"></div>
+</div>
+
+<h2>8. The periodogram is not the spectrum</h2>
+<p>The book calls $S=|X(\omega)|^2$ a deterministic function (10.12). Simulate an AR(1) record of length $n$ and compute $I=|\sum_t x_te^{-i\omega t}|^2/n$ at a fixed Fourier frequency $\omega=\pi/4$ over many records: its mean is $S(\omega)$, but its standard deviation relative to $S$ stays at $1$ however long the record, because $I/S$ is asymptotically a unit exponential variable. Averaging $9$ neighbouring ordinates reduces the standard deviation to about $1/3$. Neighbouring ordinates are uncorrelated and the phase of $X$ is uniform, as (10.25) says.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>$n$ <input type="range" id="w7n" min="64" max="2048" step="64" value="1024"><output id="w7no"></output></label>
+    <button id="w7b" type="button">resample</button>
+  </div>
+  <svg id="w7v" viewBox="0 0 700 262" role="img" aria-label="Histogram of the periodogram divided by the spectrum with the unit exponential density"></svg>
+  <div class="stats" id="w7s"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0,y:y0-7,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P),root:P};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5),f6=v=>(Math.abs(v)<5e-13?0:v).toFixed(6);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const fz=(v,d)=>Math.abs(v)<5e-13?"0":v.toFixed(d);
+const fv=(a,d)=>"["+Array.from(a).map(x=>fz(x,d)).join(", ")+"]";
+const ticks=(P,xs,ys,fx,fy)=>{const R=P.root;(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},R);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},R).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},R);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},R).textContent=(fy||f2)(v)})};
+
+// ---------- spectral toolbox (the same mathematics as code/time_series_geometry.py)
+const M=1024,TWO_PI=2*Math.PI,LOG2PIE=Math.log(2*Math.PI*Math.E);
+const WG=new Float64Array(M);for(let j=0;j<M;j++)WG[j]=TWO_PI*j/M;
+function abs2(c,w){let re=0,im=0;for(let k=0;k<c.length;k++){re+=c[k]*Math.cos(k*w);im-=c[k]*Math.sin(k*w)}return re*re+im*im}
+function spec(A,B,s2){s2=s2===undefined?1:s2;const S=new Float64Array(M);for(let j=0;j<M;j++)S[j]=s2*abs2(B,WG[j])/abs2(A,WG[j]);return S}
+const mean=f=>{let t=0;for(let j=0;j<f.length;j++)t+=f[j];return t/f.length};
+function cosc(f,K){const o=[];for(let t=0;t<=K;t++){let s=0;for(let j=0;j<M;j++)s+=f[j]*Math.cos(t*WG[j]);o.push(s/M)}return o}
+const lg=S=>{const o=new Float64Array(S.length);for(let j=0;j<S.length;j++)o[j]=Math.log(S[j]);return o};
+const ent=S=>0.5*mean(lg(S))+0.5*LOG2PIE;
+const klBook=(S1,S2)=>{let t=0;for(let j=0;j<M;j++){const r=S1[j]/S2[j];t+=r-1-Math.log(r)}return t/M};
+const klRate=(S1,S2)=>0.5*klBook(S1,S2);
+function levinson(gm,pmax){
+ const out=[{a:[],s2:gm[0]}];let a=[],s2=gm[0];
+ for(let p=1;p<=pmax;p++){let acc=gm[p];for(let k=0;k<p-1;k++)acc+=a[k]*gm[p-1-k];const kap=-acc/s2;
+  const na=[];for(let k=0;k<p-1;k++)na.push(a[k]+kap*a[p-2-k]);na.push(kap);a=na;s2*=1-kap*kap;out.push({a:a.slice(),s2})}
+ return out;
+}
+const arSpec=(a,s2)=>spec([1].concat(a),[1],s2);
+function eProj1(S){ // e-projection onto AR(1): minimise J(a)=mean(1/(S|1+a e^{-iw}|^2)); then s=1/J
+ const Si=new Float64Array(M);for(let j=0;j<M;j++)Si[j]=1/S[j];
+ const J=a=>{let t=0;for(let j=0;j<M;j++)t+=Si[j]/(1+a*a+2*a*Math.cos(WG[j]));return t/M};
+ let best=0,bv=Infinity;for(let i=0;i<=398;i++){const a=-0.995+i*0.005,v=J(a);if(v<bv){bv=v;best=a}}
+ let lo=best-0.005,hi=best+0.005;for(let k=0;k<70;k++){const m1=lo+0.381966*(hi-lo),m2=lo+0.618034*(hi-lo);if(J(m1)<J(m2))hi=m2;else lo=m1}
+ const a=(lo+hi)/2;return {a,s:1/J(a)};
+}
+// Toeplitz algebra for exact finite records
+function toepMat(gm,n){const A=[];for(let i=0;i<n;i++){const r=new Float64Array(n);for(let j=0;j<n;j++)r[j]=gm[Math.abs(i-j)];A.push(r)}return A}
+function chol(A){const n=A.length,L=[];for(let i=0;i<n;i++)L.push(new Float64Array(n));
+ for(let i=0;i<n;i++)for(let j=0;j<=i;j++){let s=A[i][j];for(let k=0;k<j;k++)s-=L[i][k]*L[j][k];if(i===j)L[i][j]=Math.sqrt(s);else L[i][j]=s/L[j][j]}return L}
+function logdetL(L){let s=0;for(let i=0;i<L.length;i++)s+=Math.log(L[i][i]);return 2*s}
+function cholSolveCols(L,B){ // solve (L L^T) X = B, B n x n (rows)
+ const n=L.length,X=[];for(let i=0;i<n;i++)X.push(new Float64Array(n));
+ for(let c=0;c<n;c++){const y=new Float64Array(n);for(let i=0;i<n;i++){let s=B[i][c];for(let k=0;k<i;k++)s-=L[i][k]*y[k];y[i]=s/L[i][i]}
+  for(let i=n-1;i>=0;i--){let s=y[i];for(let k=i+1;k<n;k++)s-=L[k][i]*X[k][c];X[i][c]=s/L[i][i]}}
+ return X;
+}
+function klGauss(g1,g2,n){const A=toepMat(g1,n),B=toepMat(g2,n),LA=chol(A),LB=chol(B),X=cholSolveCols(LB,A);let tr=0;for(let i=0;i<n;i++)tr+=X[i][i];return 0.5*(tr-n-logdetL(LA)+logdetL(LB))}
+function armaGamma(a,b,n){const g=new Float64Array(n),g0=(1+b*b-2*a*b)/(1-a*a),g1=(b-a)*(1-a*b)/(1-a*a);g[0]=g0;if(n>1)g[1]=g1;for(let k=2;k<n;k++)g[k]=-a*g[k-1];return g}
+function fisherExact(a,b,n){
+ const h=1e-5,S=toepMat(armaGamma(a,b,n),n),L=chol(S),I=[];for(let i=0;i<n;i++){const r=new Float64Array(n);r[i]=1;I.push(r)}
+ const Si=cholSolveCols(L,I);
+ const dif=(da,db)=>{const gp=armaGamma(a+da,b+db,n),gm=armaGamma(a-da,b-db,n),D=[];for(let i=0;i<n;i++){const r=new Float64Array(n);for(let j=0;j<n;j++)r[j]=(gp[Math.abs(i-j)]-gm[Math.abs(i-j)])/(2*h);D.push(r)}return D};
+ const D=[dif(h,0),dif(0,h)],P=D.map(Dk=>{const Pk=[];for(let i=0;i<n;i++){const r=new Float64Array(n);for(let k=0;k<n;k++){const s=Si[i][k];if(s===0)continue;const Dk_k=Dk[k];for(let j=0;j<n;j++)r[j]+=s*Dk_k[j]}Pk.push(r)}return Pk});
+ const G=[[0,0],[0,0]];for(let p=0;p<2;p++)for(let q=0;q<2;q++){let t=0;for(let i=0;i<n;i++)for(let j=0;j<n;j++)t+=P[p][i][j]*P[q][j][i];G[p][q]=0.5*t/n}
+ return G;
+}
+const armaG=(a,b)=>[[1/(1-a*a),-1/(1-a*b)],[-1/(1-a*b),1/(1-b*b)]];
+function li2(x){let s=0,p=1;for(let k=1;k<200000;k++){p*=x;const t=p/(k*k);s+=t;if(Math.abs(t)<1e-17)break}return s}
+// seeded generator (as in the other chapters' pages)
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mkRand(seed){const U=rng(seed);let spare=null;const N01=()=>{if(spare!==null){const s=spare;spare=null;return s}let u=0,v=0;while(u===0)u=U();v=U();const r=Math.sqrt(-2*Math.log(u));spare=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v)};return {U,N01}}
+
+// ===== widget 0: the two coordinate systems
+(function(){
+ const FAM={ar2:{n:["a₁","a₂"],r:[[-1.9,1.9,-0.9],[-0.95,0.95,0.5]],mk:(p,q)=>({A:[1,p,q],B:[1],ok:Math.abs(q)<1&&Math.abs(p)<1+q})},
+  ma2:{n:["b₁","b₂"],r:[[-1.9,1.9,0.5],[-0.95,0.95,0.2]],mk:(p,q)=>({A:[1],B:[1,p,q],ok:Math.abs(q)<1&&Math.abs(p)<1+q})},
+  arma:{n:["a","b"],r:[[-0.95,0.95,-0.5],[-0.95,0.95,0.3]],mk:(p,q)=>({A:[1,p],B:[1,q],ok:true})}};
+ function setFam(){const F=FAM[g("w0m").value];g("w0n1").textContent=F.n[0];g("w0n2").textContent=F.n[1];
+  [["w0p",0],["w0q",1]].forEach(([id,i])=>{const s=g(id);s.min=F.r[i][0];s.max=F.r[i][1];s.value=F.r[i][2]});draw()}
+ function panel(S,root,bars,title,col){
+  clear(root);const sm=Math.max(...S)*1.1;
+  const P=axes(root,40,24,285,112,[0,Math.PI],[0,sm],title[0],"ω","");ticks(P,[0,Math.PI/2,Math.PI],[0,sm/2,sm],v=>v===0?"0":(Math.abs(v-Math.PI)<1e-9?"π":"π/2"),v=>v.toPrecision(2));
+  const pts=[];for(let j=0;j<=M/2;j++)pts.push([P.X(WG[j]),P.Y(S[j])]);path(P.G,pts,col,2.4);
+  const bm=Math.max(...bars.map(Math.abs),1e-9)*1.15;
+  const Q=axes(root,40,190,285,92,[-0.5,bars.length-0.5],[-bm,bm],title[1],"t","");ticks(Q,[0,1,2,3,4,5,6,7],[-bm/1.15,0,bm/1.15],v=>v.toFixed(0),v=>v.toPrecision(2));
+  el("line",{x1:Q.x0,x2:Q.x0+Q.w,y1:Q.Y(0),y2:Q.Y(0),stroke:"var(--faint)","stroke-width":1},Q.G);
+  bars.forEach((v,t)=>{const y0=Q.Y(0),y1=Q.Y(v);el("rect",{x:Q.X(t)-11,y:Math.min(y0,y1),width:22,height:Math.max(Math.abs(y1-y0),Math.abs(v)<5e-13?1.2:0.5),fill:col,opacity:Math.abs(v)<5e-13?0.0:0.85},Q.G);if(Math.abs(v)<5e-13)el("rect",{x:Q.X(t)-11,y:y0-0.6,width:22,height:1.2,fill:col},Q.G)});
+ }
+ function draw(){
+  const F=FAM[g("w0m").value],p=+g("w0p").value,q=+g("w0q").value;g("w0po").textContent=f2(p);g("w0qo").textContent=f2(q);
+  const m=F.mk(p,q);
+  if(!m.ok){clear(g("w0l"));clear(g("w0r"));g("w0s").innerHTML='<div class="warn">outside the stable (invertible) triangle |a₂| &lt; 1, |a₁| &lt; 1 + a₂: no stationary series with this spectrum</div>';return}
+  const S=spec(m.A,m.B),Si=new Float64Array(M);for(let j=0;j<M;j++)Si[j]=1/S[j];
+  const rs=cosc(S,7),r=cosc(Si,7);
+  panel(S,g("w0l"),rs,["spectrum S(ω)","autocovariances r*_t (m-coordinates)"],"var(--s2)");
+  panel(Si,g("w0r"),r,["inverse spectrum 1/S(ω)","inverse autocovariances r_t (e-coordinates)"],"var(--s1)");
+  g("w0s").innerHTML=`<div>r = <b>${fv(r.slice(0,7),4)}</b></div><div>r* = <b>${fv(rs.slice(0,7),4)}</b></div><div>e-coordinates stop (AR: r_t = 0 beyond p): <b>${g("w0m").value==="ar2"?"yes, t &gt; 2":"no"}</b>; m-coordinates stop (MA): <b>${g("w0m").value==="ma2"?"yes, t &gt; 2":"no"}</b></div>`;
+ }
+ g("w0m").addEventListener("change",setFam);["w0p","w0q"].forEach(i=>g(i).addEventListener("input",draw));setFam();
+})();
+
+// ===== widget 1: e-geodesic and m-geodesic
+(function(){
+ const PAIR={ar2:{A:[[1,-0.9,0.5],[1,0.4,0.3]],B:[[1],[1]],coord:"r",lab:"inverse autocovariances r_t (zero beyond lag 2 on an AR(2) geodesic)"},
+  ma2:{A:[[1],[1]],B:[[1,0.5,0.2],[1,-0.6,0.3]],coord:"rs",lab:"autocovariances r*_t (zero beyond lag 2 on an MA(2) geodesic)"},
+  arma:{A:[[1,-0.5],[1,0.6]],B:[[1,0.3],[1,-0.4]],coord:"ratio",lab:"ratios γ_(k+1)/γ_k, k = 2..8 (constant = −a on an ARMA(1,1))"}};
+ function draw(){
+  const P=PAIR[g("w1m").value],t=+g("w1t").value;g("w1to").textContent=f2(t);
+  const S1=spec(P.A[0],P.B[0]),S2=spec(P.A[1],P.B[1]),Se=new Float64Array(M),Sm=new Float64Array(M);
+  for(let j=0;j<M;j++){Se[j]=1/((1-t)/S1[j]+t/S2[j]);Sm[j]=(1-t)*S1[j]+t*S2[j]}
+  const L=g("w1l");clear(L);const mx=Math.max(...S1,...S2,...Se,...Sm)*1.08;
+  const Q=axes(L,40,24,285,222,[0,Math.PI],[0,mx],"e-geodesic (blue), m-geodesic (orange)","ω","");ticks(Q,[0,Math.PI/2,Math.PI],[0,mx/2,mx],v=>v===0?"0":(Math.abs(v-Math.PI)<1e-9?"π":"π/2"),v=>v.toPrecision(2));
+  const curve=(S,col,w,d)=>{const pts=[];for(let j=0;j<=M/2;j++)pts.push([Q.X(WG[j]),Q.Y(S[j])]);path(Q.G,pts,col,w,d)};
+  curve(S1,"var(--faint)",1.4,"4 3");curve(S2,"var(--faint)",1.4,"4 3");curve(Sm,"var(--s2)",2.4);curve(Se,"var(--s1)",2.4);
+  let ve,vm,K=7,head="";
+  if(P.coord==="r"){const Ti=S=>{const o=new Float64Array(M);for(let j=0;j<M;j++)o[j]=1/S[j];return o};ve=cosc(Ti(Se),K);vm=cosc(Ti(Sm),K)}
+  else if(P.coord==="rs"){ve=cosc(Se,K);vm=cosc(Sm,K)}
+  else{const ge=cosc(Se,9),gm=cosc(Sm,9);ve=[];vm=[];for(let k=2;k<=8;k++){ve.push(ge[k+1]/ge[k]);vm.push(gm[k+1]/gm[k])}}
+  const R=g("w1r");clear(R);const bm=Math.max(...ve.map(Math.abs),...vm.map(Math.abs),1e-9)*1.15,nb=ve.length;
+  const B=axes(R,40,24,285,222,[-0.5,nb-0.5],[-bm,bm],P.lab.slice(0,P.lab.indexOf("(")).trim(),"index","");ticks(B,Array.from({length:nb},(_,i)=>i),[-bm/1.15,0,bm/1.15],v=>(P.coord==="ratio"?v+2:v).toFixed(0),v=>v.toPrecision(2));
+  el("line",{x1:B.x0,x2:B.x0+B.w,y1:B.Y(0),y2:B.Y(0),stroke:"var(--faint)","stroke-width":1},B.G);
+  for(let i=0;i<nb;i++){[[ve[i],"var(--s1)",-12],[vm[i],"var(--s2)",1]].forEach(([v,col,dx])=>{const y0=B.Y(0),y1=B.Y(v);el("rect",{x:B.X(i)+dx,y:Math.min(y0,y1)-(Math.abs(v)<5e-13?0.6:0),width:11,height:Math.max(Math.abs(y1-y0),Math.abs(v)<5e-13?1.2:0.5),fill:col,opacity:0.85},B.G)})}
+  const nm=P.coord==="ratio"?"k = 2..8":"t = 0..6";
+  g("w1tab").innerHTML=`<table class="t"><tr><th>${P.lab}, ${nm}</th><th>values</th></tr><tr><td><b style="color:var(--s1)">e-geodesic</b> 1/S_t = (1−t)/S₁ + t/S₂</td><td>${fv(ve.slice(0,7),4)}</td></tr><tr><td><b style="color:var(--s2)">m-geodesic</b> S_t = (1−t) S₁ + t S₂</td><td>${fv(vm.slice(0,7),4)}</td></tr></table>`;
+ }
+ g("w1m").addEventListener("change",draw);g("w1t").addEventListener("input",draw);draw();
+})();
+
+// ===== widget 2: normalisations, exact Toeplitz against the spectral formulas
+(function(){
+ function draw(){
+  const a=+g("w2a").value,b=+g("w2b").value,c=+g("w2c").value,n=+g("w2n").value;g("w2ao").textContent=f2(a);g("w2bo").textContent=f2(b);g("w2co").textContent=f2(c);g("w2no").textContent=n;
+  const S1=spec([1,a],[1,b]),S2=spec([1,c],[1]),Db=klBook(S1,S2);
+  const g1=armaGamma(a,b,n),g2=armaGamma(c,0,n),kl=klGauss(g1,g2,n)/n;
+  const I=fisherExact(a,b,n),G=armaG(a,b);
+  const row=(lab,v,note)=>`<tr><td>${lab}</td><td><b>${v}</b></td><td>${note||""}</td></tr>`;
+  g("w2tab").innerHTML=`<table class="t"><tr><th>Kullback–Leibler of S₁ against S₂</th><th>value</th><th></th></tr>`+
+   row("exact KL of n observations ÷ n",f6(kl),"n = "+n)+row("(1/4π)∫(S₁/S₂ − 1 − log S₁/S₂)dω",f6(Db/2),"the limit of the line above")+
+   row("(10.37) as printed, (1/2π)∫(…)dω",f6(Db),"twice the limit")+row("2 × exact KL ÷ n",f6(2*kl),"→ (10.37)")+
+   `</table><table class="t"><tr><th>Fisher information of S₁ in (a, b)</th><th>entries (11, 12, 22)</th><th></th></tr>`+
+   row("exact I_n ÷ n",`${f5(I[0][0])}, ${f5(I[0][1])}, ${f5(I[1][1])}`,"n = "+n)+
+   row("closed form [1/(1−a²), −1/(1−ab), 1/(1−b²)]",`${f6(G[0][0])}, ${f6(G[0][1])}, ${f6(G[1][1])}`,"the limit per observation")+
+   row("n (I_n/n − closed form)",`${f4(n*(I[0][0]-G[0][0]))}, ${f4(n*(I[0][1]-G[0][1]))}, ${f4(n*(I[1][1]-G[1][1]))}`,"constant in n: a boundary term")+
+   row("book's metric (10.36) = 2π × closed form",`${f4(TWO_PI*G[0][0])}, ${f4(TWO_PI*G[0][1])}, ${f4(TWO_PI*G[1][1])}`,"")+`</table>`;
+ }
+ ["w2a","w2b","w2c","w2n"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: projection onto AR(p)
+(function(){
+ const FAM={ma1:{n:["b",""],r:[[-0.9,0.9,0.5],null],mk:(x,y)=>({A:[1],B:[1,x]})},
+  arma:{n:["a","b"],r:[[-0.9,0.9,-0.5],[-0.9,0.9,0.3]],mk:(x,y)=>({A:[1,x],B:[1,y]})},
+  ar2:{n:["a₁","a₂"],r:[[-1.8,1.8,-0.9],[-0.9,0.9,0.5]],mk:(x,y)=>({A:[1,x,y],B:[1]})}};
+ function setFam(){const F=FAM[g("w3m").value];g("w3n1").textContent=F.n[0];g("w3n2").textContent=F.n[1];
+  const sx=g("w3x"),sy=g("w3y");sx.min=F.r[0][0];sx.max=F.r[0][1];sx.value=F.r[0][2];
+  if(F.r[1]){sy.parentNode.style.display="";sy.min=F.r[1][0];sy.max=F.r[1][1];sy.value=F.r[1][2]}else sy.parentNode.style.display="none";draw()}
+ function draw(){
+  const K=g("w3m").value,F=FAM[K],x=+g("w3x").value,y=+g("w3y").value,p=+g("w3p").value;g("w3xo").textContent=f2(x);g("w3yo").textContent=f2(y);g("w3po").textContent=p;
+  const m=F.mk(x,y);
+  if(K==="ar2"&&!(Math.abs(y)<1&&Math.abs(x)<1+y)){clear(g("w3l"));clear(g("w3r"));g("w3s").innerHTML='<div class="warn">AR(2) outside the stable triangle</div>';return}
+  const S=spec(m.A,m.B),gm=cosc(S,8),lv=levinson(gm,6),sinf=Math.exp(mean(lg(S))),S0=new Float64Array(M).fill(1);
+  const Sp=arSpec(lv[p].a,lv[p].s2),Dp=klRate(S,Sp),Dp0=klRate(Sp,S0),D0=klRate(S,S0);
+  let mt=0;const gp=cosc(Sp,p);for(let t=0;t<=p;t++)mt=Math.max(mt,Math.abs(gp[t]-gm[t]));
+  const L=g("w3l");clear(L);const ep=p===1?eProj1(S):null,Se=ep?arSpec([ep.a],ep.s):null;
+  const mx=Math.max(...S,...Sp,...(Se||[]))*1.1;
+  const Q=axes(L,40,24,285,222,[0,Math.PI],[0,mx],"S black, m-projection blue"+(ep?", e-proj. orange":""),"ω","");ticks(Q,[0,Math.PI/2,Math.PI],[0,mx/2,mx],v=>v===0?"0":(Math.abs(v-Math.PI)<1e-9?"π":"π/2"),v=>v.toPrecision(2));
+  const curve=(S_,col,w,d)=>{const pts=[];for(let j=0;j<=M/2;j++)pts.push([Q.X(WG[j]),Q.Y(S_[j])]);path(Q.G,pts,col,w,d)};
+  curve(S,"var(--ink)",2.4);curve(Sp,"var(--s1)",2.2);if(Se)curve(Se,"var(--s2)",2,"5 3");
+  const R=g("w3r");clear(R);const B=axes(R,40,24,285,222,[-0.6,6.6],[0,Math.max(D0,1e-9)*1.15],"D[S:S₀] = D[S:S_p] + D[S_p:S₀]","p","");ticks(B,[0,1,2,3,4,5,6],[0,D0/2,D0],v=>v.toFixed(0),v=>v.toFixed(3));
+  for(let q=0;q<=6;q++){const Sq=arSpec(lv[q].a,lv[q].s2),d1=klRate(Sq,S0),d2=klRate(S,Sq),w=q===p?13:8;
+   el("rect",{x:B.X(q)-w,y:B.Y(d1),width:2*w,height:B.Y(0)-B.Y(d1),fill:"var(--s1)",opacity:q===p?0.9:0.45},B.G);
+   el("rect",{x:B.X(q)-w,y:B.Y(d1+d2),width:2*w,height:Math.max(B.Y(d1)-B.Y(d1+d2),0.5),fill:"var(--s2)",opacity:q===p?0.9:0.45},B.G)}
+  const aS=lv[p].a.length?fv(lv[p].a,4):"[]";
+  g("w3s").innerHTML=`<div>order p = ${p}: a = <b>${aS}</b>, σ_p² = <b>${f6(lv[p].s2)}</b>, σ_∞² = ${f4(sinf)}</div>`+
+   `<div>D[S:S_p] = <b>${f6(Dp)}</b> = ½ log(σ_p²/σ_∞²) = <b>${f6(0.5*Math.log(lv[p].s2/sinf))}</b></div>`+
+   `<div>Pythagoras: D[S:S₀] = <b>${f6(D0)}</b> = ${f6(Dp)} + ${f6(Dp0)} (= ${f6(Dp+Dp0)})</div>`+
+   `<div>γ₀..γ_p of S_p minus those of S: max <b>${mt.toExponential(1)}</b>; H(S_p) − H(S) = <b>${f6(ent(Sp)-ent(S))}</b></div>`+
+   (ep?`<div>e-projection onto AR(1): a = <b>${f6(ep.a)}</b>, s = ${f6(ep.s)}; D[S:S_e] = <b>${f6(klRate(S,Se))}</b>, D[S_e:S] = <b>${f6(klRate(Se,S))}</b> against D[S:S_m] = ${f6(Dp)}, D[S_m:S] = ${f6(klRate(Sp,S))}</div>`:"");
+ }
+ g("w3m").addEventListener("change",setFam);["w3x","w3y","w3p"].forEach(i=>g(i).addEventListener("input",draw));setFam();
+})();
+
+// ===== widget 4: maximum entropy and the zeroth coefficient
+(function(){
+ const S=spec([1],[1,0.5]),gm=cosc(S,8),lv=levinson(gm,3);
+ function draw(){
+  const p=+g("w4p").value,ca=+g("w4a").value,cb=+g("w4b").value,lc=+g("w4c").value;g("w4po").textContent=p;g("w4ao").textContent=f2(ca);g("w4bo").textContent=f2(cb);g("w4co").textContent=lc<=-3?"off":f2(lc);
+  const Sp=arSpec(lv[p].a,lv[p].s2),cw=lc<=-3?0:Math.pow(10,lc),Sq=new Float64Array(M);let ok=true,mn=Infinity;
+  for(let j=0;j<M;j++){Sq[j]=Sp[j]+ca*Math.cos((p+1)*WG[j])+cb*Math.cos((p+2)*WG[j])+cw;mn=Math.min(mn,Sq[j])}
+  ok=mn>0;
+  const V=g("w4v");clear(V);
+  const mx=Math.max(...Sp,ok?Math.max(...Sq):0,...S)*1.08;
+  const Q=axes(V,50,24,330,190,[0,Math.PI],[0,mx],"S black, S_p blue, S′ = S_p + δ + c orange","ω","");ticks(Q,[0,Math.PI/2,Math.PI],[0,mx/2,mx],v=>v===0?"0":(Math.abs(v-Math.PI)<1e-9?"π":"π/2"),v=>v.toPrecision(2));
+  const curve=(S_,col,w,d)=>{const pts=[];for(let j=0;j<=M/2;j++)pts.push([Q.X(WG[j]),Q.Y(S_[j])]);path(Q.G,pts,col,w,d)};
+  curve(S,"var(--ink)",1.6,"4 3");curve(Sp,"var(--s1)",2.2);if(ok)curve(Sq,"var(--s2)",2.2);
+  // entropy change as a function of the added white noise (right panel)
+  const R=axes(V,430,24,240,190,[-3,3],[-0.2,4],"H(S′) − H(S_p) as c grows","log₁₀ c","");ticks(R,[-3,-2,-1,0,1,2,3],[0,1,2,3,4],v=>v.toFixed(0),v=>v.toFixed(0));
+  const pts=[],pts2=[];for(let i=0;i<=60;i++){const l=-3+6*i/60,c=Math.pow(10,l);let s=0,pos=true;for(let j=0;j<M;j++){const v=Sp[j]+ca*Math.cos((p+1)*WG[j])+cb*Math.cos((p+2)*WG[j])+c;if(v<=0){pos=false;break}s+=Math.log(v)}if(pos)pts.push([R.X(l),R.Y(0.5*s/M+0.5*LOG2PIE-ent(Sp))]);pts2.push([R.X(l),R.Y(Math.max(0.5*l*Math.LN10,0))])}
+  path(R.G,pts,"var(--s2)",2.2);path(R.G,pts2,"var(--faint)",1.2,"4 3");
+  const gq=ok?cosc(Sq,p):[],gp=cosc(Sp,p),dH=ok?ent(Sq)-ent(Sp):NaN;
+  let pred=0;if(ok&&cw===0){let t=0;for(let j=0;j<M;j++){const d=ca*Math.cos((p+1)*WG[j])+cb*Math.cos((p+2)*WG[j]);t+=d*d/(Sp[j]*Sp[j])}pred=-0.25*t/M}
+  g("w4s").innerHTML=ok?`<div>γ₀..γ_p of S′: <b>${fv(gq,6)}</b> against S_p: ${fv(gp,6)}</div><div>H(S′) − H(S_p) = <b>${sg(dH,6)}</b>${cw===0?` (second-order prediction −¼ mean(δ²/S_p²) = ${sg(pred,6)})`:` (c = ${cw.toPrecision(3)} added: γ₀ moved, the entropy grew by about ½ log c)`}</div><div>H(S_p) − H(S) = ${f6(ent(Sp)-ent(S))}</div>`:'<div class="warn">S′ is not positive: not a spectrum</div>';
+ }
+ ["w4p","w4a","w4b","w4c"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 5: ARMA(1,1) singular line
+(function(){
+ function draw(){
+  const a=+g("w5a").value,b=+g("w5b").value;g("w5ao").textContent=f2(a);g("w5bo").textContent=f2(b);
+  const G=armaG(a,b),det=(a-b)**2/((1-a*a)*(1-b*b)*(1-a*b)**2),tr=G[0][0]+G[1][1],dd=Math.sqrt(((G[0][0]-G[1][1])/2)**2+G[0][1]**2),emin=tr/2-dd,emax=tr/2+dd;
+  const c1=2*(b-a),c2=a*a-b*b,d2=TWO_PI*(li2(a*a)+li2(b*b)-2*li2(a*b));
+  const L=g("w5l");clear(L);const P=axes(L,40,24,280,250,[-1,1],[-1,1],"parameter square (a, b); dashed: a = b","a","b");ticks(P,[-1,-0.5,0,0.5,1],[-1,-0.5,0,0.5,1],f2,f2);
+  const N=28;for(let i=0;i<N;i++)for(let j=0;j<N;j++){const x=-1+(i+0.5)*2/N,y=-1+(j+0.5)*2/N,dg=(x-y)**2/((1-x*x)*(1-y*y)*(1-x*y)**2),f=Math.min(Math.max((Math.log10(Math.max(dg,1e-12))+3)/5,0),1);el("rect",{x:P.X(x)-P.w/N/2,y:P.Y(y)-P.h/N/2,width:P.w/N,height:P.h/N,fill:"var(--s1)",opacity:0.06+0.55*f,"shape-rendering":"crispEdges"},P.G)}
+  path(P.G,[[P.X(-1),P.Y(-1)],[P.X(1),P.Y(1)]],"var(--s2)",1.6,"5 3");el("circle",{cx:P.X(a),cy:P.Y(b),r:5,fill:"var(--s4)",stroke:"var(--surface)"},P.G);
+  const R=g("w5r");clear(R);const Q=axes(R,40,24,280,250,[-4,4],[-1.1,1.1],"cepstral image (c₁, c₂)","c₁","c₂");ticks(Q,[-4,-2,0,2,4],[-1,-0.5,0,0.5,1],v=>v.toFixed(0),f2);
+  [-0.9,-0.6,-0.3,0,0.3,0.6,0.9].forEach(v=>{const A=[],B=[];for(let i=0;i<=80;i++){const x=-0.98+1.96*i/80;A.push([Q.X(2*(x-v)),Q.Y(v*v-x*x)]);B.push([Q.X(2*(v-x)),Q.Y(x*x-v*v)])}path(Q.G,A,"var(--s1)",0.9);path(Q.G,B,"var(--s3)",0.9)});
+  el("circle",{cx:Q.X(0),cy:Q.Y(0),r:4.5,fill:"var(--s2)"},Q.G);el("circle",{cx:Q.X(c1),cy:Q.Y(c2),r:5,fill:"var(--s4)",stroke:"var(--surface)"},Q.G);
+  g("w5s").innerHTML=`<div>det G = <b>${f8(det)}</b>; eigenvalues of G: <b>${f6(emin)}</b>, ${f4(emax)}</div><div>h₁ = b − a = <b>${f2(b-a)}</b> (${b>a?"upper triangle":(b<a?"lower triangle":"on the diagonal: H = 1")})</div><div>cepstrum c = <b>(${f4(c1)}, ${f4(c2)})</b>; Jacobian 4(b − a) = ${f4(4*(b-a))}</div><div>distance from white noise, d² = ½∫(log S)² = 2π[Li₂(a²) + Li₂(b²) − 2 Li₂(ab)] = <b>${f6(d2)}</b></div>`;
+ }
+ function f8(v){return v.toFixed(8)}
+ ["w5a","w5b"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 6: the edge of the stable region (closed forms, as checked against quadrature in the script)
+(function(){
+ function draw(){
+  const s=+g("w6s").value,phi=1-Math.pow(10,-s);g("w6so").textContent=f2(s);
+  const gg=1/(1-phi*phi),arc=Math.asin(phi),D1=phi*phi/2,D2=phi*phi/(2*(1-phi*phi)),r0=1/(1-phi*phi),g0=1+phi*phi,cep=TWO_PI*li2(phi*phi);
+  const V=g("w6v");clear(V);
+  const P=axes(V,50,24,200,190,[0,3],[0,Math.PI/2+0.1],"Fisher arc length from 0","s  (1 − φ = 10^−s)","");ticks(P,[0,1,2,3],[0,0.5,1,1.5],v=>v.toFixed(0),f2);
+  const pts=[];for(let i=0;i<=100;i++){const ss=3*i/100;pts.push([P.X(ss),P.Y(Math.asin(1-Math.pow(10,-ss)))])}path(P.G,pts,"var(--s1)",2.4);path(P.G,[[P.X(0),P.Y(Math.PI/2)],[P.X(3),P.Y(Math.PI/2)]],"var(--faint)",1.2,"4 3");el("circle",{cx:P.X(s),cy:P.Y(arc),r:4.5,fill:"var(--s4)"},P.G);
+  const Q=axes(V,290,24,200,190,[0,3],[0,3.2],"log₁₀ g and log₁₀ KL[AR : white]","s","");ticks(Q,[0,1,2,3],[0,1,2,3],v=>v.toFixed(0),v=>v.toFixed(0));
+  const crv=(f,col)=>{const o=[];for(let i=0;i<=100;i++){const ss=3*i/100,ph=1-Math.pow(10,-ss);o.push([Q.X(ss),Q.Y(Math.log10(Math.max(f(ph),1e-3)))])}path(Q.G,o,col,2.2)};
+  crv(ph=>1/(1-ph*ph),"var(--s1)");crv(ph=>ph*ph/(2*(1-ph*ph)),"var(--s2)");
+  const R=axes(V,530,24,150,190,[0,3],[0,0.6],"KL[white : AR(1)]","s","");ticks(R,[0,1,2,3],[0,0.25,0.5],v=>v.toFixed(0),f2);
+  const o=[];for(let i=0;i<=100;i++){const ss=3*i/100,ph=1-Math.pow(10,-ss);o.push([R.X(ss),R.Y(ph*ph/2)])}path(R.G,o,"var(--s3)",2.4);path(R.G,[[R.X(0),R.Y(0.5)],[R.X(3),R.Y(0.5)]],"var(--faint)",1.2,"4 3");
+  g("w6t").innerHTML=`<div>φ = <b>${phi.toFixed(4)}</b>: Fisher information g = 1/(1−φ²) = <b>${f4(gg)}</b>, arc length arcsin φ = <b>${f4(arc)}</b> (limit π/2 = ${f4(Math.PI/2)})</div><div>KL[white : AR(1)] = φ²/2 = <b>${f5(D1)}</b> (limit ½); KL[AR(1) : white] = φ²/(2(1−φ²)) = <b>${f4(D2)}</b> → ∞</div><div>MA(1) with b = φ: r₀ = 1/(1−b²) = <b>${f4(r0)}</b> → ∞, γ₀ = 1 + b² = <b>${f4(g0)}</b>, ½∫(log S)² = 2π Li₂(b²) = <b>${f4(cep)}</b> (limit π³/3 = ${f4(Math.PI**3/3)})</div>`;
+ }
+ g("w6s").addEventListener("input",draw);draw();
+})();
+
+// ===== widget 7: the periodogram
+(function(){
+ let seed=31;
+ function run(){
+  const n=+g("w7n").value;g("w7no").textContent=n;const phi=0.6,R=3000,j0=n/8,rd=mkRand(seed);
+  const freqs=[];for(let d=-4;d<=5;d++)freqs.push(j0+d);                    // 9 ordinates around j0, plus j0+1 for the neighbour correlation
+  const cs=freqs.map(j=>{const c=new Float64Array(n),s=new Float64Array(n);for(let t=0;t<n;t++){c[t]=Math.cos(TWO_PI*j*t/n);s[t]=Math.sin(TWO_PI*j*t/n)}return [c,s]});
+  const Sw=j=>1/(1-2*phi*Math.cos(TWO_PI*j/n)+phi*phi);
+  const r0=new Float64Array(R),r1=new Float64Array(R),sm=new Float64Array(R);let re0=0,im0=0;
+  for(let r=0;r<R;r++){
+   const re=new Float64Array(10),im=new Float64Array(10);let x=rd.N01()/Math.sqrt(1-phi*phi);
+   for(let t=0;t<n;t++){if(t>0)x=phi*x+rd.N01();for(let k=0;k<10;k++){re[k]+=x*cs[k][0][t];im[k]-=x*cs[k][1][t]}}
+   const I=k=>(re[k]*re[k]+im[k]*im[k])/n;r0[r]=I(4)/Sw(j0);r1[r]=I(5)/Sw(j0+1);let a=0;for(let k=0;k<9;k++)a+=I(k)/Sw(j0-4+k);sm[r]=a/9;
+   const ph=Math.atan2(im[4],re[4]);re0+=Math.cos(ph);im0+=Math.sin(ph);
+  }
+  const st=v=>{let m=0;for(const x of v)m+=x;m/=v.length;let q=0;for(const x of v)q+=(x-m)*(x-m);return [m,Math.sqrt(q/v.length)]};
+  const [m0,s0]=st(r0),[m1,s1]=st(r1),[,ss]=st(sm);let cov=0;for(let r=0;r<R;r++)cov+=(r0[r]-m0)*(r1[r]-m1);const corr=cov/R/(s0*s1);
+  const V=g("w7v");clear(V);const nb=40,xm=5,H=new Array(nb).fill(0);for(let r=0;r<R;r++){const j=Math.floor(r0[r]/xm*nb);if(j>=0&&j<nb)H[j]++}
+  const P=axes(V,50,24,600,190,[0,xm],[0,1.1],"I(ω)/S(ω) over "+R+" records (bars) and the unit exponential e^(−x) (line)","","density");ticks(P,[0,1,2,3,4,5],[0,0.5,1],v=>v.toFixed(0),f2);
+  H.forEach((c,j)=>{const d=c/(R*xm/nb);el("rect",{x:P.X(j*xm/nb),y:P.Y(d),width:P.w/nb-1,height:P.y0+P.h-P.Y(d),fill:"var(--s1)",opacity:0.55},P.G)});
+  const o=[];for(let i=0;i<=200;i++){const xx=xm*i/200;o.push([P.X(xx),P.Y(Math.exp(-xx))])}path(P.G,o,"var(--s2)",2.2);
+  g("w7s").innerHTML=`<div>mean of I/S: <b>${f3(m0)}</b> (should be 1)</div><div>std of I/S: <b>${f3(s0)}</b> (an exponential law has 1; it does not shrink with n)</div><div>corr(I(ω), I(ω+2π/n)) = <b>${sg(corr,3)}</b>; |mean of e^(i·phase)| = <b>${f3(Math.hypot(re0,im0)/R)}</b> (≈ 1/√R = ${f3(1/Math.sqrt(R))})</div><div>std of the average of 9 ordinates: <b>${f3(ss)}</b> (≈ 1/3)</div>`;
+ }
+ g("w7n").addEventListener("input",run);g("w7b").addEventListener("click",()=>{seed+=1;run()});run();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>

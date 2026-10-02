@@ -117,7 +117,7 @@ Amari, S. *Information Geometry and Its Applications*. Applied Mathematical Scie
 | 7 | Asymptotic Theory of Statistical Inference | [read online](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/figures/interactive.html) · [source](chapters/ch07-asymptotic-theory-of-inference/notes.md) · [code](chapters/ch07-asymptotic-theory-of-inference/code/) |
 | 8 | Estimation in the Presence of Hidden Variables | to come |
 | 9 | Neyman–Scott Problem: Estimating Function and Semiparametric Statistical Model | to come |
-| 10 | Linear Systems and Time Series | to come |
+| 10 | Linear Systems and Time Series | [read online](https://msrepo.github.io/information_geometry_notes/ch10-linear-systems-and-time-series/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch10-linear-systems-and-time-series/figures/interactive.html) · [source](chapters/ch10-linear-systems-and-time-series/notes.md) · [code](chapters/ch10-linear-systems-and-time-series/code/) |
 | 11 | Machine Learning | to come |
 | 12 | Natural Gradient Learning and Its Dynamics in Singular Regions | to come |
 | 13 | Signal Processing and Optimization | to come |
