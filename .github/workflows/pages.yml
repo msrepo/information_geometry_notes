@@ -1,0 +1,72 @@
+name: Build and deploy notes to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    # Deny-list rather than allow-list: an allow-list has to be updated every time a content root is
+    # added, and silently stops deploying when it is not.
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it, but only queue one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The book is under copyright. It lives in a gitignored folder on the author's machine; if a PDF
+      # ever gets committed, stop before anything is published.
+      - name: Refuse to publish a tracked PDF or DjVu
+        run: |
+          if git ls-files | grep -iE '\.(pdf|djvu)$'; then
+            echo "::error::a PDF/DjVu file is tracked by git; the book must not be committed"
+            exit 1
+          fi
+          echo "no PDF or DjVu tracked"
+
+      - name: Install pandoc
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends pandoc
+          pandoc --version | head -1
+
+      - name: Render notes
+        run: make
+
+      # Catches assets pointing at a filesystem path rather than a URL or a relative path, e.g. Debian
+      # pandoc's /usr/share/javascript/katex/, which resolves locally but 404s once served from Pages.
+      - name: Check for non-portable asset paths
+        run: |
+          if grep -rhoE '(src|href)="/[^/][^"]*"' build --include='*.html'; then
+            echo "::error::built HTML references an absolute filesystem path"
+            exit 1
+          fi
+          echo "all asset paths are relative or absolute URLs"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

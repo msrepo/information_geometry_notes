@@ -1,0 +1,580 @@
+{
+ "book": {
+  "title": "Information Geometry and Its Applications",
+  "author": "Shun-ichi Amari",
+  "publisher": "Springer Japan",
+  "year": 2016,
+  "series": "Applied Mathematical Sciences, vol. 194",
+  "doi": "10.1007/978-4-431-55978-8",
+  "url": "https://doi.org/10.1007/978-4-431-55978-8"
+ },
+ "parts": [
+  {
+   "key": "Part I",
+   "title": "Geometry of Divergence Functions: Dually Flat Riemannian Structure",
+   "chapters": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "key": "Part II",
+   "title": "Introduction to Dual Differential Geometry",
+   "chapters": [
+    5,
+    6
+   ]
+  },
+  {
+   "key": "Part III",
+   "title": "Information Geometry of Statistical Inference",
+   "chapters": [
+    7,
+    8,
+    9,
+    10
+   ]
+  },
+  {
+   "key": "Part IV",
+   "title": "Applications of Information Geometry",
+   "chapters": [
+    11,
+    12,
+    13
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "n": 1,
+   "title": "Manifold, Divergence and Dually Flat Structure",
+   "book_page": 3,
+   "pdf_pages": [
+    16,
+    43
+   ],
+   "sections": [
+    {
+     "num": "1.1",
+     "title": "Manifolds",
+     "book_page": 3
+    },
+    {
+     "num": "1.2",
+     "title": "Divergence Between Two Points",
+     "book_page": 9
+    },
+    {
+     "num": "1.3",
+     "title": "Convex Function and Bregman Divergence",
+     "book_page": 12
+    },
+    {
+     "num": "1.4",
+     "title": "Legendre Transformation",
+     "book_page": 16
+    },
+    {
+     "num": "1.5",
+     "title": "Dually Flat Riemannian Structure Derived from Convex Function",
+     "book_page": 19
+    },
+    {
+     "num": "1.6",
+     "title": "Generalized Pythagorean Theorem and Projection Theorem",
+     "book_page": 24
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Exponential Families and Mixture Families of Probability Distributions",
+   "book_page": 31,
+   "pdf_pages": [
+    44,
+    62
+   ],
+   "sections": [
+    {
+     "num": "2.1",
+     "title": "Exponential Family of Probability Distributions",
+     "book_page": 31
+    },
+    {
+     "num": "2.2",
+     "title": "Examples of Exponential Family: Gaussian and Discrete Distributions",
+     "book_page": 34
+    },
+    {
+     "num": "2.3",
+     "title": "Mixture Family of Probability Distributions",
+     "book_page": 36
+    },
+    {
+     "num": "2.4",
+     "title": "Flat Structure: e-flat and m-flat",
+     "book_page": 37
+    },
+    {
+     "num": "2.5",
+     "title": "On Infinite-Dimensional Manifold of Probability Distributions",
+     "book_page": 39
+    },
+    {
+     "num": "2.6",
+     "title": "Kernel Exponential Family",
+     "book_page": 42
+    },
+    {
+     "num": "2.7",
+     "title": "Bregman Divergence and Exponential Family",
+     "book_page": 43
+    },
+    {
+     "num": "2.8",
+     "title": "Applications of Pythagorean Theorem",
+     "book_page": 44
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Invariant Geometry of Manifold of Probability Distributions",
+   "book_page": 51,
+   "pdf_pages": [
+    63,
+    81
+   ],
+   "sections": [
+    {
+     "num": "3.1",
+     "title": "Invariance Criterion",
+     "book_page": 51
+    },
+    {
+     "num": "3.2",
+     "title": "Information Monotonicity Under Coarse Graining",
+     "book_page": 53
+    },
+    {
+     "num": "3.3",
+     "title": "Examples of f -Divergence in Sn",
+     "book_page": 57
+    },
+    {
+     "num": "3.4",
+     "title": "General Properties of f -Divergence and KL-Divergence",
+     "book_page": 59
+    },
+    {
+     "num": "3.5",
+     "title": "Fisher Information: The Unique Invariant Metric",
+     "book_page": 62
+    },
+    {
+     "num": "3.6",
+     "title": "f -Divergence in Manifold of Positive Measures",
+     "book_page": 65
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "title": "α-Geometry, Tsallis q-Entropy and Positive-Definite Matrices",
+   "book_page": 71,
+   "pdf_pages": [
+    82,
+    117
+   ],
+   "sections": [
+    {
+     "num": "4.1",
+     "title": "Invariant and Flat Divergence",
+     "book_page": 71
+    },
+    {
+     "num": "4.2",
+     "title": "α-Geometry in Sn and Rnþ",
+     "book_page": 75
+    },
+    {
+     "num": "4.3",
+     "title": "Geometry of Tsallis q-Entropy",
+     "book_page": 84
+    },
+    {
+     "num": "4.4",
+     "title": "ðu; vÞ-Divergence: Dually Flat Divergence in Manifold of Positive Measures",
+     "book_page": 92
+    },
+    {
+     "num": "4.5",
+     "title": "Invariant Flat Divergence in Manifold of Positive-Definite Matrices",
+     "book_page": 96
+    },
+    {
+     "num": "4.6",
+     "title": "Miscellaneous Divergences",
+     "book_page": 102
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "title": "Elements of Differential Geometry",
+   "book_page": 109,
+   "pdf_pages": [
+    119,
+    140
+   ],
+   "sections": [
+    {
+     "num": "5.1",
+     "title": "Manifold and Tangent Space",
+     "book_page": 109
+    },
+    {
+     "num": "5.2",
+     "title": "Riemannian Metric",
+     "book_page": 111
+    },
+    {
+     "num": "5.3",
+     "title": "Affine Connection",
+     "book_page": 112
+    },
+    {
+     "num": "5.4",
+     "title": "Tensors",
+     "book_page": 114
+    },
+    {
+     "num": "5.5",
+     "title": "Covariant Derivative",
+     "book_page": 116
+    },
+    {
+     "num": "5.6",
+     "title": "Geodesic",
+     "book_page": 117
+    },
+    {
+     "num": "5.7",
+     "title": "Parallel Transport of Vector",
+     "book_page": 118
+    },
+    {
+     "num": "5.8",
+     "title": "Riemann–Christoffel Curvature",
+     "book_page": 119
+    },
+    {
+     "num": "5.9",
+     "title": "Levi–Civita (Riemannian) Connection",
+     "book_page": 124
+    },
+    {
+     "num": "5.10",
+     "title": "Submanifold and Embedding Curvature",
+     "book_page": 126
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "title": "Dual Affine Connections and Dually Flat Manifold",
+   "book_page": 131,
+   "pdf_pages": [
+    141,
+    171
+   ],
+   "sections": [
+    {
+     "num": "6.1",
+     "title": "Dual Connections",
+     "book_page": 131
+    },
+    {
+     "num": "6.2",
+     "title": "Metric and Cubic Tensor Derived from Divergence",
+     "book_page": 134
+    },
+    {
+     "num": "6.3",
+     "title": "Invariant Metric and Cubic Tensor",
+     "book_page": 136
+    },
+    {
+     "num": "6.4",
+     "title": "α-Geometry",
+     "book_page": 136
+    },
+    {
+     "num": "6.5",
+     "title": "Dually Flat Manifold",
+     "book_page": 137
+    },
+    {
+     "num": "6.6",
+     "title": "Canonical Divergence in Dually Flat Manifold",
+     "book_page": 138
+    },
+    {
+     "num": "6.7",
+     "title": "Canonical Divergence in General Manifold of Dual Connections",
+     "book_page": 141
+    },
+    {
+     "num": "6.8",
+     "title": "Dual Foliations of Flat Manifold and Mixed Coordinates",
+     "book_page": 143
+    },
+    {
+     "num": "6.9",
+     "title": "System Complexity and Integrated Information",
+     "book_page": 150
+    },
+    {
+     "num": "6.10",
+     "title": "Input–Output Analysis in Economics",
+     "book_page": 157
+    }
+   ]
+  },
+  {
+   "n": 7,
+   "title": "Asymptotic Theory of Statistical Inference",
+   "book_page": 165,
+   "pdf_pages": [
+    173,
+    185
+   ],
+   "sections": [
+    {
+     "num": "7.1",
+     "title": "Estimation",
+     "book_page": 165
+    },
+    {
+     "num": "7.2",
+     "title": "Estimation in Exponential Family",
+     "book_page": 166
+    },
+    {
+     "num": "7.3",
+     "title": "Estimation in Curved Exponential Family",
+     "book_page": 168
+    },
+    {
+     "num": "7.4",
+     "title": "First-Order Asymptotic Theory of Estimation",
+     "book_page": 171
+    },
+    {
+     "num": "7.5",
+     "title": "Higher-Order Asymptotic Theory of Estimation",
+     "book_page": 173
+    },
+    {
+     "num": "7.6",
+     "title": "Asymptotic Theory of Hypothesis Testing",
+     "book_page": 175
+    }
+   ]
+  },
+  {
+   "n": 8,
+   "title": "Estimation in the Presence of Hidden Variables",
+   "book_page": 179,
+   "pdf_pages": [
+    186,
+    196
+   ],
+   "sections": [
+    {
+     "num": "8.1",
+     "title": "EM Algorithm",
+     "book_page": 179
+    },
+    {
+     "num": "8.2",
+     "title": "Loss of Information by Data Reduction",
+     "book_page": 185
+    },
+    {
+     "num": "8.3",
+     "title": "Estimation Based on Misspecified Statistical Model",
+     "book_page": 186
+    }
+   ]
+  },
+  {
+   "n": 9,
+   "title": "Neyman–Scott Problem: Estimating Function and Semiparametric Statistical Model",
+   "book_page": 191,
+   "pdf_pages": [
+    197,
+    219
+   ],
+   "sections": [
+    {
+     "num": "9.1",
+     "title": "Statistical Model Including Nuisance Parameters",
+     "book_page": 191
+    },
+    {
+     "num": "9.2",
+     "title": "Neyman–Scott Problem and Semiparametrics",
+     "book_page": 194
+    },
+    {
+     "num": "9.3",
+     "title": "Estimating Function",
+     "book_page": 197
+    },
+    {
+     "num": "9.4",
+     "title": "Information Geometry of Estimating Function",
+     "book_page": 199
+    },
+    {
+     "num": "9.5",
+     "title": "Solutions to Neyman–Scott Problems",
+     "book_page": 206
+    }
+   ]
+  },
+  {
+   "n": 10,
+   "title": "Linear Systems and Time Series",
+   "book_page": 215,
+   "pdf_pages": [
+    220,
+    232
+   ],
+   "sections": [
+    {
+     "num": "10.1",
+     "title": "Stationary Time Series and Linear System",
+     "book_page": 215
+    },
+    {
+     "num": "10.2",
+     "title": "Typical Finite-Dimensional Manifolds of Time Series",
+     "book_page": 217
+    },
+    {
+     "num": "10.3",
+     "title": "Dual Geometry of System Manifold",
+     "book_page": 219
+    },
+    {
+     "num": "10.4",
+     "title": "Geometry of AR, MA and ARMA Models",
+     "book_page": 223
+    }
+   ]
+  },
+  {
+   "n": 11,
+   "title": "Machine Learning",
+   "book_page": 231,
+   "pdf_pages": [
+    234,
+    281
+   ],
+   "sections": [
+    {
+     "num": "11.1",
+     "title": "Clustering Patterns",
+     "book_page": 231
+    },
+    {
+     "num": "11.2",
+     "title": "Geometry of Support Vector Machine",
+     "book_page": 242
+    },
+    {
+     "num": "11.3",
+     "title": "Stochastic Reasoning: Belief Propagation and CCCP Algorithms",
+     "book_page": 249
+    },
+    {
+     "num": "11.4",
+     "title": "Information Geometry of Boosting",
+     "book_page": 260
+    },
+    {
+     "num": "11.5",
+     "title": "Bayesian Inference and Deep Learning",
+     "book_page": 265
+    }
+   ]
+  },
+  {
+   "n": 12,
+   "title": "Natural Gradient Learning and Its Dynamics in Singular Regions",
+   "book_page": 279,
+   "pdf_pages": [
+    282,
+    317
+   ],
+   "sections": [
+    {
+     "num": "12.1",
+     "title": "Natural Gradient Stochastic Descent Learning",
+     "book_page": 279
+    },
+    {
+     "num": "12.2",
+     "title": "Singularity in Learning: Multilayer Perceptron",
+     "book_page": 296
+    }
+   ]
+  },
+  {
+   "n": 13,
+   "title": "Signal Processing and Optimization",
+   "book_page": 315,
+   "pdf_pages": [
+    318,
+    361
+   ],
+   "sections": [
+    {
+     "num": "13.1",
+     "title": "Principal Component Analysis",
+     "book_page": 315
+    },
+    {
+     "num": "13.2",
+     "title": "Independent Component Analysis",
+     "book_page": 322
+    },
+    {
+     "num": "13.3",
+     "title": "Non-negative Matrix Factorization",
+     "book_page": 333
+    },
+    {
+     "num": "13.4",
+     "title": "Sparse Signal Processing",
+     "book_page": 336
+    },
+    {
+     "num": "13.5",
+     "title": "Optimization in Convex Programming",
+     "book_page": 345
+    },
+    {
+     "num": "13.6",
+     "title": "Dual Geometry Derived from Game Theory",
+     "book_page": 349
+    }
+   ]
+  }
+ ]
+}
