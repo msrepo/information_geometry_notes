@@ -381,6 +381,14 @@ def check_connections():
     print(f"   plane in polar coordinates at (r, theta) = (2, 0.7): Gamma_(theta theta)^r = {Gc[1, 1, 0]:.6f} = -r;  Gamma_(r theta)^theta = Gamma_(theta r)^theta = {Gc[0, 1, 1]:.6f} = 1/r;"
           f" all other entries {others:.1e}")
     print(f"      from the metric by (5.85): largest difference {maxabs(lower(Gc, metric_polar(xp)) - Gm):.1e};  analytic: {maxabs(Gc - gamma_polar(xp)):.1e}")
+    # the frame turning: the exact change of the polar basis over a finite step against the first-order prediction (5.19)-(5.20)
+    r0, t0, dt_ = 2.0, math.radians(40.0), 0.4
+    e_r = lambda t: np.array([math.cos(t), math.sin(t)])
+    e_t = lambda r, t: np.array([-r * math.sin(t), r * math.cos(t)])
+    Bm = np.stack([e_r(t0), e_t(r0, t0)], axis=1)
+    d_er = np.linalg.solve(Bm, e_r(t0 + dt_) - e_r(t0)); d_et = np.linalg.solve(Bm, e_t(r0, t0 + dt_) - e_t(r0, t0))
+    print(f"   the polar frame at (r, theta) = (2, 40 deg), step d theta = 0.4, d r = 0: exact change of e_r in the basis (e_r, e_theta) at P = ({d_er[0]:.4f}, {d_er[1]:.4f}),"
+          f" first order Gamma_(ki)^j d xi^k = (0, d theta/r) = (0, {dt_ / r0:.4f});  exact change of e_theta = ({d_et[0]:.4f}, {d_et[1]:.4f}), first order (-r d theta, 0) = ({-r0 * dt_:.4f}, 0)")
     # sphere
     xs = np.array([1.0, 0.4])
     Gi, gi = induced_gamma(sphere_to_cart, xs)
@@ -567,7 +575,7 @@ def check_geodesics():
             dev = max(maxabs(st[k, :2] - aff(k / 4000)) for k in range(0, 4001, 100))
             extra = f";  it is the straight line of its flat chart, deviation {dev:.1e}"
         print(f"   Gaussians, start (mu, sigma) = (1, 2), velocity (1, 0.5), connection {lab:12s}: endpoint t = 1 at ({st[-1, 0]:.4f}, {st[-1, 1]:.4f}); speed {sp[0]:.4f} -> {sp[-1]:.4f}{extra}")
-    print(f"      theta velocity = ({thd[0]:.4f}, {thd[1]:.4f}), eta velocity = ({etd[0]:.4f}, {etd[1]:.4f}):  e endpoint theta = {np.round(th0 + thd, 4).tolist()} -> (mu, sigma) = {np.round(xi_of_theta(th0 + thd), 4).tolist()};"
+    print(f"      theta(0) = ({th0[0]:.4f}, {th0[1]:.4f}), eta(0) = ({et0[0]:.4f}, {et0[1]:.4f}); theta velocity = ({thd[0]:.4f}, {thd[1]:.4f}), eta velocity = ({etd[0]:.4f}, {etd[1]:.4f}):  e endpoint theta = {np.round(th0 + thd, 4).tolist()} -> (mu, sigma) = {np.round(xi_of_theta(th0 + thd), 4).tolist()};"
           f"  m endpoint eta = {np.round(et0 + etd, 4).tolist()} -> (mu, sigma) = {np.round(xi_of_eta(et0 + etd), 4).tolist()}")
     # straight versus shortest between two points
     A = np.array([0.0, 1.0]); B = np.array([3.0, 2.0])
