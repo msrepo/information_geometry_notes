@@ -114,7 +114,7 @@ Amari, S. *Information Geometry and Its Applications*. Applied Mathematical Scie
 | 4 | α-Geometry, Tsallis q-Entropy and Positive-Definite Matrices | to come |
 | 5 | Elements of Differential Geometry | [read online](https://msrepo.github.io/information_geometry_notes/ch05-elements-of-differential-geometry/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch05-elements-of-differential-geometry/figures/interactive.html) · [source](chapters/ch05-elements-of-differential-geometry/notes.md) · [code](chapters/ch05-elements-of-differential-geometry/code/) |
 | 6 | Dual Affine Connections and Dually Flat Manifold | to come |
-| 7 | Asymptotic Theory of Statistical Inference | to come |
+| 7 | Asymptotic Theory of Statistical Inference | [read online](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/figures/interactive.html) · [source](chapters/ch07-asymptotic-theory-of-inference/notes.md) · [code](chapters/ch07-asymptotic-theory-of-inference/code/) |
 | 8 | Estimation in the Presence of Hidden Variables | to come |
 | 9 | Neyman–Scott Problem: Estimating Function and Semiparametric Statistical Model | to come |
 | 10 | Linear Systems and Time Series | to come |

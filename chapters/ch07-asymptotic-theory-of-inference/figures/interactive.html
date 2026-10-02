@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asymptotic Theory of Inference Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Asymptotic theory of inference, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 7 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Everything here uses one running example: the curved exponential family $S=\{N(u,u^2)\}$, a Gaussian whose standard deviation equals its mean, sitting inside the two-parameter Gaussian family. A sample of $N$ observations becomes a single point, the <b>observed point</b> $\bar\eta=(\bar x,\overline{x^2})$ in the plane of the means of $x$ and $x^2$,
+and an estimator is a rule sending that point to a point of $S$. Simulations draw $(\bar x,\overline{x^2})$ exactly, from its true joint law, not samples. The numbers match <code>code/asymptotics.py</code> up to Monte Carlo error.</p>
+
+<h2>1. The Cramér–Rao bound and its fine print</h2>
+<p>For the <b>mean</b> of an exponential distribution the sample mean is unbiased and its variance is exactly the Cramér–Rao bound. For the <b>rate</b> $\lambda=1/\text{mean}$ no estimator attains the bound at finite $N$: the MLE $1/\bar x$ is biased and its variance exceeds the bound by $N^3/((N-1)^2(N-2))$, which is $1+4/N+\dots$; even the unbiased estimator loses a factor $N/(N-2)$. Switch to <b>Hodges</b>: a superefficient estimator of a Gaussian mean (it sets $\bar x$ to $0$ when $|\bar x|<N^{-1/4}$) is asymptotically unbiased and consistent at every fixed $u$, and beats the bound at $u=0$ ($N\cdot\mathrm{MSE}\to0$) while being far worse nearby. So Theorem 7.1 needs uniformity, not just $b\to0$.</p>
+<div class="widget" id="w0">
+  <div class="controls">
+    <label>show <select id="w0m"><option value="exp">exponential: rate vs mean</option><option value="hod">Hodges' estimator</option></select></label>
+    <label>$N$ <input type="range" id="w0n" min="5" max="1000" step="1" value="100"><output id="w0no"></output></label>
+  </div>
+  <svg id="w0v" viewBox="0 0 700 300" role="img" aria-label="Variance divided by the Cramér–Rao bound, or Hodges' scaled mean squared error"></svg>
+  <div class="stats" id="w0s"></div>
+</div>
+
+<h2>2. The observed point is a random point near the model</h2>
+<p>$N$ observations of $N(u,u^2)$ give a point $\bar\eta=(\bar x,\overline{x^2})$ in the plane of $\eta=(\mathbb E x,\mathbb E x^2)$. The model $S$ is the parabola $\eta_2=2\eta_1^2$ (black); the dashed parabola $\eta_2=\eta_1^2$ is zero variance and nothing lies below it. Theorem 7.3: with $\tilde e=\sqrt N(\bar\eta-\eta)$ the mean is $0$, the covariance is the Fisher matrix $g_{ij}=\operatorname{Cov}[(x,x^2)]$ (the ellipse, 1 and 2 standard deviations), and the third moments are $T_{ijk}/\sqrt N$: a skew that dies like $1/\sqrt N$.
+Push $N$ down to 5 and the cloud visibly leans away from the model; at $N=400$ it is an almost perfect ellipse.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$u$ <input type="range" id="w1u" min="0.5" max="2" step="0.05" value="1"><output id="w1uo"></output></label>
+    <label>$N$ <input type="range" id="w1n" min="3" max="400" step="1" value="15"><output id="w1no"></output></label>
+    <button id="w1b" type="button">resample</button>
+  </div>
+  <svg id="w1v" viewBox="0 0 700 340" role="img" aria-label="The observed points for N observations, the model and the Fisher ellipse"></svg>
+  <div id="w1tab"></div>
+</div>
+
+<h2>3. An estimator is a foliation of the plane</h2>
+<p>An estimator sends the observed point to a point of $S$. The set of observed points sent to the same $u$ is a <b>leaf</b> $A(u)$ (the book's ancillary submanifold). <b>Consistent</b>: the leaf through $\eta(u)$ is labelled $u$ (Theorem 7.4 (1)). <b>Efficient</b>: the leaf meets $S$ at a right angle in the Fisher metric. The efficiency of a consistent estimator is $\sin^2$ of the angle between its leaf and $S$, the Schur complement $\bar g/g_{uu}$ of (7.58), and the sampling distribution of $\sqrt N(\hat u-u)$ is asymptotically $N(0,1/\bar g)$.
+The MLE has straight leaves $\eta_2=u\eta_1+u^2$ (it is the m-projection); the e-orthogonal estimator has parabolic leaves; the sample mean has vertical leaves, $\sqrt{m_2/2}$ horizontal ones. $1.1\,\bar x$ has leaves that miss the true point and is inconsistent: its histogram is centred away from $0$.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>estimator <select id="w2k"><option value="MLE">MLE</option><option value="eorth">e-orthogonal</option><option value="xbar">x̄</option><option value="m2">√(m₂/2)</option><option value="bias">1.1 · x̄ (inconsistent)</option></select></label>
+    <label>$u$ <input type="range" id="w2u" min="0.5" max="2" step="0.05" value="1"><output id="w2uo"></output></label>
+    <label>$N$ <input type="range" id="w2n" min="4" max="2000" step="1" value="40"><output id="w2no"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w2l" viewBox="0 0 340 300" role="img" aria-label="Leaves of the estimator in the plane of the observed point"></svg></div>
+    <div><svg id="w2r" viewBox="0 0 340 300" role="img" aria-label="Histogram of the scaled estimation error and its asymptotic Gaussian"></svg></div>
+  </div>
+  <div class="stats" id="w2s"></div>
+</div>
+
+<h2>4. The bias is not a tensor: the same estimator in five charts</h2>
+<p>The MLE of a quantity $w$ is simply $w$ evaluated at the observed point. In the $\eta$ chart that is exactly unbiased. In any other chart $w(\eta)$ the bias is the second-order delta-method term, and the book's (7.54) says it equals $-\tfrac1{2N}\,g^{\beta\gamma}\Gamma^{(m)\alpha}_{\beta\gamma}$: the m-connection of the chart contracted with the inverse Fisher metric. The m-connection vanishes in $\eta$, so there is no bias there and a bias elsewhere, and the bias depends on the chart exactly as a Christoffel symbol would (Chapter 5).
+Pick a point $(\mu,\sigma)$ of the full Gaussian family and an $N$: the table compares the formula, computed numerically from the chart, with a simulation.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\mu$ <input type="range" id="w3m" min="-2" max="3" step="0.05" value="1"><output id="w3mo"></output></label>
+    <label>$\sigma$ <input type="range" id="w3s" min="0.5" max="3" step="0.05" value="2"><output id="w3so"></output></label>
+    <label>$N$ <input type="range" id="w3n" min="8" max="400" step="1" value="30"><output id="w3no"></output></label>
+    <button id="w3b" type="button">simulate again</button>
+  </div>
+  <div id="w3tab"></div>
+</div>
+
+<h2>5. Second order: where the $1/N$ term comes from</h2>
+<p>Theorem 7.5: for a bias-corrected efficient estimator, $N\,\mathbb E(\hat u^*-u)^2=g^{uu}+\tfrac1N c+O(N^{-2})$ with $c=\tfrac12\{(\Gamma^m)^2+2(H^e)^2+(H^m_A)^2\}$. The three squares are the parametrisation of $u$ (the m-connection of $S$ in the chart $u$), the e-curvature of the model $S$ (Efron's statistical curvature) and the m-curvature of the leaves. The MLE has straight leaves, so its third term vanishes; the e-orthogonal estimator adds it. Reparametrising by $\log u$ or $u^2$ changes only the first term.
+Run the simulation: measured against predicted $1/3+c/N$.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>estimator <select id="w4k"><option value="MLE">MLE</option><option value="eorth">e-orthogonal</option></select></label>
+    <label>parameter <select id="w4p"><option value="id">u</option><option value="log">log u</option><option value="sq">u²</option></select></label>
+    <label>$N$ <input type="range" id="w4n" min="10" max="100" step="1" value="30"><output id="w4no"></output></label>
+    <label>samples <select id="w4r"><option value="200000">2·10⁵</option><option value="1000000" selected>10⁶</option><option value="3000000">3·10⁶</option></select></label>
+    <button id="w4b" type="button">run simulation</button>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 250" role="img" aria-label="The three second-order terms and the simulated mean squared error"></svg>
+  <div class="stats" id="w4s"></div>
+</div>
+
+<h2>6. Hypothesis testing: efficiency is the angle of the boundary</h2>
+<p>To test $H_0:u=1$ against $u>1$, reject when the observed point is beyond a boundary line in the $\eta$ plane with normal $n$, that is when $n\cdot(\bar\eta-\eta(1))$ is large. For local alternatives $u=1+\delta/\sqrt N$ the power is $\Phi(\delta\,s(n)-z_\alpha)$ with $s(n)=n\cdot\eta'/\sqrt{n^{\mathsf T}Gn}$. By Cauchy–Schwarz $s\le\sqrt{g_{uu}}$ with equality exactly when $n\propto\theta'(1)$, the boundary orthogonal to $S$ (Theorem 7.7: this is the score test). A boundary at another angle loses the fraction $1-\cos^2$ of the information, as an estimator would.
+Turn the boundary and compare with the best test; the simulation draws the exact distribution of $\bar\eta$ and calibrates each test to the stated level.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>normal angle $\alpha$ <input type="range" id="w5a" min="-90" max="90" step="1" value="0"><output id="w5ao"></output></label>
+    <label>level <select id="w5l"><option value="0.05" selected>0.05</option><option value="0.01">0.01</option><option value="0.1">0.10</option></select></label>
+    <label>$N$ <input type="range" id="w5n" min="20" max="2000" step="1" value="200"><output id="w5no"></output></label>
+    <button id="w5b" type="button">simulate power</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l_" viewBox="0 0 340 300" role="img" aria-label="Local power curves"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 300" role="img" aria-label="The model, the null point and the boundary lines in the eta plane"></svg></div>
+  </div>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>7. Outside the regular case: the uniform location family</h2>
+<p>For $x\sim U[u-\tfrac12,u+\tfrac12]$ the Fisher information is infinite. The midrange converges at rate $1/N$, much faster than $1/\sqrt N$ of the sample mean, and $N(\text{midrange}-u)$ tends to a <b>Laplace</b> law $e^{-2|x|}$ with variance $\tfrac12$ and excess kurtosis $3$: not Gaussian. Two independent copies added have excess kurtosis $1.5$, so the limit is not a stable law either (the book says it is).</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>$N$ <input type="range" id="w6n" min="2" max="2000" step="1" value="200"><output id="w6no"></output></label>
+    <button id="w6b" type="button">resample</button>
+  </div>
+  <svg id="w6v" viewBox="0 0 700 260" role="img" aria-label="Histogram of the scaled midrange error with Laplace and Gaussian curves"></svg>
+  <div class="stats" id="w6s"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fy||f2)(v)})};
+
+// ---------- randomness: seeded generator, normal, gamma (Marsaglia-Tsang)
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mkRand(seed){
+ const U=rng(seed);let spare=null;
+ const N01=()=>{if(spare!==null){const s=spare;spare=null;return s}let u=0,v=0;while(u===0)u=U();v=U();const r=Math.sqrt(-2*Math.log(u));spare=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v)};
+ const gam=k=>{if(k<1){return gam(k+1)*Math.pow(U(),1/k)}const d=k-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{x=N01();v=1+c*x}while(v<=0);v=v*v*v;const u=U();if(u<1-0.0331*x*x*x*x)return d*v;if(Math.log(u)<0.5*x*x+d*(1-v+Math.log(v)))return d*v}};
+ return {U,N01,gam};
+}
+// exact joint law of (xbar, mean of x^2) for N draws from N(mu, s^2)
+function sampleAB(R,N,mu,s,rd){
+ const a=new Float64Array(R),b=new Float64Array(R),k=(N-1)/2,sq=s/Math.sqrt(N);
+ for(let i=0;i<R;i++){const x=mu+sq*rd.N01(),chi=2*rd.gam(k);a[i]=x;b[i]=x*x+s*s*chi/N}
+ return [a,b];
+}
+function erf(x){const t=1/(1+0.3275911*Math.abs(x)),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return x>=0?y:-y}
+const Phi=x=>0.5*(1+erf(x/Math.SQRT2)),phi=x=>Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);
+function qnorm(p){let lo=-10,hi=10;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(Phi(m)<p)lo=m;else hi=m}return(lo+hi)/2}
+const zFor=a=>qnorm(1-a);
+
+// ---------- the curved family N(u,u^2) in the Gaussian family with statistics (x, x^2)
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
+const Gm=u=>[[u*u,2*u**3],[2*u**3,6*u**4]];
+const mv=(M,v)=>[M[0][0]*v[0]+M[0][1]*v[1],M[1][0]*v[0]+M[1][1]*v[1]];
+const inv2=M=>{const d=M[0][0]*M[1][1]-M[0][1]*M[1][0];return [[M[1][1]/d,-M[0][1]/d],[-M[1][0]/d,M[0][0]/d]]};
+const curve=u=>({th:[1/u,-1/(2*u*u)],thd:[-1/(u*u),1/u**3],thdd:[2/u**3,-3/u**4],et:[u,2*u*u],etd:[1,4*u],etdd:[0,4]});
+const reparam=(c,kd,kdd)=>({th:c.th,thd:[c.thd[0]*kd,c.thd[1]*kd],thdd:[c.thdd[0]*kd*kd+c.thd[0]*kdd,c.thdd[1]*kd*kd+c.thd[1]*kdd],et:c.et,etd:[c.etd[0]*kd,c.etd[1]*kd],etdd:[c.etdd[0]*kd*kd+c.etd[0]*kdd,c.etdd[1]*kd*kd+c.etd[1]*kdd]});
+function secondOrder(c,G,etv,etvv){
+ const g=dot(c.thd,mv(G,c.thd)),gam=dot(c.etdd,c.thd)/g;
+ const tG=dot(c.thdd,mv(G,c.thdd)),cr=dot(c.thd,mv(G,c.thdd)),n2=tG-cr*cr/g;
+ const hm=dot(etvv,c.thd)/g,gvv=dot(etv,mv(inv2(G),etv));
+ const Gm2=gam*gam/(g*g),He2=n2/(g*g*g),Hm2=hm*hm/(gvv*gvv);
+ return {g,gam,n2,Gm2,He2,Hm2,coef:0.5*(Gm2+2*He2+Hm2)};
+}
+const EST={
+ MLE:(a,b)=>(Math.sqrt(a*a+4*b)-a)/2,
+ eorth:(a,b)=>(a+Math.sqrt(8*b-7*a*a))/4,
+ xbar:(a,b)=>a,
+ m2:(a,b)=>Math.sqrt(b/2),
+ bias:(a,b)=>1.1*a
+};
+// leaf of an estimator through eta(u): (eta_u, eta_v, eta_uu, eta_uv, eta_vv) at v = 0
+function leafChart(k,u){
+ const z=[0,0];
+ if(k==="MLE")return [[1,4*u],[1,u],[0,4],[0,1],z];
+ if(k==="eorth")return [[1,4*u],[1,u],[0,4],[0,1],[0,2]];
+ if(k==="xbar")return [[1,4*u],[0,1],[0,4],z,z];
+ if(k==="m2")return [[1,4*u],[1,0],[0,4],z,z];
+ return null;
+}
+function leafPts(k,u,x0,x1,n){
+ const xs=[],ys=[];
+ if(k==="xbar"||k==="bias"){const x=(k==="bias"?u/1.1:u);for(let i=0;i<=n;i++){xs.push(x);ys.push(x*x+(6-x*x)*i/n)}return [xs,ys]}
+ for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;let y;if(k==="MLE")y=u*x+u*u;else if(k==="eorth")y=x*x-u*x+2*u*u;else y=2*u*u;if(y>=x*x){xs.push(x);ys.push(y)}}
+ return [xs,ys];
+}
+function leafMetric(k,u){
+ const [eu,ev]=leafChart(k,u),Gi=inv2(Gm(u)),Be=[eu,ev];
+ const M=[[0,0],[0,0]];for(let a=0;a<2;a++)for(let b=0;b<2;b++)M[a][b]=dot(Be[a],mv(Gi,Be[b]));
+ return M;
+}
+
+// ===== widget 0: Cramer-Rao fine print
+(function(){
+ const hod=(N,u)=>{const c=Math.pow(N,-0.25),sq=Math.sqrt(N),a=-sq*(c+u),b=sq*(c-u),p=Phi(b)-Phi(a),inner=p-(b*phi(b)-a*phi(a));return 1/N-inner/N+u*u*p};
+ function draw(){
+  const m=g("w0m").value,N=+g("w0n").value;g("w0no").textContent=N;
+  const S=g("w0v");clear(S);
+  if(m==="exp"){
+   const Nmax=Math.max(60,N*1.2),P=axes(S,60,16,600,230,[4,Nmax],[0.9,2.8],"variance / Cramér–Rao bound for the exponential distribution","N","ratio");
+   ticks(P,[10,20,40,60,100,200,500,1000].filter(v=>v<Nmax),[1,1.5,2,2.5],v=>v.toFixed(0),f2);
+   const pts=(f)=>{const o=[];for(let i=0;i<=300;i++){const n=4.5+(Nmax-4.5)*i/300;o.push([P.X(n),P.Y(f(n))])}return o};
+   path(P.G,[[P.X(4),P.Y(1)],[P.X(Nmax),P.Y(1)]],"var(--faint)",1.4,"5 3");
+   path(P.G,pts(n=>n**3/((n-1)**2*(n-2))),"var(--s1)",2.4);path(P.G,pts(n=>n/(n-2)),"var(--s2)",2.4);path(P.G,pts(n=>1+4/n),"var(--s1)",1.2,"2 3");
+   el("line",{x1:P.X(N),x2:P.X(N),y1:P.y0,y2:P.y0+P.h,stroke:"var(--ink)","stroke-width":1,"stroke-dasharray":"2 3"},P.G);
+   g("w0s").innerHTML=`<div>MLE 1/x̄ of the rate: variance / bound <b>${f4(N**3/((N-1)**2*(N-2)))}</b>, bias × N / λ <b>${f4(N/(N-1))}</b></div><div>unbiased (N−1)/(N x̄): <b>${f4(N/(N-2))}</b></div><div>x̄ for the mean η: <b>1.0000</b></div><div>N (ratio − 1) for the MLE <b>${f3(N*(N**3/((N-1)**2*(N-2))-1))}</b> → 4</div>`;
+  }else{
+   const P=axes(S,60,16,600,230,[0,3],[0,Math.max(2,6.5*Math.sqrt(N/100))],"N · MSE(u) of Hodges' estimator of a Gaussian mean (G = 1)","u · N^(1/4)","N · MSE");
+   const ymax=Math.max(2,6.5*Math.sqrt(N/100));
+   ticks(P,[0,0.5,1,1.5,2,2.5,3],[0,1,2,ymax/2,ymax].filter((v,i,a)=>a.indexOf(v)===i),f2,v=>v<10?v.toFixed(1):v.toFixed(0));
+   const pts=[];let best=0,arg=0;for(let i=0;i<=400;i++){const x=3*i/400,u=x*Math.pow(N,-0.25),v=N*hod(N,u);pts.push([P.X(x),P.Y(v)]);if(v>best){best=v;arg=x}}
+   path(P.G,[[P.X(0),P.Y(1)],[P.X(3),P.Y(1)]],"var(--s2)",1.4,"5 3");path(P.G,pts,"var(--s3)",2.4);
+   g("w0s").innerHTML=`<div>at u = 0: N·MSE <b>${f5(N*hod(N,0))}</b> (bound 1)</div><div>worst case over u: <b>${f2(best)}</b> at u = ${f2(arg)} N^(−1/4)</div><div>threshold N^(−1/4) = ${f4(Math.pow(N,-0.25))}</div>`;
+  }
+ }
+ g("w0m").addEventListener("change",draw);g("w0n").addEventListener("input",draw);draw();
+})();
+
+// ===== widget 1: the cloud of observed points
+(function(){
+ let seed=7;
+ function draw(){
+  const u=+g("w1u").value,N=+g("w1n").value;g("w1uo").textContent=f2(u);g("w1no").textContent=N;
+  const rd=mkRand(seed),R=20000,[a,b]=sampleAB(R,N,u,u,rd);
+  const sd1=u/Math.sqrt(N),sd2=Math.sqrt(6)*u*u/Math.sqrt(N);
+  const xr=[u-4.2*sd1,u+4.2*sd1],yr=[Math.max(0,2*u*u-4.2*sd2),2*u*u+4.2*sd2];
+  const S=g("w1v");clear(S);
+  const P=axes(S,60,14,600,270,xr,yr,"observed points (x̄, mean of x²) of N observations from N(u, u²)","η₁ = E[x]","η₂");
+  ticks(P,[],[]);
+  const xs=[];for(let i=0;i<=200;i++)xs.push(xr[0]+(xr[1]-xr[0])*i/200);
+  path(P.G,xs.map(x=>[P.X(x),P.Y(x*x)]),"var(--faint)",1.2,"5 3");
+  path(P.G,xs.map(x=>[P.X(x),P.Y(2*x*x)]),"var(--ink)",2.4);
+  for(let i=0;i<1500;i++)el("circle",{cx:P.X(a[i]),cy:P.Y(b[i]),r:1.7,fill:"var(--faint)",opacity:0.6},P.G);
+  // covariance ellipse of G/N at eta(u)
+  const G=Gm(u),th=0.5*Math.atan2(2*G[0][1],G[0][0]-G[1][1]),tr=G[0][0]+G[1][1],dt=Math.sqrt(((G[0][0]-G[1][1])/2)**2+G[0][1]**2),l1=tr/2+dt,l2=tr/2-dt;
+  [1,2].forEach(k=>{const pts=[];for(let i=0;i<=120;i++){const t=2*Math.PI*i/120,x=k*Math.sqrt(l1)*Math.cos(t),y=k*Math.sqrt(l2)*Math.sin(t);pts.push([P.X(u+(x*Math.cos(th)-y*Math.sin(th))/Math.sqrt(N)),P.Y(2*u*u+(x*Math.sin(th)+y*Math.cos(th))/Math.sqrt(N))])}path(P.G,pts,"var(--s1)",k===1?2:1.2,k===1?"":"4 3")});
+  el("circle",{cx:P.X(u),cy:P.Y(2*u*u),r:5,fill:"var(--s2)"},P.G);
+  // moments of e = sqrt(N)(etabar - eta)
+  const m=[0,0],C=[[0,0],[0,0]],T=[0,0,0,0];
+  for(let i=0;i<R;i++){const e1=Math.sqrt(N)*(a[i]-u),e2=Math.sqrt(N)*(b[i]-2*u*u);m[0]+=e1;m[1]+=e2;C[0][0]+=e1*e1;C[0][1]+=e1*e2;C[1][1]+=e2*e2;T[0]+=e1*e1*e1;T[1]+=e1*e1*e2;T[2]+=e1*e2*e2;T[3]+=e2*e2*e2}
+  const mu=u,s2=u*u,Tth=[0,2*s2*s2,8*mu*s2*s2,24*mu*mu*s2*s2+8*s2**3];
+  g("w1tab").innerHTML=`<table class="t"><tr><th></th><th>E[ẽ₁]</th><th>E[ẽ₂]</th><th>E[ẽ₁²]</th><th>E[ẽ₁ẽ₂]</th><th>E[ẽ₂²]</th></tr>
+  <tr><td>measured (20000 points)</td><td>${sg(m[0]/R,3)}</td><td>${sg(m[1]/R,3)}</td><td><b>${f3(C[0][0]/R)}</b></td><td><b>${f3(C[0][1]/R)}</b></td><td><b>${f3(C[1][1]/R)}</b></td></tr>
+  <tr><td>Theorem 7.3: 0, 0, then g<sub>ij</sub> = Cov[(x, x²)]</td><td>0</td><td>0</td><td>${f3(G[0][0])}</td><td>${f3(G[0][1])}</td><td>${f3(G[1][1])}</td></tr></table>
+  <table class="t"><tr><th></th><th>E[ẽ₁³]</th><th>E[ẽ₁²ẽ₂]</th><th>E[ẽ₁ẽ₂²]</th><th>E[ẽ₂³]</th></tr>
+  <tr><td>measured</td><td>${sg(T[0]/R,3)}</td><td>${sg(T[1]/R,3)}</td><td>${sg(T[2]/R,3)}</td><td>${sg(T[3]/R,3)}</td></tr>
+  <tr><td>T<sub>ijk</sub>/√N (cubic tensor)</td><td>0</td><td>${sg(Tth[1]/Math.sqrt(N),3)}</td><td>${sg(Tth[2]/Math.sqrt(N),3)}</td><td>${sg(Tth[3]/Math.sqrt(N),3)}</td></tr></table>
+  <div class="cap">The ellipse is the Fisher covariance g/N (1 and 2 standard deviations) centred on η(u) (orange). The cubic tensor T of Chapter 5 sets the skew: it is why the cloud is not an ellipse at small N.</div>`;
+ }
+ ["w1u","w1n"].forEach(i=>g(i).addEventListener("input",draw));g("w1b").addEventListener("click",()=>{seed+=1;draw()});draw();
+})();
+
+// ===== widget 2: estimators as foliations
+(function(){
+ let seed=3;
+ const names={MLE:"MLE",eorth:"e-orthogonal",xbar:"x̄",m2:"√(m₂/2)",bias:"1.1 x̄"};
+ function draw(){
+  const k=g("w2k").value,u=+g("w2u").value,N=+g("w2n").value;g("w2uo").textContent=f2(u);g("w2no").textContent=N;
+  const f=EST[k],rd=mkRand(seed);
+  // left: leaves
+  const L=g("w2l");clear(L);
+  const sd1=u/Math.sqrt(N),sd2=Math.sqrt(6)*u*u/Math.sqrt(N);
+  const xr=[Math.max(0.1,u-0.7*u),u+0.75*u],yr=[0,Math.min(7,2*u*u*2.2)];
+  const P=axes(L,40,14,290,240,xr,yr,"leaves A(u) and 60 observed points","η₁","η₂");
+  const xs=[];for(let i=0;i<=200;i++)xs.push(xr[0]+(xr[1]-xr[0])*i/200);
+  path(P.G,xs.map(x=>[P.X(x),P.Y(x*x)]),"var(--faint)",1,"5 3");
+  [0.45,0.6,0.75,0.9,1.0,1.1,1.25,1.4,1.55].forEach(c=>{const uu=u*c,[lx,ly]=leafPts(k,uu,xr[0],xr[1],120);path(P.G,lx.map((x,i)=>[P.X(x),P.Y(ly[i])]),"var(--s1)",Math.abs(c-1)<1e-9?2.4:1)});
+  path(P.G,xs.map(x=>[P.X(x),P.Y(2*x*x)]),"var(--ink)",2.2);
+  const [a60,b60]=sampleAB(60,N,u,u,mkRand(seed+100));
+  for(let i=0;i<60;i++){el("circle",{cx:P.X(a60[i]),cy:P.Y(b60[i]),r:1.9,fill:"var(--faint)"},P.G);if(i%9===0){const uh=f(a60[i],b60[i]);el("line",{x1:P.X(a60[i]),y1:P.Y(b60[i]),x2:P.X(uh),y2:P.Y(2*uh*uh),stroke:"var(--s2)","stroke-width":1},P.G);el("circle",{cx:P.X(uh),cy:P.Y(2*uh*uh),r:3,fill:"var(--s2)"},P.G)}}
+  el("circle",{cx:P.X(u),cy:P.Y(2*u*u),r:5,fill:"var(--s4)",stroke:"var(--surface)"},P.G);
+  // right: histogram of sqrt(N)(uhat - u)
+  const R=40000,[a,b]=sampleAB(R,N,u,u,rd),z=new Float64Array(R);let m1=0,m2=0;
+  for(let i=0;i<R;i++){z[i]=Math.sqrt(N)*(f(a[i],b[i])-u)/u;m1+=z[i];m2+=z[i]*z[i]}
+  m1/=R;const v=m2/R-m1*m1;
+  let predV=null,eff=null,ang=null,cons=(k!=="bias");
+  if(cons&&k!=="bias"){const M=leafMetric(k,u),gb=M[0][0]-M[0][1]**2/M[1][1];predV=1/gb/(u*u)*(u*u);eff=gb/M[0][0];ang=Math.acos(Math.abs(M[0][1]/Math.sqrt(M[0][0]*M[1][1])))*180/Math.PI;predV=1/gb}
+  const sdp=predV?Math.sqrt(predV)/u:Math.sqrt(v);
+  const xlo=-4*Math.max(sdp,Math.sqrt(v)),xhi=4*Math.max(sdp,Math.sqrt(v))+(k==="bias"?0:0),nb=40,H=new Array(nb).fill(0);
+  const lo=Math.min(xlo,m1-4*Math.sqrt(v)),hi=Math.max(xhi,m1+4*Math.sqrt(v));
+  for(let i=0;i<R;i++){const j=Math.floor((z[i]-lo)/(hi-lo)*nb);if(j>=0&&j<nb)H[j]++}
+  const Rg=g("w2r");clear(Rg);const hm=Math.max(...H)/(R*(hi-lo)/nb);
+  const Q=axes(Rg,30,14,300,240,[lo,hi],[0,hm*1.25],"√N (û − u)/u","","");
+  const dens=H.map(c=>c/(R*(hi-lo)/nb));
+  for(let j=0;j<nb;j++){el("rect",{x:Q.X(lo+(hi-lo)*j/nb),y:Q.Y(dens[j]),width:Q.w/nb-1,height:Q.y0+Q.h-Q.Y(dens[j]),fill:"var(--s1)",opacity:0.55},Q.G)}
+  if(predV){const s=Math.sqrt(predV)/u,pts=[];for(let i=0;i<=200;i++){const x=lo+(hi-lo)*i/200;pts.push([Q.X(x),Q.Y(Math.exp(-x*x/(2*s*s))/(s*Math.sqrt(2*Math.PI)))])}path(Q.G,pts,"var(--s2)",2.2)}
+  el("line",{x1:Q.X(0),x2:Q.X(0),y1:Q.y0,y2:Q.y0+Q.h,stroke:"var(--ink)","stroke-width":1,"stroke-dasharray":"3 3"},Q.G);
+  g("w2s").innerHTML=`<div>${names[k]}: mean of √N(û−u)/u <b>${sg(m1,3)}</b>${k==="bias"?" (inconsistent: the leaf misses η(u))":" (→ 0: consistent)"}</div><div>N·Var(û)/u² measured <b>${f4(v)}</b></div>`+(predV?`<div>asymptotic 1/ḡ (7.58) <b>${f4(predV)}</b>; Cramér–Rao 1/g<sub>uu</sub> = ${f4(1/3)}</div><div>angle between leaf and S <b>${f2(ang)}°</b>, efficiency sin²∠ = ḡ/g<sub>uu</sub> <b>${f4(eff)}</b></div>`:"");
+ }
+ ["w2k","w2u","w2n"].forEach(i=>g(i).addEventListener("input",draw));g("w2k").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 3: the bias in five charts
+(function(){
+ const CH={
+  eta:{n:"η = (E x, E x²)",w2e:w=>[w[0],w[1]],e2w:e=>[e[0],e[1]],from:(m,s)=>[m,m*m+s*s],lab:["η₁","η₂"]},
+  musig:{n:"(μ, σ)",w2e:w=>[w[0],w[0]*w[0]+w[1]*w[1]],e2w:e=>[e[0],Math.sqrt(e[1]-e[0]*e[0])],from:(m,s)=>[m,s],lab:["μ","σ"]},
+  musig2:{n:"(μ, σ²)",w2e:w=>[w[0],w[0]*w[0]+w[1]],e2w:e=>[e[0],e[1]-e[0]*e[0]],from:(m,s)=>[m,s*s],lab:["μ","σ²"]},
+  mulog:{n:"(μ, log σ)",w2e:w=>[w[0],w[0]*w[0]+Math.exp(2*w[1])],e2w:e=>[e[0],0.5*Math.log(e[1]-e[0]*e[0])],from:(m,s)=>[m,Math.log(s)],lab:["μ","log σ"]},
+  theta:{n:"θ = (μ/σ², −1/2σ²)",w2e:w=>{const mu=-w[0]/(2*w[1]),v=-1/(2*w[1]);return[mu,mu*mu+v]},e2w:e=>{const v=e[1]-e[0]*e[0];return[e[0]/v,-1/(2*v)]},from:(m,s)=>[m/(s*s),-1/(2*s*s)],lab:["θ₁","θ₂"]}
+ };
+ const Gfull=(mu,s)=>[[s*s,2*mu*s*s],[2*mu*s*s,2*s*s*(s*s+2*mu*mu)]];
+ function formula(ch,mu,s){
+  const w0=ch.from(mu,s),h=1e-5,hh=1e-4;
+  const J=[[0,0],[0,0]];for(let a=0;a<2;a++){const wp=w0.slice(),wm=w0.slice();wp[a]+=h*Math.max(1,Math.abs(w0[a]));wm[a]-=h*Math.max(1,Math.abs(w0[a]));const ep=ch.w2e(wp),em=ch.w2e(wm),d=wp[a]-wm[a];for(let i=0;i<2;i++)J[i][a]=(ep[i]-em[i])/d}
+  const E2=[[[0,0],[0,0]],[[0,0],[0,0]]];
+  for(let b=0;b<2;b++)for(let c=0;c<2;c++){const sb=hh*Math.max(1,Math.abs(w0[b])),sc=hh*Math.max(1,Math.abs(w0[c]));const f=(db,dc)=>{const w=w0.slice();w[b]+=db;w[c]+=dc;return ch.w2e(w)};const pp=f(sb,sc),pm=f(sb,-sc),mp=f(-sb,sc),mm=f(-sb,-sc);for(let i=0;i<2;i++)E2[b][c][i]=(pp[i]-pm[i]-mp[i]+mm[i])/(4*sb*sc)}
+  const Ji=inv2(J),G=Gfull(mu,s);
+  // J[i][alpha] = d eta_i / d w^alpha ; Ji[alpha][i] = d w^alpha / d eta_i
+  const ginv=[[0,0],[0,0]];for(let b=0;b<2;b++)for(let c=0;c<2;c++){let t=0;for(let i=0;i<2;i++)for(let j=0;j<2;j++)t+=Ji[b][i]*G[i][j]*Ji[c][j];ginv[b][c]=t}
+  const bias=[0,0];for(let al=0;al<2;al++){let t=0;for(let b=0;b<2;b++)for(let c=0;c<2;c++){let C=0;for(let i=0;i<2;i++)C+=Ji[al][i]*E2[b][c][i];t+=C*ginv[b][c]}bias[al]=-0.5*t}
+  return {w0,bias};
+ }
+ let seed=11;
+ function draw(){
+  const mu=+g("w3m").value,s=+g("w3s").value,N=+g("w3n").value;g("w3mo").textContent=f2(mu);g("w3so").textContent=f2(s);g("w3no").textContent=N;
+  const R=60000,[a,b]=sampleAB(R,N,mu,s,mkRand(seed));
+  let rows="";
+  for(const key of ["eta","musig","musig2","mulog","theta"]){
+   const ch=CH[key],F=formula(ch,mu,s),m=[0,0],q=[0,0];
+   for(let i=0;i<R;i++){const w=ch.e2w([a[i],b[i]]);for(let al=0;al<2;al++){const d=w[al]-F.w0[al];m[al]+=d;q[al]+=d*d}}
+   const cell=al=>{const mean=m[al]/R,se=Math.sqrt(Math.max(q[al]/R-mean*mean,0)/R);return `${sg(N*mean,3)} ± ${(N*se).toFixed(3)}`};
+   rows+=`<tr><td>${ch.n}</td><td><b>(${sg(F.bias[0],4)}, ${sg(F.bias[1],4)})</b></td><td>${cell(0)}</td><td>${cell(1)}</td></tr>`;
+  }
+  g("w3tab").innerHTML=`<table class="t"><tr><th>chart w</th><th>N × bias from (7.54): −½ g<sup>βγ</sup>Γ<sup>(m)α</sup><sub>βγ</sub></th><th>N × bias, first coordinate (simulated)</th><th>second coordinate</th></tr>${rows}</table>
+  <div class="cap">Simulated: 60000 exact draws of (x̄, mean x²) at N = ${N}; the MLE of a chart coordinate is that coordinate evaluated at the observed point. The formula is first order in 1/N; the simulated bias also contains the O(1/N²) part (and the η-chart row is exactly 0).</div>`;
+ }
+ ["w3m","w3s","w3n"].forEach(i=>g(i).addEventListener("input",draw));g("w3b").addEventListener("click",()=>{seed+=1;draw()});draw();
+})();
+
+// ===== widget 4: second-order terms
+(function(){
+ let seed=5;
+ const maps={id:{h:u=>u,hd:u=>1,hdd:u=>0,kd:u=>1,kdd:u=>0,p:1,lab:"u"},log:{h:u=>Math.log(u),hd:u=>1/u,hdd:u=>-1/(u*u),kd:u=>u,kdd:u=>u,p:0,lab:"log u"},sq:{h:u=>u*u,hd:u=>2*u,hdd:u=>2,kd:u=>1/(2*u),kdd:u=>-0.25/(u**3),p:2,lab:"u²"}};
+ function theory(kind,par){
+  const u=1,c0=curve(u),mp=maps[par],c=reparam(c0,mp.kd(u),mp.kdd(u)),G=Gm(u),[ , ev, , , evv]=leafChart(kind,u);
+  return secondOrder(c,G,ev,evv);
+ }
+ function draw(run){
+  const kind=g("w4k").value,par=g("w4p").value,N=+g("w4n").value;g("w4no").textContent=N;
+  const t=theory(kind,par),mp=maps[par],g0=1/t.g,pred=g0+t.coef/N;
+  const S=g("w4v");clear(S);
+  const P=axes(S,60,14,300,200,[0,3.6],[0,Math.max(0.36,t.coef*1.25)],"the coefficient c of 1/N","","c");
+  const parts=[[0.5*t.Gm2,"var(--s1)","½(Γᵐ)²"],[t.He2,"var(--s3)","(Hᵉ)²"],[0.5*t.Hm2,"var(--s2)","½(Hᵐ_A)²"]];
+  let y=0;parts.forEach(([v,col,lab],i)=>{if(v>1e-12){el("rect",{x:P.X(0.6),y:P.Y(y+v),width:P.X(1.4)-P.X(0.6),height:P.Y(y)-P.Y(y+v),fill:col,opacity:.85},P.G);y+=v}});
+  el("text",{x:P.X(1.0),y:P.Y(y)-6,"text-anchor":"middle",fill:"var(--ink)","font-size":12},S).textContent="c = "+f4(t.coef);
+  parts.forEach(([v,col,lab],i)=>{el("rect",{x:P.X(1.7),y:P.y0+22+i*18,width:12,height:9,fill:col,opacity:.85},S);el("text",{x:P.X(1.7)+18,y:P.y0+31+i*18,fill:"var(--muted)","font-size":11},S).textContent=`${lab} = ${f4(v)}`});
+  const info=`<div>parameter ${mp.lab}: Γ<sup>m</sup> = ${f4(t.gam)}, g = ${f4(t.g)}, γ² = ${f4(t.n2/(t.g*t.g))}</div><div>prediction N E[(û*−u)²] = g<sup>uu</sup> + c/N = ${f4(g0)} + c/N = <b>${f5(pred)}</b></div>`;
+  if(!run){g("w4s").innerHTML=info+"<div>press “run simulation”</div>";return}
+  const R=+g("w4r").value,rd=mkRand(seed);
+  // bias correction of the chosen parameter t = h(u): b1_t = h' b1_u + (1/2) h'' g^{uu}, b1_u = -2/9 (MLE) or -4/9
+  const b1u=kind==="MLE"?-2/9:-4/9,b1t=mp.hd(1)*b1u+0.5*mp.hdd(1)/3;
+  let s1=0,s2=0,done=0;const f=EST[kind],k=(N-1)/2,sq=1/Math.sqrt(N);
+  for(let i=0;i<R;i++){const a=1+sq*rd.N01(),chi=2*rd.gam(k),b=a*a+chi/N,uh=f(a,b),th=mp.h(uh)-b1t*Math.pow(uh,mp.p)/N,e=th-mp.h(1);const v=N*e*e;s1+=v;s2+=v*v}
+  const m=s1/R,se=Math.sqrt(Math.max(s2/R-m*m,0)/R);
+  g("w4s").innerHTML=info+`<div>simulated (${R.toExponential(0)} draws): N E[(û*−u)²] = <b>${f5(m)}</b> ± ${f5(se)}</div><div>fraction of the second-order term observed: <b>${f3((m-g0)/(t.coef/N))}</b> (±${f3(se/(t.coef/N))})</div><div>bias-corrected: û* = ĥ − b₁(û)/N with b₁(u) = ${f4(b1t)}·u<sup>${mp.p}</sup>, a function of the estimate, not a constant</div>`;
+ }
+ ["w4k","w4p","w4n"].forEach(i=>g(i).addEventListener("input",()=>draw(false)));g("w4b").addEventListener("click",()=>{seed+=1;draw(true)});draw(false);
+})();
+
+// ===== widget 5: tests
+(function(){
+ let seed=9,sim=null;
+ const z0=0;
+ function geometry(alpha){
+  const u=1,c=curve(u),G=Gm(u),gu=dot(c.thd,mv(G,c.thd)),th=alpha*Math.PI/180,n=[Math.cos(th),Math.sin(th)];
+  const nGn=dot(n,mv(G,n)),sh=dot(n,c.etd)/Math.sqrt(nGn);
+  return {n,sh,gu,eff:sh*sh/gu,nGn,c,G};
+ }
+ function draw(){
+  const alpha=+g("w5a").value,lev=+g("w5l").value,N=+g("w5n").value;g("w5ao").textContent=alpha+"°";g("w5no").textContent=N;
+  const z=zFor(lev),G=geometry(alpha),best=Math.sqrt(G.gu);
+  // the best direction n ∝ theta'(1) = (-1, 1): angle 135° or -45°
+  const L=g("w5l_");clear(L);
+  const P=axes(L,36,14,294,240,[0,4],[0,1.02],"local power, level "+lev,"δ  (u = 1 + δ/√N)","power");
+  ticks(P,[0,1,2,3,4],[0,0.25,0.5,0.75,1],v=>v.toFixed(0),f2);
+  const curveFor=sh=>{const o=[];for(let i=0;i<=100;i++){const d=4*i/100;o.push([P.X(d),P.Y(Phi(d*sh-z))])}return o};
+  path(P.G,curveFor(best),"var(--s1)",2.4);path(P.G,curveFor(G.sh),"var(--s2)",2.4);
+  if(sim){[1,2,3].forEach((d,i)=>{el("circle",{cx:P.X(d),cy:P.Y(sim.best[i]),r:3.6,fill:"var(--s1)"},P.G);el("circle",{cx:P.X(d),cy:P.Y(sim.mine[i]),r:3.6,fill:"var(--s2)"},P.G)})}
+  const R=g("w5r");clear(R);
+  const Q=axes(R,36,14,294,240,[0.4,1.6],[0.8,3.8],"η plane: S, η(1) and the boundaries at this N","η₁","η₂");
+  ticks(Q,[0.6,0.8,1,1.2,1.4],[1,2,3],f2,f2);
+  const us=[];for(let i=0;i<=100;i++)us.push(0.4+1.2*i/100);
+  path(Q.G,us.map(x=>[Q.X(x),Q.Y(2*x*x)]),"var(--ink)",2.2);
+  // boundary n.(eta - eta0) = z sqrt(nGn / N): a line
+  const line=(n,col)=>{const nGn=dot(n,mv(Gm(1),n)),c=z*Math.sqrt(nGn/N),pts=[];
+   if(Math.abs(n[1])<1e-6){const x=1+c/n[0];return path(Q.G,[[Q.X(x),Q.Y(0.8)],[Q.X(x),Q.Y(3.8)]],col,2.2)}
+   const yat=x=>2+(c-n[0]*(x-1))/n[1];path(Q.G,[[Q.X(0.4),Q.Y(yat(0.4))],[Q.X(1.6),Q.Y(yat(1.6))]],col,2.2)};
+  line([-1/Math.sqrt(2),1/Math.sqrt(2)],"var(--s1)");line(G.n,"var(--s2)");
+  el("circle",{cx:Q.X(1),cy:Q.Y(2),r:5,fill:"var(--s4)",stroke:"var(--surface)"},Q.G);
+  g("w5s").innerHTML=`<div>your boundary: shift factor s(n) = n·η′/√(nᵀGn) = <b>${f4(G.sh)}</b>, efficiency s²/g<sub>uu</sub> = <b>${f4(G.eff)}</b></div><div>best (n ∝ θ′): s = √g<sub>uu</sub> = ${f4(best)}</div><div>power at δ = 2: yours <b>${f4(Phi(2*G.sh-z))}</b>, best ${f4(Phi(2*best-z))}</div><div>sample size needed to match the best test: <b>${f2(1/Math.max(G.eff,1e-9))}×</b></div>`+(sim?`<div>simulated at N = ${sim.N}, α-level ${sim.lev}: yours ${sim.mine.map(v=>v.toFixed(3)).join(", ")}; best ${sim.best.map(v=>v.toFixed(3)).join(", ")} for δ = 1, 2, 3</div>`:"");
+ }
+ function simulate(){
+  const alpha=+g("w5a").value,lev=+g("w5l").value,N=+g("w5n").value,G=geometry(alpha),R=200000,rd=mkRand(seed++);
+  const best=[-1,1],stat=(n,a,b)=>n[0]*(a-1)+n[1]*(b-2);
+  const crit=n=>{const [a,b]=sampleAB(R,N,1,1,rd),v=new Float64Array(R);for(let i=0;i<R;i++)v[i]=stat(n,a[i],b[i]);v.sort();return v[Math.floor((1-lev)*R)]};
+  const power=(n,c,d)=>{const u=1+d/Math.sqrt(N),[a,b]=sampleAB(R,N,u,u,rd);let k=0;for(let i=0;i<R;i++)if(stat(n,a[i],b[i])>c)k++;return k/R};
+  const cb=crit(best),cm=crit(G.n);
+  sim={N,lev,best:[1,2,3].map(d=>power(best,cb,d)),mine:[1,2,3].map(d=>power(G.n,cm,d))};
+  draw();
+ }
+ ["w5a","w5l","w5n"].forEach(i=>g(i).addEventListener("input",()=>{sim=null;draw()}));g("w5b").addEventListener("click",simulate);draw();
+})();
+
+// ===== widget 6: the uniform location family
+(function(){
+ let seed=13;
+ function draw(){
+  const N=+g("w6n").value;g("w6no").textContent=N;
+  const rd=mkRand(seed),R=40000,x=new Float64Array(R);
+  for(let i=0;i<R;i++){let mn=1,mx=0;if(N<=60){for(let j=0;j<N;j++){const t=rd.U();if(t<mn)mn=t;if(t>mx)mx=t}}else{const V=rd.U(),W=rd.U();mx=Math.pow(V,1/N);mn=mx*(1-Math.pow(W,1/(N-1)))}x[i]=N*((mx+mn)/2-0.5)}
+  let m1=0,m2=0,m4=0;for(let i=0;i<R;i++){m1+=x[i];m2+=x[i]*x[i]}m1/=R;m2/=R;for(let i=0;i<R;i++){const d=x[i]-m1;m4+=d*d*d*d}m4/=R;const v=m2-m1*m1,k=m4/(v*v)-3;
+  const S=g("w6v");clear(S);
+  const P=axes(S,60,14,600,210,[-3,3],[0,1.1],"N (midrange − u)","","density");
+  ticks(P,[-3,-2,-1,0,1,2,3],[0,0.5,1],v=>v.toFixed(0),f2);
+  const nb=60,H=new Array(nb).fill(0);for(let i=0;i<R;i++){const j=Math.floor((x[i]+3)/6*nb);if(j>=0&&j<nb)H[j]++}
+  for(let j=0;j<nb;j++){const d=H[j]/(R*6/nb);el("rect",{x:P.X(-3+6*j/nb),y:P.Y(d),width:P.w/nb-1,height:P.y0+P.h-P.Y(d),fill:"var(--s1)",opacity:.5},P.G)}
+  const pts=a=>{const o=[];for(let i=0;i<=300;i++){const t=-3+6*i/300;o.push([P.X(t),P.Y(a(t))])}return o};
+  path(P.G,pts(t=>Math.exp(-2*Math.abs(t))),"var(--s1)",2.4);path(P.G,pts(t=>Math.exp(-t*t)/Math.sqrt(Math.PI)),"var(--s2)",2.2);
+  g("w6s").innerHTML=`<div>N² Var(midrange) measured <b>${f4(v)}</b>, exact N²/(2(N+1)(N+2)) = <b>${f4(N*N/(2*(N+1)*(N+2)))}</b>, limit 0.5</div><div>excess kurtosis <b>${f3(k)}</b> (Laplace 3, Gaussian 0)</div><div>sample mean for comparison: N Var(x̄) = 1/12 = 0.0833, converges at rate 1/√N</div>`;
+ }
+ g("w6n").addEventListener("input",draw);g("w6b").addEventListener("click",()=>{seed+=1;draw()});draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
