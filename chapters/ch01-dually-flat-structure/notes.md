@@ -192,6 +192,36 @@ The length does not depend on the chart. The step $(0.12,-0.16)$ at $(1,2)$ has 
 $d\theta^\top G_\theta d\theta=0.0164$ with $G_\theta=\nabla^2\psi$: the same number. That is the tensor law (1.130) at work: $g$ changes with the chart, but the *length of the same tangent vector* does not.
 Euclidean length is chart-dependent and misleading: the step above has Euclidean length $0.2000$ and Riemannian length $0.1281$ at $\sigma=2$, $0.5122$ at $\sigma=0.5$.
 
+**Deriving the KL divergence between two Gaussians.** Let $p=N(\mu,\sigma^2)$ and $q=N(\mu+a,(\sigma+b)^2)$; write $\mu'=\mu+a$ and $\sigma'=\sigma+b$. KL is the average, under $p$, of the log-ratio of the densities, so start by writing the two log-densities:
+
+$$
+\log p(x)=-\ln\!\big(\sigma\sqrt{2\pi}\big)-\frac{(x-\mu)^2}{2\sigma^2},\qquad
+\log q(x)=-\ln\!\big(\sigma'\sqrt{2\pi}\big)-\frac{(x-\mu')^2}{2\sigma'^2}.
+$$
+
+Subtracting, the $\sqrt{2\pi}$ cancels:
+
+$$
+\log\frac{p(x)}{q(x)}=\ln\frac{\sigma'}{\sigma}-\frac{(x-\mu)^2}{2\sigma^2}+\frac{(x-\mu')^2}{2\sigma'^2}.
+$$
+
+Now take the expectation under $p$, where $x$ has mean $\mu$ and variance $\sigma^2$. The constant $\ln(\sigma'/\sigma)$ stays. The middle term uses $\mathbb E_p[(x-\mu)^2]=\sigma^2$, giving $-\sigma^2/(2\sigma^2)=-\tfrac12$.
+For the last term, split $x-\mu'=(x-\mu)+(\mu-\mu')=(x-\mu)-a$; the cross term has mean zero, so
+$\mathbb E_p[(x-\mu')^2]=\sigma^2+a^2$. Putting the three pieces together,
+
+$$
+\boxed{\ \mathrm{KL}[p{:}q]=\ln\frac{\sigma'}{\sigma}+\frac{\sigma^2+a^2}{2\sigma'^2}-\frac12
+=\ln\frac{\sigma+b}{\sigma}+\frac{\sigma^2+a^2}{2(\sigma+b)^2}-\frac12\ }
+$$
+
+which is the formula used in the expansion below. Check at $p=N(1,2^2)$, $q=N(1.6,1.2^2)$ ($a=0.6$, $b=-0.8$): the three terms are $-0.5108$, $-0.5000$ and $1.5139$, summing to $0.5031$; numerical integration of $\int p\log(p/q)$ gives $0.5031$. The two expectations
+also check: $\mathbb E_p[(x-\mu)^2]=4.0000=\sigma^2$ and $\mathbb E_p[(x-\mu')^2]=4.3600=\sigma^2+a^2$. Swapping the roles gives the other order,
+$\mathrm{KL}[q{:}p]=\ln\frac{\sigma}{\sigma'}-\frac12+\frac{\sigma'^2+a^2}{2\sigma^2}$, which is $0.2358$ here (quadrature agrees), against $0.5031$: the asymmetry in numbers.
+
+Sanity checks on the formula. *Identical Gaussians* ($a=b=0$): $0+\tfrac12-\tfrac12=0$. *Equal widths* ($b=0$): $\mathrm{KL}=a^2/(2\sigma^2)$, half the squared shift measured in units of the width ($0.0450$ for $a=0.6$, $\sigma=2$, matching the formula).
+*Equal means* ($a=0$), with $r=\sigma'/\sigma$: $\mathrm{KL}=\ln r+\frac1{2r^2}-\frac12$, which is $0.8069,\ 0.0000,\ 0.3181,\ 0.9175$ at $r=0.5,\ 1,\ 2,\ 4$: zero only at $r=1$, and bigger for a too-narrow $q$ ($r<1$) than for a too-wide one of the same ratio
+(compare $r=0.5$ with $r=2$). That last point is the asymmetry that §2 describes in words: $\mathrm{KL}[p{:}q]$ punishes a $q$ that is narrower than $p$.
+
 **Deriving $g$, $ds^2$ and the length of a tangent vector.** *Velocity.* A path of Gaussians $t\mapsto(\mu(t),\sigma(t))$ has velocity $v=(\dot\mu,\dot\sigma)$ at $t=0$, with components in the basis
 $\partial/\partial\mu,\ \partial/\partial\sigma$. *Metric.* By definition $ds^2=2D[\xi{:}\xi+d\xi]$. For the step $(\mu,\sigma)\to(\mu+a,\sigma+b)$ the KL divergence has the closed form
 $\mathrm{KL}=\ln\frac{\sigma+b}{\sigma}+\frac{\sigma^2+a^2}{2(\sigma+b)^2}-\frac12$. Expand each piece to second order:

@@ -167,6 +167,27 @@ def check_fisher_gaussian():
     print(f"      the mean of N = 100 samples from N(mu, sigma^2) is known to sigma / sqrt(N): {0.5 / 10:.3f} at sigma = 0.5, {2.0 / 10:.3f} at sigma = 2")
 
 
+def check_kl_derivation():
+    head("   Deriving KL[N(mu, sigma^2) : N(mu + a, (sigma + b)^2)] term by term")
+    mu, sg, a, b = 1.0, 2.0, 0.6, -0.8
+    sq = sg + b
+    t1, t2, t3 = math.log(sq / sg), -0.5, (sg ** 2 + a ** 2) / (2 * sq ** 2)
+    xs = np.linspace(-40, 40, 800001); dx = xs[1] - xs[0]
+    pdf = lambda m, s_: np.exp(-(xs - m) ** 2 / (2 * s_ ** 2)) / (math.sqrt(2 * math.pi) * s_)
+    p_, q_ = pdf(mu, sg), pdf(mu + a, sq)
+    quad = float(np.sum(p_ * np.log(p_ / q_)) * dx)
+    e1 = float(np.sum(p_ * (xs - mu) ** 2) * dx); e2 = float(np.sum(p_ * (xs - (mu + a)) ** 2) * dx)
+    print(f"   p = N({mu}, {sg}^2), q = N({mu + a}, {sq}^2) (a = {a}, b = {b}):")
+    print(f"      E_p[(x - mu)^2] = {e1:.4f} (sigma^2 = {sg ** 2:.4f}); E_p[(x - mu')^2] = {e2:.4f} (sigma^2 + a^2 = {sg ** 2 + a ** 2:.4f})")
+    print(f"      terms: ln(sigma'/sigma) = {t1:.4f}, -1/2 = {t2:.4f}, (sigma^2 + a^2)/(2 sigma'^2) = {t3:.4f}; sum = {t1 + t2 + t3:.4f}; quadrature of the integral = {quad:.4f}")
+    rev = math.log(sg / sq) - 0.5 + (sq ** 2 + a ** 2) / (2 * sg ** 2)
+    pr, qr = q_, p_
+    print(f"      the other order KL[q : p] = ln(sigma/sigma') - 1/2 + (sigma'^2 + a^2)/(2 sigma^2) = {rev:.4f}; quadrature {float(np.sum(pr * np.log(pr / qr)) * dx):.4f}")
+    print(f"   special cases: equal widths (b = 0): a^2/(2 sigma^2) = {0.6 ** 2 / (2 * 4):.4f} against the formula {klg(1.0, 2.0, 1.6, 2.0):.4f}; "
+          f"equal means (a = 0), sigma'/sigma = 2: ln 2 + 1/8 - 1/2 = {math.log(2) + 0.125 - 0.5:.4f} against {klg(0.0, 1.0, 0.0, 2.0):.4f}; identical: {klg(1.0, 2.0, 1.0, 2.0):.4f}")
+    print("   the scale-only term ln r + 1/(2 r^2) - 1/2 (r = sigma'/sigma) at r = 0.5, 1, 2, 4: "
+          + ", ".join(f"{math.log(r) + 1 / (2 * r * r) - 0.5:.4f}" for r in (0.5, 1, 2, 4)) + "  (zero only at r = 1)")
+
 # ------------------------------------------------------------------ 1. divergence = local squared distance
 
 def check_divergence():
@@ -1016,7 +1037,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
