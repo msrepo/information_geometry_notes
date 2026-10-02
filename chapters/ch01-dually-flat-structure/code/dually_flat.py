@@ -483,6 +483,72 @@ def check_flat_structures():
     print(f"   transport A with nabla (keep A^i) and B with the dual connection (keep B_i): <A,B> = A^i B_i = {A_up @ B_dn:+.1e}  (orthogonality kept, as the book says)")
 
 
+# ------------------------------------------------------------------ Gaussian geodesics: e (straight in theta), m (straight in eta), Fisher-Rao
+
+GP, GQ = (0.0, 1.0), (1.5, 1.5)          # P = N(0, 1^2), Q = N(1.5, 1.5^2), (mu, sigma)
+
+
+def g_e_point(s_, P=GP, Q=GQ):
+    """Straight in theta: precisions and mean-over-variance interpolate linearly."""
+    prec = (1 - s_) / P[1] ** 2 + s_ / Q[1] ** 2
+    mu_over_v = (1 - s_) * P[0] / P[1] ** 2 + s_ * Q[0] / Q[1] ** 2
+    v = 1 / prec
+    return mu_over_v * v, math.sqrt(v)
+
+
+def g_m_point(s_, P=GP, Q=GQ):
+    """Straight in eta = (mu, mu^2 + sigma^2): the moment-matched Gaussian of the mixture (1-s) p + s q."""
+    mu = (1 - s_) * P[0] + s_ * Q[0]
+    var = (1 - s_) * P[1] ** 2 + s_ * Q[1] ** 2 + s_ * (1 - s_) * (P[0] - Q[0]) ** 2
+    return mu, math.sqrt(var)
+
+
+def g_fr_point(s_, P=GP, Q=GQ):
+    """Fisher-Rao geodesic: ds^2 = 2 (dx^2 + dsigma^2) / sigma^2 with x = mu / sqrt 2, a hyperbolic half-plane; its geodesics are semicircles centred on sigma = 0."""
+    xa, ya, xb, yb = P[0] / math.sqrt(2), P[1], Q[0] / math.sqrt(2), Q[1]
+    c = (xb ** 2 + yb ** 2 - xa ** 2 - ya ** 2) / (2 * (xb - xa)); r = math.hypot(xa - c, ya)
+    pa, pb = math.atan2(ya, xa - c), math.atan2(yb, xb - c)
+    la, lb = math.log(math.tan(pa / 2)), math.log(math.tan(pb / 2))          # hyperbolic arclength coordinate along the semicircle
+    ph = 2 * math.atan(math.exp((1 - s_) * la + s_ * lb))
+    return (c + r * math.cos(ph)) * math.sqrt(2), r * math.sin(ph)
+
+
+def g_length(path, n=20000):
+    pts = [path(i / n) for i in range(n + 1)]
+    tot = 0.0
+    for (m0, s0), (m1, s1) in zip(pts[:-1], pts[1:]):
+        sm = (s0 + s1) / 2
+        tot += math.sqrt(((m1 - m0) ** 2 + 2 * (s1 - s0) ** 2)) / sm
+    return tot
+
+
+def check_gaussian_geodesics():
+    head("   e-, m- and Fisher-Rao geodesics between P = N(0, 1^2) and Q = N(1.5, 1.5^2) (section 1.5 on the Gaussians)")
+    thP, thQ = gauss_theta(*GP), gauss_theta(*GQ); etP, etQ = gauss_eta(thP), gauss_eta(thQ)
+    for s_ in (0.25, 0.5, 0.75):
+        th = (1 - s_) * thP + s_ * thQ; mu_t, sg_t = mu_sigma_of_theta(th)
+        em, es = g_e_point(s_)
+        et = (1 - s_) * etP + s_ * etQ; mu_h, sg_h = et[0], math.sqrt(et[1] - et[0] ** 2)
+        mm, ms = g_m_point(s_); fm, fs = g_fr_point(s_)
+        print(f"   s = {s_}: e-point (mu, sigma) = ({em:.4f}, {es:.4f}) [theta-average gives ({mu_t:.4f}, {sg_t:.4f})]; "
+              f"m-point = ({mm:.4f}, {ms:.4f}) [eta-average gives ({mu_h:.4f}, {sg_h:.4f})]; Fisher-Rao = ({fm:.4f}, {fs:.4f})")
+    s_ = 0.5
+    xs = np.linspace(-40, 40, 800001); dx = xs[1] - xs[0]
+    pdf = lambda m, sg: np.exp(-(xs - m) ** 2 / (2 * sg ** 2)) / (math.sqrt(2 * math.pi) * sg)
+    mix = 0.5 * pdf(*GP) + 0.5 * pdf(*GQ)
+    mmean = float(np.sum(xs * mix) * dx); mvar = float(np.sum((xs - mmean) ** 2 * mix) * dx); mkurt = float(np.sum((xs - mmean) ** 4 * mix) * dx / mvar ** 2 - 3)
+    print(f"   the 50/50 mixture of p and q (not a Gaussian): mean {mmean:.4f}, variance {mvar:.4f} (so sigma {math.sqrt(mvar):.4f}), excess kurtosis {mkurt:+.4f}; "
+          f"the m-point is the Gaussian with exactly these two moments: ({g_m_point(0.5)[0]:.4f}, {g_m_point(0.5)[1]:.4f})")
+    ep, mp, fp = g_e_point(0.5), g_m_point(0.5), g_fr_point(0.5)
+    print(f"   formulas at s = 0.5: e: precision 1/sigma^2 = (1/1 + 1/2.25)/2 = {(1 / 1 + 1 / 2.25) / 2:.4f}, mean = sigma^2 * (1.5/2.25)/2 = {ep[1] ** 2 * (1.5 / 2.25) / 2:.4f}; "
+          f"m: variance = (1 + 2.25)/2 + 0.25 * 1.5^2 = {(1 + 2.25) / 2 + 0.25 * 1.5 ** 2:.4f}")
+    Le, Lm, Lf = g_length(g_e_point), g_length(g_m_point), g_length(g_fr_point)
+    print(f"   Riemannian lengths of the three curves from P to Q: e-geodesic {Le:.4f}, m-geodesic {Lm:.4f}, Fisher-Rao {Lf:.4f} (the shortest)")
+    print(f"   KL both ways at the e-midpoint: KL[P:E] = {klg(*GP, *ep):.4f}, KL[E:Q] = {klg(*ep, *GQ):.4f}; at the m-midpoint: KL[P:M] = {klg(*GP, *mp):.4f}, KL[M:Q] = {klg(*mp, *GQ):.4f}")
+    print(f"   straightness check: in theta the e-points are collinear (second difference of theta along s: {np.linalg.norm(gauss_theta(*g_e_point(0.75)) - 2 * gauss_theta(*g_e_point(0.5)) + gauss_theta(*g_e_point(0.25))):.1e}); "
+          f"in eta the m-points are collinear ({np.linalg.norm(gauss_eta(gauss_theta(*g_m_point(0.75))) - 2 * gauss_eta(gauss_theta(*g_m_point(0.5))) + gauss_eta(gauss_theta(*g_m_point(0.25)))):.1e})")
+
+
 # ------------------------------------------------------------------ 6. generalised Pythagorean theorem
 
 def orth_triangle(th_p, th_q, t, flip=False):
@@ -1052,17 +1118,44 @@ def fig_gaussian(out):
         "The coordinate grid of the (mu, sigma) half-plane redrawn in moment coordinates (m1, m2) = (mu, mu^2 + sigma^2) and natural coordinates theta = (mu/sigma^2, -1/(2 sigma^2)). The Gaussian (1, 2) is the point (1, 5) in moments and (0.25, -0.125) in natural parameters.", body))
 
 
+def fig_gaussian_geodesics(out):
+    body = []
+    ts = np.linspace(0, 1, 120)
+    curves = {"e": [g_e_point(t) for t in ts], "m": [g_m_point(t) for t in ts], "fr": [g_fr_point(t) for t in ts]}
+    dots = {"e": [g_e_point(t) for t in (0.25, 0.5, 0.75)], "m": [g_m_point(t) for t in (0.25, 0.5, 0.75)], "fr": [g_fr_point(t) for t in (0.25, 0.5, 0.75)]}
+    to_theta = lambda ms: gauss_theta(*ms); to_eta = lambda ms: gauss_eta(gauss_theta(*ms))
+    spec = [("(μ, σ) plane", (-0.3, 2.0), (0.6, 1.9), lambda ms: ms, "μ", "σ", [0, 0.5, 1, 1.5, 2], [0.8, 1.2, 1.6]),
+            ("θ chart: e-geodesic is straight", (-0.1, 1.0), (-0.65, -0.1), to_theta, "θ₁ = μ/σ²", "θ₂ = −1/(2σ²)", [0, 0.5, 1], [-0.6, -0.4, -0.2]),
+            ("η chart: m-geodesic is straight", (-0.2, 2.0), (0.4, 5.0), to_eta, "η₁ = μ", "η₂ = μ² + σ²", [0, 1, 2], [1, 2, 3, 4])]
+    sty = {"e": ("ln s1", "f1"), "m": ("ln s2", "f2"), "fr": ("dash s3", "f3")}
+    for k, (title, xr, yr, f, xl, yl, xt, yt) in enumerate(spec):
+        P_ = Panel(body, 56 + 250 * k, 46, 190, 190, xr, yr)
+        P_.frame(xt, yt, xl, yl, title, grid=False)
+        for key in ("fr", "m", "e"):
+            pts = np.array([f(q) for q in curves[key]]); P_.line(pts[:, 0], pts[:, 1], sty[key][0])
+            for q in dots[key]:
+                v = f(q); P_.dot(v[0], v[1], sty[key][1], 3.2)
+        for q, nm in ((GP, "P"), (GQ, "Q")):
+            v = f(q); P_.dot(v[0], v[1], "f0", 4.5); P_.text(v[0], v[1], nm, "v", dx=7, dy=-7)
+    body.append('<line class="ln s1" x1="60" y1="290" x2="92" y2="290"/><text class="sm" x="98" y="294">e-geodesic: θ(s) = (1−s)θ_P + sθ_Q</text>')
+    body.append('<line class="ln s2" x1="330" y1="290" x2="362" y2="290"/><text class="sm" x="368" y="294">m-geodesic: η(s) = (1−s)η_P + sη_Q</text>')
+    body.append('<line class="dash s3" x1="590" y1="290" x2="622" y2="290"/><text class="sm" x="628" y="294">Fisher–Rao (shortest)</text>')
+    body.append('<text class="sm" x="60" y="316">P = N(0, 1²), Q = N(1.5, 1.5²). Dots at s = 0.25, 0.5, 0.75. The same three curves in each chart: only one of them is a straight line in a given chart.</text>')
+    (out / "gaussian-geodesics.svg").write_text(svg(820, 332, "e-, m- and Fisher-Rao geodesics between two Gaussians",
+        "The three curves joining N(0, 1) and N(1.5, 1.5^2), drawn in the (mu, sigma) plane, in natural coordinates, and in moment coordinates. The e-geodesic is straight in natural coordinates, the m-geodesic is straight in moment coordinates, and the Fisher-Rao geodesic, the shortest path, is straight in neither.", body))
+
+
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_gaussian_geodesics(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_legendre_1d()
     check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()

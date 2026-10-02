@@ -474,6 +474,47 @@ between the other two in eight of the nine coordinates I looked at ($t\in\{0.25,
 values are $0.4692$ (e), $0.4750$ (m) and $0.4754$ (Fisher–Rao). That is the pattern one expects from the standard fact, which this chapter does not prove, that the Riemannian
 connection is the average of the two flat ones, but it is only an observation about one pair of points.
 
+**The two straight lines on the Gaussian manifold.** Take the example from §1: a point is $N(\mu,\sigma^2)$, with two affine charts, the natural parameters $\theta=(\mu/\sigma^2,\,-1/(2\sigma^2))$ and the moments $\eta=(\mu,\ \mu^2+\sigma^2)$. Join $P=N(0,1^2)$ and $Q=N(1.5,1.5^2)$.
+
+*The e-geodesic: straight in $\theta$.* Put $\theta(s)=(1-s)\theta_P+s\,\theta_Q$. Translating back to $(\mu,\sigma)$ with $\theta_2=-1/(2\sigma^2)$ and $\theta_1=\mu/\sigma^2$:
+
+$$
+\frac1{\sigma_s^2}=\frac{1-s}{\sigma_P^2}+\frac{s}{\sigma_Q^2},\qquad
+\frac{\mu_s}{\sigma_s^2}=(1-s)\frac{\mu_P}{\sigma_P^2}+s\,\frac{\mu_Q}{\sigma_Q^2}.
+$$
+
+In words: the **precisions** $1/\sigma^2$ average linearly, and the mean is the **precision-weighted** average, $\mu_s=\sigma_s^2\big[(1-s)\mu_P/\sigma_P^2+s\,\mu_Q/\sigma_Q^2\big]$. Equivalently, the density is a normalised geometric mixture,
+$\log p_s=(1-s)\log p+s\log q+\text{const}$, which for Gaussians is again a Gaussian. At $s=0.5$: precision $(1/1+1/2.25)/2=0.7222$, so $\sigma_s=1.1767$, and $\mu_s=1.3846\times(1.5/2.25)/2=0.4615$.
+
+*The m-geodesic: straight in $\eta$.* Put $\eta(s)=(1-s)\eta_P+s\,\eta_Q$. The first moment is linear, $\mu_s=(1-s)\mu_P+s\mu_Q$, and the second moment is linear, so the variance is
+
+$$
+\sigma_s^2=(1-s)\sigma_P^2+s\,\sigma_Q^2+s(1-s)(\mu_P-\mu_Q)^2 .
+$$
+
+This is the variance of the *mixture* $(1-s)p+s\,q$: the mixture's two moments are averaged, and the extra $s(1-s)(\mu_P-\mu_Q)^2$ is the spread between the two component means. At $s=0.5$: $\mu_s=0.75$ and $\sigma_s^2=(1+2.25)/2+0.25\times1.5^2=2.1875$, so $\sigma_s=1.4790$.
+**A subtlety.** The mixture itself is *not* a Gaussian (the 50/50 mixture has excess kurtosis $+0.1127$), so it is not a point of the Gaussian manifold. The point of the m-geodesic is the Gaussian with the *same mean and variance as the mixture*
+($0.7500$ and $2.1875$ by quadrature, matching). Within the manifold, "straight in $\eta$" means exactly this moment-matched curve.
+
+*The third curve.* The Fisher–Rao geodesic, the true shortest path for the metric $G$, is neither. In the coordinates $(x,y)=(\mu/\sqrt2,\sigma)$ the metric is $ds^2=2(dx^2+dy^2)/y^2$, a hyperbolic half-plane, whose geodesics are semicircles centred on $y=0$; that gives the third curve below.
+
+<img src="figures/gaussian-geodesics.svg" alt="The three curves joining N(0,1) and N(1.5, 1.5^2) drawn in the (mu, sigma) plane, in natural coordinates (theta1, theta2) and in moment coordinates (eta1, eta2). The e-geodesic is straight in natural coordinates, the m-geodesic is straight in moment coordinates, and the Fisher-Rao geodesic, the shortest path, is straight in neither. The m-curve bows up (wider) in the other two charts and the e-curve bows down.">
+
+Midpoints and numbers (from `code/dually_flat.py`; each curve is straight in its own chart to $10^{-16}$):
+
+| $s$ | e-geodesic $(\mu,\sigma)$ | m-geodesic $(\mu,\sigma)$ | Fisher–Rao $(\mu,\sigma)$ |
+|---|---|---|---|
+| 0.25 | (0.1935, 1.0776) | (0.3750, 1.3170) | (0.2575, 1.1724) |
+| 0.50 | (0.4615, 1.1767) | (0.7500, 1.4790) | (0.6000, 1.3304) |
+| 0.75 | (0.8571, 1.3093) | (1.1250, 1.5360) | (1.0230, 1.4479) |
+
+The e-curve stays *narrower* than the m-curve at every $s$: the e-path averages precisions (small $\sigma$ dominates), the m-path averages variances and adds the mean-spread term. The Fisher–Rao curve lies between them in all six entries of the table,
+and it is the shortest in the metric: the lengths $\int\sqrt{(\dot\mu^2+2\dot\sigma^2)/\sigma^2}\,ds$ are $1.3313$ (e), $1.3250$ (m) and $1.3070$ (Fisher–Rao).
+They are also *different paths*, not different speeds on the same path: the KL divergences from the two ends differ. At the e-midpoint $\mathrm{KL}[P{:}E]=0.1007$ and $\mathrm{KL}[E{:}Q]=0.2901$; at the m-midpoint $\mathrm{KL}[P{:}M]=0.2485$ and $\mathrm{KL}[M{:}Q]=0.1252$.
+
+Which is "straight" depends on which coordinates you count as affine, and the chapter's choice of $\psi$ makes $\theta$ affine for one structure and $\eta$ for the other. For the exponential family $\theta$-lines are the *natural* interpolations (average the exponent: geometric mixtures),
+and $\eta$-lines are the moment interpolations (average what you can measure: mixtures). Interpolating two trained Gaussian models, say, by averaging logits and averaging probabilities are the same dichotomy.
+
 **The metric, and the two sets of components.** On the dually flat manifold, $ds^2=2D_\psi[\theta{:}\theta+d\theta]=g_{ij}d\theta^id\theta^j$
 with $g_{ij}=\partial_i\partial_j\psi$ (1.85–1.86). The tangent vectors along the $\theta$-axes, $e_i$, are the same
 at every point (the chart is affine), and $g_{ij}=\langle e_i,e_j\rangle$. Along the $\eta$-axes the tangent vectors are $e^{*i}$,
