@@ -1,0 +1,144 @@
+<svg viewBox="0 0 800 405" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Mixed coordinates split rates from interaction</title>
+<desc>Left: two three by three matrices of the Fisher metric of two binary neurons; in the coordinates eta one, eta two and the covariance v there are non-zero off-diagonal entries, while in the mixed coordinates eta one, eta two and theta one two the off-diagonal entries vanish. Right: for fourteen random pairs of distributions, the sum of the divergences through the intermediate distribution with the rates of p and the interaction of q equals the divergence exactly (blue points on the diagonal), whereas the intermediate with the rates of q and the interaction of p does not (orange points scattered).</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<text class="hd" x="50" y="64">Fisher metric in (η₁, η₂, v)</text>
+<rect class="thin s0" x="50" y="76" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.19" x="51" y="77" width="68" height="30"/>
+<text class="v" x="85.0" y="96" text-anchor="middle">4.402</text>
+<rect class="thin s0" x="120" y="76" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.25" x="121" y="77" width="68" height="30"/>
+<text class="v" x="155.0" y="96" text-anchor="middle">−1.339</text>
+<rect class="thin s0" x="190" y="76" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.14" x="191" y="77" width="68" height="30"/>
+<text class="v" x="225.0" y="96" text-anchor="middle">0.179</text>
+<rect class="thin s0" x="50" y="108" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.25" x="51" y="109" width="68" height="30"/>
+<text class="v" x="85.0" y="128" text-anchor="middle">−1.339</text>
+<rect class="thin s0" x="120" y="108" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.19" x="121" y="109" width="68" height="30"/>
+<text class="v" x="155.0" y="128" text-anchor="middle">4.464</text>
+<rect class="thin s0" x="190" y="108" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.18" x="191" y="109" width="68" height="30"/>
+<text class="v" x="225.0" y="128" text-anchor="middle">−0.595</text>
+<rect class="thin s0" x="50" y="140" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.14" x="51" y="141" width="68" height="30"/>
+<text class="v" x="85.0" y="160" text-anchor="middle">0.179</text>
+<rect class="thin s0" x="120" y="140" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.18" x="121" y="141" width="68" height="30"/>
+<text class="v" x="155.0" y="160" text-anchor="middle">−0.595</text>
+<rect class="thin s0" x="190" y="140" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.42" x="191" y="141" width="68" height="30"/>
+<text class="v" x="225.0" y="160" text-anchor="middle">17.857</text>
+<text class="sm" x="85.0" y="186" text-anchor="middle">η₁</text>
+<text class="sm" x="155.0" y="186" text-anchor="middle">η₂</text>
+<text class="sm" x="225.0" y="186" text-anchor="middle">v</text>
+<text class="hd" x="50" y="202">Fisher metric in (η₁, η₂; θ¹²)</text>
+<rect class="thin s0" x="50" y="214" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.42" x="51" y="215" width="68" height="30"/>
+<text class="v" x="85.0" y="234" text-anchor="middle">4.400</text>
+<rect class="thin s0" x="120" y="214" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.42" x="121" y="215" width="68" height="30"/>
+<text class="v" x="155.0" y="234" text-anchor="middle">−1.333</text>
+<rect class="thin s0" x="190" y="214" width="70" height="32"/>
+<text class="v" x="225.0" y="234" text-anchor="middle">0</text>
+<rect class="thin s0" x="50" y="246" width="70" height="32"/>
+<rect class="fillO" style="opacity:0.42" x="51" y="247" width="68" height="30"/>
+<text class="v" x="85.0" y="266" text-anchor="middle">−1.333</text>
+<rect class="thin s0" x="120" y="246" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.42" x="121" y="247" width="68" height="30"/>
+<text class="v" x="155.0" y="266" text-anchor="middle">4.444</text>
+<rect class="thin s0" x="190" y="246" width="70" height="32"/>
+<text class="v" x="225.0" y="266" text-anchor="middle">0</text>
+<rect class="thin s0" x="50" y="278" width="70" height="32"/>
+<text class="v" x="85.0" y="298" text-anchor="middle">0</text>
+<rect class="thin s0" x="120" y="278" width="70" height="32"/>
+<text class="v" x="155.0" y="298" text-anchor="middle">0</text>
+<rect class="thin s0" x="190" y="278" width="70" height="32"/>
+<rect class="fillB" style="opacity:0.12" x="191" y="279" width="68" height="30"/>
+<text class="v" x="225.0" y="298" text-anchor="middle">0.056</text>
+<text class="sm" x="85.0" y="324" text-anchor="middle">η₁</text>
+<text class="sm" x="155.0" y="324" text-anchor="middle">η₂</text>
+<text class="sm" x="225.0" y="324" text-anchor="middle">θ¹²</text>
+<line class="gd" x1="450" y1="250.4" x2="770" y2="250.4"/>
+<text class="sm" x="444" y="253.9" text-anchor="end">0.2</text>
+<line class="gd" x1="450" y1="194.9" x2="770" y2="194.9"/>
+<text class="sm" x="444" y="198.4" text-anchor="end">0.4</text>
+<line class="gd" x1="450" y1="139.3" x2="770" y2="139.3"/>
+<text class="sm" x="444" y="142.8" text-anchor="end">0.6</text>
+<line class="gd" x1="450" y1="83.8" x2="770" y2="83.8"/>
+<text class="sm" x="444" y="87.3" text-anchor="end">0.8</text>
+<line class="gd" x1="521.1" y1="56" x2="521.1" y2="306"/>
+<text class="sm" x="521.1" y="321" text-anchor="middle">0.2</text>
+<line class="gd" x1="592.2" y1="56" x2="592.2" y2="306"/>
+<text class="sm" x="592.2" y="321" text-anchor="middle">0.4</text>
+<line class="gd" x1="663.3" y1="56" x2="663.3" y2="306"/>
+<text class="sm" x="663.3" y="321" text-anchor="middle">0.6</text>
+<line class="gd" x1="734.4" y1="56" x2="734.4" y2="306"/>
+<text class="sm" x="734.4" y="321" text-anchor="middle">0.8</text>
+<line class="ax" x1="450" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="450" y1="56" x2="450" y2="306"/>
+<text class="lab" x="610.0" y="338" text-anchor="middle">KL[p : q]</text>
+<text class="lab" transform="translate(410,181.0) rotate(-90)" text-anchor="middle">sum of the two pieces</text>
+<text class="hd" x="450" y="44">The decomposition (6.104) and its orientation</text>
+<polyline class="dash s0" points="450.0,306.0 770.0,56.0"/>
+<circle class="f1 ring" cx="477.6" cy="284.5" r="3.8"/>
+<circle class="f2 ring" cx="477.6" cy="285.1" r="3.8"/>
+<circle class="f1 ring" cx="619.9" cy="173.3" r="3.8"/>
+<circle class="f2 ring" cx="619.9" cy="185.5" r="3.8"/>
+<circle class="f1 ring" cx="738.2" cy="80.8" r="3.8"/>
+<circle class="f2 ring" cx="738.2" cy="156.5" r="3.8"/>
+<circle class="f1 ring" cx="512.2" cy="257.4" r="3.8"/>
+<circle class="f2 ring" cx="512.2" cy="253.1" r="3.8"/>
+<circle class="f1 ring" cx="633.0" cy="163.0" r="3.8"/>
+<circle class="f2 ring" cx="633.0" cy="110.8" r="3.8"/>
+<circle class="f1 ring" cx="527.4" cy="245.5" r="3.8"/>
+<circle class="f2 ring" cx="527.4" cy="243.3" r="3.8"/>
+<circle class="f1 ring" cx="635.2" cy="161.3" r="3.8"/>
+<circle class="f2 ring" cx="635.2" cy="142.6" r="3.8"/>
+<circle class="f1 ring" cx="518.4" cy="252.5" r="3.8"/>
+<circle class="f2 ring" cx="518.4" cy="266.9" r="3.8"/>
+<circle class="f1 ring" cx="557.2" cy="222.2" r="3.8"/>
+<circle class="f2 ring" cx="557.2" cy="177.1" r="3.8"/>
+<circle class="f1 ring" cx="472.5" cy="288.4" r="3.8"/>
+<circle class="f2 ring" cx="472.5" cy="288.7" r="3.8"/>
+<circle class="f1 ring" cx="678.7" cy="127.3" r="3.8"/>
+<circle class="f2 ring" cx="678.7" cy="122.8" r="3.8"/>
+<circle class="f1 ring" cx="481.2" cy="281.6" r="3.8"/>
+<circle class="f2 ring" cx="481.2" cy="280.7" r="3.8"/>
+<circle class="f1 ring" cx="687.8" cy="120.2" r="3.8"/>
+<circle class="f2 ring" cx="687.8" cy="140.5" r="3.8"/>
+<circle class="f1 ring" cx="667.0" cy="136.5" r="3.8"/>
+<circle class="f2 ring" cx="667.0" cy="194.9" r="3.8"/>
+<line class="ln s1" style="stroke-width:2.2" x1="460" y1="76" x2="482" y2="76"/>
+<text class="sm" x="488" y="79.5">r = (rates of p, interaction of q)</text>
+<line class="ln s2" style="stroke-width:2.2" x1="460" y1="92" x2="482" y2="92"/>
+<text class="sm" x="488" y="95.5">r′ = (rates of q, interaction of p)</text>
+<text class="sm" x="50" y="372">Left: with v = Cov[x₁, x₂] as third coordinate the axes are not orthogonal; with θ¹² they are (blocks: (G₁₁)⁻¹ and a Schur complement).</text>
+<text class="sm" x="50" y="387">Right: 14 random pairs of two-neuron distributions; blue points lie on the diagonal (exact Pythagoras), orange points do not.</text>
+</svg>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dual Connections Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:140px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Dual connections, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 6 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Two running examples: the Gaussian manifold in the chart $(\mu,\sigma)$, whose e-, m- and Levi-Civita connections are mixtures of one another, and the probability simplex on three outcomes in the chart $(p_1,p_2)$. The $\alpha$-connection is $\Gamma^{(\alpha)}=\Gamma^{(0)}-\tfrac\alpha2T$, with $\alpha=+1$ the e-connection and $\alpha=-1$ the m-connection. Every widget computes with the same mathematics as <code>code/dual_connections.py</code> (finite differences, RK4, Newton), in the browser, and the default state reproduces the numbers printed there.</p>
+
+<h2>1. Duality is conservation of the inner product</h2>
+<p>Take a loop in the Gaussian half-plane, a vector $A$ and a vector $B$. Carry $A$ along the loop by $\nabla^{(\alpha)}$ and $B$ by the dual connection $\nabla^{(-\alpha)}$: their Fisher inner product $\langle A,B\rangle$ never changes (equation (6.1)), although neither vector comes back to itself when the pair is curved. Carry both by the <em>same</em> connection and the inner product wanders, unless that connection is Levi-Civita ($\alpha=0$). At $\alpha=\pm1$ the pair is flat and both vectors do come home. Try $\alpha$ near $0.6$, shrink the loop (the wander and the holonomy scale with its area), then switch the pairing.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w1a" min="-1.2" max="1.2" step="0.1" value="0.6"><output id="w1ao"></output></label>
+    <label>loop size <input type="range" id="w1z" min="0.2" max="1.5" step="0.1" value="1"><output id="w1zo"></output></label>
+    <label>pairing <select id="w1m"><option value="dual">A by α, B by −α (dual)</option><option value="same">both by α</option><option value="lc">both Levi-Civita</option></select></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1l" viewBox="0 0 340 300" role="img" aria-label="A loop in the Gaussian half-plane with the transported vectors A and B at eight stations"></svg></div>
+    <div><svg id="w1r" viewBox="0 0 340 300" role="img" aria-label="The Fisher inner product of the transported vectors along the loop"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>dual pair</span><span><span class="sw" style="border-color:var(--s2)"></span>same connection twice</span><span><span class="sw dash" style="border-color:var(--s3)"></span>Levi-Civita twice</span></div>
+  <div class="stats" id="w1s"></div>
+</div>
+
+<h2>2. From a divergence to a geometry</h2>
+<p>A divergence $D[p:q]$ has a quadratic part, which gives the metric $g_{ij}=-D_{i;j}$, and a cubic part, which gives the pair of connections $\Gamma_{ijk}=-D_{ij;k}$ and $\Gamma^*_{ijk}=-D_{k;ij}$ (6.22)–(6.24). Pick a divergence between two nearby Gaussians: the table is computed by finite differences of $D$ alone and compared with the closed forms. $\mathrm{KL}[p{:}q]$ gives $\alpha=-1$, $\mathrm{KL}[q{:}p]$ gives $\alpha=+1$, the $\alpha$-divergence gives $\alpha$, half the squared distance gives $0$. Adding a quartic term changes nothing (6.51)–(6.54); adding a cubic term $\tfrac12\delta_\mu^3$ changes $\Gamma$ and $\Gamma^*$ by $\mp3$.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>divergence <select id="w2d"><option value="alpha">D_α[p:q]</option><option value="klpq">KL[p:q]</option><option value="klqp">KL[q:p]</option><option value="half">½ d²(p,q)</option><option value="cubic">D_α + ½ δ_μ³</option><option value="quartic">D_α + 3 D_α² + 3 |δ|⁴</option></select></label>
+    <label>$\alpha$ <input type="range" id="w2a" min="-1" max="1" step="0.1" value="0.5"><output id="w2ao"></output></label>
+    <label>$\mu$ <input type="range" id="w2m" min="-1" max="3" step="0.1" value="1"><output id="w2mo"></output></label>
+    <label>$\sigma$ <input type="range" id="w2s" min="0.8" max="3.5" step="0.1" value="2"><output id="w2so"></output></label>
+  </div>
+  <div class="stats" id="w2s_"></div>
+  <div id="w2tab"></div>
+</div>
+
+<h2>3. The α-geodesics of the probability triangle, and their curvature</h2>
+<p>Leave a point of the triangle $\{p_1+p_2+p_3=1\}$ with a fixed velocity and follow the geodesics of $\nabla^{(\alpha)}$ for $\alpha$ (thick), $-\alpha$ (dashed) and $0$ (thin, a great circle of the sphere of radius 2). The m-geodesic ($\alpha=-1$) is a straight line, the e-geodesic ($\alpha=+1$) is a geometric mixture. The curvature coefficient $K^{(\alpha)}$ computed from the connection coefficients is $(1-\alpha^2)/4$: flat at $\pm1$, a sphere at $0$, and the same number for $\nabla^{(\alpha)}$ and $\nabla^{(-\alpha)}$ (compare the identity $R_{ijkl}+R^*_{ijlk}=0$ in the notes).</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w3a" min="-1.5" max="1.5" step="0.1" value="0.5"><output id="w3ao"></output></label>
+    <label>$p_1$ <input type="range" id="w3p1" min="0.05" max="0.9" step="0.01" value="0.15"><output id="w3p1o"></output></label>
+    <label>$p_2$ <input type="range" id="w3p2" min="0.05" max="0.9" step="0.01" value="0.5"><output id="w3p2o"></output></label>
+    <label>$\dot p_1$ <input type="range" id="w3v1" min="-0.7" max="0.7" step="0.01" value="0.44"><output id="w3v1o"></output></label>
+    <label>$\dot p_2$ <input type="range" id="w3v2" min="-0.7" max="0.7" step="0.01" value="-0.11"><output id="w3v2o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w3l" viewBox="0 0 340 300" role="img" aria-label="Geodesics of the alpha-connection in the probability triangle"></svg></div>
+    <div><svg id="w3r" viewBox="0 0 340 300" role="img" aria-label="Curvature coefficient of the alpha-connection against alpha"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>∇<sup>(α)</sup>-geodesic</span><span><span class="sw dash" style="border-color:var(--s2)"></span>∇<sup>(−α)</sup>-geodesic</span><span><span class="sw" style="border-color:var(--s3)"></span>Levi-Civita (α = 0)</span></div>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>4. The canonical divergence of a general dual pair, and the projection condition</h2>
+<p>For a pair $(\nabla,\nabla^*)$ the book builds a divergence from the geodesics: $\tilde D=\int_0^1t\,g(\dot\xi,\dot\xi)\,dt$ along the $\nabla$-geodesic from $p$ to $q$, $\tilde D^*$ with weight $1-t$ along the $\nabla^*$-geodesic, and $D=\tfrac12(\tilde D+\tilde D^*)$ (6.77)–(6.80); here the geodesic boundary-value problem is solved by Newton shooting. The readout compares it with the $\alpha$-divergences and half the squared distance, and measures the condition (6.81) under which projection onto a submanifold is geodesic: the angle between the normal $g^{-1}\partial_q D[p{:}q]$ of the divergence ball and the geodesic direction $-\exp_q^{-1}p$. On the simplex the $\alpha$-divergence satisfies it exactly; on the Gaussians it misses by a degree.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>manifold <select id="w4m"><option value="gauss">Gaussians (μ, σ)</option><option value="s2">simplex S₂ (p₁, p₂)</option></select></label>
+    <label>$\alpha$ <input type="range" id="w4a" min="-0.9" max="0.9" step="0.1" value="0.5"><output id="w4ao"></output></label>
+    <label>$P_1$ <input type="range" id="w4p1" min="-1" max="3" step="0.05" value="1"><output id="w4p1o"></output></label>
+    <label>$P_2$ <input type="range" id="w4p2" min="0.8" max="3.5" step="0.05" value="2"><output id="w4p2o"></output></label>
+    <label>$Q_1$ <input type="range" id="w4q1" min="-1" max="3" step="0.05" value="1.8"><output id="w4q1o"></output></label>
+    <label>$Q_2$ <input type="range" id="w4q2" min="0.8" max="3.5" step="0.05" value="2.7"><output id="w4q2o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w4l" viewBox="0 0 340 300" role="img" aria-label="The two points and the geodesics of the primal and dual connections between them"></svg></div>
+    <div><svg id="w4r" viewBox="0 0 340 300" role="img" aria-label="Bars for the canonical divergence and the other divergences between the two points"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>∇<sup>(α)</sup>-geodesic P→Q</span><span><span class="sw dash" style="border-color:var(--s2)"></span>∇<sup>(−α)</sup>-geodesic P→Q</span></div>
+  <div class="stats" id="w4s"></div>
+</div>
+
+<h2>5. Mixed coordinates: rates against interaction</h2>
+<p>For two binary neurons the distribution has the dual coordinates $\eta=(\eta_1,\eta_2,\eta_{12})$ and $\theta=(\theta^1,\theta^2,\theta^{12})$. The mixed chart $(\eta_1,\eta_2;\theta^{12})$ has an orthogonal metric (left, lower matrix), with blocks $(G_{11})^{-1}$ and a Schur complement; the chart with the covariance $v=\eta_{12}-\eta_1\eta_2$ does not (upper matrix). Moving the sliders for $p$ and $q$, the intermediate distribution $r=(\eta\text{ of }p;\theta^{12}\text{ of }q)$ makes $\mathrm{KL}[p{:}q]=\mathrm{KL}[p{:}r]+\mathrm{KL}[r{:}q]$ exact, the Pythagorean theorem of (6.96) and (6.104); the other intermediate $r'=(\eta\text{ of }q;\theta^{12}\text{ of }p)$ decomposes the reversed divergence $\mathrm{KL}[q{:}p]$ instead.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>$p$: $\eta_1$ <input type="range" id="w5e1" min="0.05" max="0.95" step="0.01" value="0.5"><output id="w5e1o"></output></label>
+    <label>$\eta_2$ <input type="range" id="w5e2" min="0.05" max="0.95" step="0.01" value="0.45"><output id="w5e2o"></output></label>
+    <label>$\theta^{12}$ <input type="range" id="w5t" min="-3" max="3" step="any" value="1.252763"><output id="w5to"></output></label>
+  </div>
+  <div class="controls">
+    <label>$q$: $\eta_1$ <input type="range" id="w5f1" min="0.05" max="0.95" step="0.01" value="0.6"><output id="w5f1o"></output></label>
+    <label>$\eta_2$ <input type="range" id="w5f2" min="0.05" max="0.95" step="0.01" value="0.5"><output id="w5f2o"></output></label>
+    <label>$\theta^{12}$ <input type="range" id="w5u" min="-3" max="3" step="any" value="-1.791759"><output id="w5uo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 290" role="img" aria-label="The Fisher metric of two neurons in two coordinate systems"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 290" role="img" aria-label="Bars for the divergence and its two decompositions"></svg></div>
+  </div>
+  <div id="w5tab"></div>
+</div>
+
+<h2>6. Integrated information of a Gaussian channel</h2>
+<p>A channel $y=Ax+\varepsilon$ with $x\sim N(0,I)$ and noise correlation $\rho$. The split model $M_S$ (bars: M) removes the direct links $x_1y_2$, $x_2y_1$; its m-projection gives $GI$, and Ay's smaller model $M_S'$ (bars: M′; no $y_1y_2$ link either) gives $GI'$. The notes show $GI'\ge GI$, the reverse of the printed (6.146). Set the cross-talk to zero and raise $\rho$: there is <em>no</em> interaction between terminals, yet $GI$ and $GI'$ are positive and the projection $\hat A$ is not diagonal; only the curved model $M_S''$ ($\hat A$ diagonal, noise free) gives $GI''=0$. Set $A=0$: $I(X{:}Y)=0$ but $GI'&gt;0$, the example (6.152).</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>$a_{11}$ <input type="range" id="w6a" min="-1" max="1" step="0.05" value="0.8"><output id="w6ao"></output></label>
+    <label>$a_{22}$ <input type="range" id="w6d" min="-1" max="1" step="0.05" value="0.6"><output id="w6do"></output></label>
+    <label>$a_{12}$ <input type="range" id="w6b" min="-1" max="1" step="0.05" value="0"><output id="w6bo"></output></label>
+    <label>$a_{21}$ <input type="range" id="w6c" min="-1" max="1" step="0.05" value="0"><output id="w6co"></output></label>
+    <label>$\rho$ <input type="range" id="w6r" min="0" max="0.95" step="0.05" value="0.6"><output id="w6ro"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w6l" viewBox="0 0 340 260" role="img" aria-label="Bars for the mutual information and the three geometric measures of integration"></svg></div>
+    <div id="w6tab"></div>
+  </div>
+  <div class="stats" id="w6s"></div>
+</div>
+
+<h2>7. Input–output tables: margins, interactions and RAS</h2>
+<p>A $3\times3$ transaction table $A$ has the e-coordinates $L_{ij}=\log A_{ij}$ and the m-coordinates $A_{ij}$. Replace the last row and column by the sums and the dual coordinates become the margins $(A_{i\cdot},A_{\cdot j},A_{\cdot\cdot})$ and the interactions $\tilde L_{ij}=\log\frac{A_{ij}A_{33}}{A_{i3}A_{3j}}$, orthogonal to each other (6.173)–(6.175). Scale rows by $\mu_i$ and columns by $\lambda_j$ (the RAS step, (6.180)): $\tilde L$ does not move, but the margins change by factors that are <em>not</em> $\mu_i$ and $\lambda_j$, and $S_{ij}=\log\frac{A_{ij}}{A_{i\cdot}A_{\cdot j}}$ of (6.177) does move. The bars decompose $D[A{:}B]=\sum B\log\frac BA-B+A$ for a fixed second table $B$ (rescaled to the total of $A$) through the RAS fit of $A$ to the margins of $B$.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>$\mu_1$ <input type="range" id="w7m1" min="0.7" max="1.3" step="0.05" value="1.1"><output id="w7m1o"></output></label>
+    <label>$\mu_2$ <input type="range" id="w7m2" min="0.7" max="1.3" step="0.05" value="0.9"><output id="w7m2o"></output></label>
+    <label>$\mu_3$ <input type="range" id="w7m3" min="0.7" max="1.3" step="0.05" value="1"><output id="w7m3o"></output></label>
+    <label>$\lambda_1$ <input type="range" id="w7l1" min="0.7" max="1.3" step="0.05" value="1.2"><output id="w7l1o"></output></label>
+    <label>$\lambda_2$ <input type="range" id="w7l2" min="0.7" max="1.3" step="0.05" value="1"><output id="w7l2o"></output></label>
+    <label>$\lambda_3$ <input type="range" id="w7l3" min="0.7" max="1.3" step="0.05" value="0.8"><output id="w7l3o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w7l" viewBox="0 0 340 250" role="img" aria-label="The table before and after the row and column scaling, with margins"></svg></div>
+    <div><svg id="w7r" viewBox="0 0 340 250" role="img" aria-label="Bars for the divergence and its two decompositions"></svg></div>
+  </div>
+  <div class="key"><span>R = the RAS fit of A to the margins of B (rates of B, interaction of A)</span><span>R′ = the RAS fit of B to the margins of A (rates of A, interaction of B)</span></div>
+  <div class="stats" id="w7s"></div>
+</div>
+</main>
+
+<script id="core">
+"use strict";
+// ======================================================================================================
+// Numerical core: plain functions, no DOM. Same mathematics as code/dual_connections.py.
+// ======================================================================================================
+const inv2=M=>{const d=M[0][0]*M[1][1]-M[0][1]*M[1][0];return [[M[1][1]/d,-M[0][1]/d],[-M[1][0]/d,M[0][0]/d]]};
+const maxAbs=a=>{let m=0;(function w(x){if(Array.isArray(x))x.forEach(w);else m=Math.max(m,Math.abs(x))})(a);return m};
+
+// ---- the Gaussian manifold, chart (mu, sigma): alpha-connection; alpha = +1 is the e-connection, -1 the m-connection
+const gaussMetric=x=>[[1/(x[1]*x[1]),0],[0,2/(x[1]*x[1])]];
+const gaussAcc=a=>{const c1=2*(1+a),c2=(1-a)/2,c3=1+2*a;return (x1,x2,v1,v2)=>[c1*v1*v2/x2,(-c2*v1*v1+c3*v2*v2)/x2]};
+const gaussQuad=(x1,x2,v1,v2)=>(v1*v1+2*v2*v2)/(x2*x2);
+const gaussGamma=(a,x)=>{const s=x[1],G=[[[0,0],[0,0]],[[0,0],[0,0]]];G[0][1][0]=G[1][0][0]=-(1+a)/s;G[1][1][1]=-(1+2*a)/s;G[0][0][1]=(1-a)/(2*s);return G};   // G[i][j][k] = Gamma_{ij}^k
+const gaussT=x=>{const s=x[1],T=[[[0,0],[0,0]],[[0,0],[0,0]]];T[0][0][1]=T[0][1][0]=T[1][0][0]=2/(s*s*s);T[1][1][1]=8/(s*s*s);return T};
+const klG=(x,y)=>Math.log(y[1]/x[1])+(x[1]*x[1]+(x[0]-y[0])**2)/(2*y[1]*y[1])-0.5;
+const renyiG=(x,y,a)=>{const v=a*y[1]*y[1]+(1-a)*x[1]*x[1];return Math.pow(x[1],1-a)*Math.pow(y[1],a)/Math.sqrt(v)*Math.exp(-a*(1-a)*(x[0]-y[0])**2/(2*v))};
+const alphaDivG=al=>{const a=(1-al)/2;return (x,y)=>4/(1-al*al)*(1-renyiG(x,y,a))};
+const frDistG=(x,y)=>Math.SQRT2*Math.acosh(1+((x[0]-y[0])**2/2+(x[1]-y[1])**2)/(2*x[1]*y[1]));
+// ---- the simplex S2 in the m-chart (p1, p2): Gamma^(alpha)_ijk = -(1+alpha)/2 T_ijk
+const s2Metric=x=>{const p3=1-x[0]-x[1];return [[1/x[0]+1/p3,1/p3],[1/p3,1/x[1]+1/p3]]};
+const s2T=x=>{const p=[x[0],x[1],1-x[0]-x[1]],T=[[[0,0],[0,0]],[[0,0],[0,0]]];for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++)T[i][j][k]=(i===j&&j===k?1/(p[i]*p[i]):0)-1/(p[2]*p[2]);return T};
+const s2Gamma=(a,x)=>{const gi=inv2(s2Metric(x)),T=s2T(x),c=-(1+a)/2,G=[[[0,0],[0,0]],[[0,0],[0,0]]];for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++)G[i][j][k]=c*(T[i][j][0]*gi[0][k]+T[i][j][1]*gi[1][k]);return G};
+const s2Acc=a=>{const c=(1+a)/2;return (x1,x2,v1,v2)=>{const p3=1-x1-x2,w3=v1+v2,t1=v1*v1/(x1*x1)-w3*w3/(p3*p3),t2=v2*v2/(x2*x2)-w3*w3/(p3*p3),g11=1/x1+1/p3,g22=1/x2+1/p3,g12=1/p3,det=g11*g22-g12*g12;return [c*(g22*t1-g12*t2)/det,c*(-g12*t1+g11*t2)/det]}};
+const s2Quad=(x1,x2,v1,v2)=>{const p3=1-x1-x2,w3=v1+v2;return v1*v1/x1+v2*v2/x2+w3*w3/p3};
+const alphaDivS2=al=>{const a=(1-al)/2;return (x,y)=>{const p=[x[0],x[1],1-x[0]-x[1]],q=[y[0],y[1],1-y[0]-y[1]];let s=0;for(let i=0;i<3;i++)s+=Math.pow(p[i],a)*Math.pow(q[i],1-a);return 4/(1-al*al)*(1-s)}};
+const frDistS2=(x,y)=>{const p=[x[0],x[1],1-x[0]-x[1]],q=[y[0],y[1],1-y[0]-y[1]];let s=0;for(let i=0;i<3;i++)s+=Math.sqrt(p[i]*q[i]);return 2*Math.acos(Math.min(1,s))};
+// ---- geodesics: RK4 on x'' = acc(x, x') in [0,1], with the running integral of w(t) g(x)[x',x'] dt (wmode 0 none, 1 w=t, 2 w=1-t)
+function integ(acc,quad,x0,v0,wmode,steps){
+ let x1=x0[0],x2=x0[1],v1=v0[0],v2=v0[1],I=0,t=0;const dt=1/steps,wf=wmode===0?(()=>0):(wmode===1?(s=>s):(s=>1-s));
+ for(let n=0;n<steps;n++){
+  const [a1,a2]=acc(x1,x2,v1,v2),q1=quad(x1,x2,v1,v2)*wf(t);
+  let y1=x1+dt/2*v1,y2=x2+dt/2*v2,u1=v1+dt/2*a1,u2=v2+dt/2*a2;const [b1,b2]=acc(y1,y2,u1,u2),q2=quad(y1,y2,u1,u2)*wf(t+dt/2);
+  y1=x1+dt/2*u1;y2=x2+dt/2*u2;const w1=v1+dt/2*b1,w2=v2+dt/2*b2;const [c1,c2]=acc(y1,y2,w1,w2),q3=quad(y1,y2,w1,w2)*wf(t+dt/2);
+  y1=x1+dt*w1;y2=x2+dt*w2;const z1=v1+dt*c1,z2=v2+dt*c2;const [d1,d2]=acc(y1,y2,z1,z2),q4=quad(y1,y2,z1,z2)*wf(t+dt);
+  x1+=dt/6*(v1+2*u1+2*w1+z1);x2+=dt/6*(v2+2*u2+2*w2+z2);v1+=dt/6*(a1+2*b1+2*c1+d1);v2+=dt/6*(a2+2*b2+2*c2+d2);I+=dt/6*(q1+2*q2+2*q3+q4);t+=dt;
+ }
+ return {x:[x1,x2],v:[v1,v2],I};
+}
+function logMap(acc,quad,p,q,steps,tol){   // initial velocity at p of the geodesic with x(0)=p, x(1)=q
+ tol=tol||1e-13;let v=[q[0]-p[0],q[1]-p[1]];
+ for(let it=0;it<40;it++){
+  const e0=integ(acc,quad,p,v,0,steps).x,r=[e0[0]-q[0],e0[1]-q[1]];
+  if(Math.max(Math.abs(r[0]),Math.abs(r[1]))<tol)return Math.hypot(v[0],v[1])>50*(Math.hypot(q[0]-p[0],q[1]-p[1])+1)?null:v;
+  if(!isFinite(r[0])||!isFinite(r[1]))return null;
+  const h=1e-7,J=[[0,0],[0,0]];
+  for(let j=0;j<2;j++){const vv=[v[0],v[1]];vv[j]+=h;const e1=integ(acc,quad,p,vv,0,steps).x;J[0][j]=(e1[0]-e0[0])/h;J[1][j]=(e1[1]-e0[1])/h}
+  const Ji=inv2(J);v=[v[0]-(Ji[0][0]*r[0]+Ji[0][1]*r[1]),v[1]-(Ji[1][0]*r[0]+Ji[1][1]*r[1])];
+ }
+ return null;
+}
+function dtilde(acc,quad,p,q,wmode,steps){const v=logMap(acc,quad,p,q,steps);if(!v)return NaN;return integ(acc,quad,p,v,wmode,steps).I}
+function canonicalD(accP,accD,quad,p,q,steps){const a=dtilde(accP,quad,p,q,1,steps),b=dtilde(accD,quad,p,q,2,steps);return [a,b,(a+b)/2]}
+function angleDeg(acc,quad,gfun,Dfun,p,q,steps,h){   // the condition (6.81): angle between g^{-1} d'_q D[p:q] and -exp_q^{-1}(p)
+ h=h||2e-3;const gq=gfun(q),X=logMap(acc,quad,q,p,steps,1e-14);if(!X)return NaN;
+ const gr=[0,0];for(let j=0;j<2;j++){const f=s=>{const qq=[q[0],q[1]];qq[j]+=s;return Dfun(p,qq)};gr[j]=(-f(2*h)+8*f(h)-8*f(-h)+f(-2*h))/(12*h)}
+ const gi=inv2(gq),n=[gi[0][0]*gr[0]+gi[0][1]*gr[1],gi[1][0]*gr[0]+gi[1][1]*gr[1]],m=[-X[0],-X[1]];
+ const ip=(a,b)=>a[0]*(gq[0][0]*b[0]+gq[0][1]*b[1])+a[1]*(gq[1][0]*b[0]+gq[1][1]*b[1]);
+ const dot=ip(n,m),cross=Math.sqrt(gq[0][0]*gq[1][1]-gq[0][1]*gq[1][0])*(n[0]*m[1]-n[1]*m[0]);
+ return Math.atan2(Math.abs(cross),dot)*180/Math.PI;
+}
+// ---- parallel transport of A (connection alA) and B (connection alB) round the ellipse mu = 1 + 0.6 z cos 2 pi t, sigma = 2 + 0.5 z sin 2 pi t
+function transportLoop(alA,alB,z,A0,B0,steps){
+ const curve=t=>[1+0.6*z*Math.cos(2*Math.PI*t),2+0.5*z*Math.sin(2*Math.PI*t)],dcurve=t=>[-0.6*z*2*Math.PI*Math.sin(2*Math.PI*t),0.5*z*2*Math.PI*Math.cos(2*Math.PI*t)];
+ const rhs=(t,V,al)=>{const x=curve(t),v=dcurve(t),s=x[1];return [(1+al)/s*(v[0]*V[1]+v[1]*V[0]),-(1-al)/(2*s)*v[0]*V[0]+(1+2*al)/s*v[1]*V[1]]};
+ const step=(t,V,al,dt)=>{const k1=rhs(t,V,al),k2=rhs(t+dt/2,[V[0]+dt/2*k1[0],V[1]+dt/2*k1[1]],al),k3=rhs(t+dt/2,[V[0]+dt/2*k2[0],V[1]+dt/2*k2[1]],al),k4=rhs(t+dt,[V[0]+dt*k3[0],V[1]+dt*k3[1]],al);return [V[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),V[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])]};
+ let A=A0.slice(),B=B0.slice(),t=0;const dt=1/steps,ip=[],AA=[A.slice()],BB=[B.slice()];
+ const inner=(x,A_,B_)=>{const g=gaussMetric(x);return A_[0]*g[0][0]*B_[0]+A_[1]*g[1][1]*B_[1]};
+ ip.push(inner(curve(0),A,B));
+ for(let k=0;k<steps;k++){A=step(t,A,alA,dt);B=step(t,B,alB,dt);t+=dt;ip.push(inner(curve(t),A,B));if((k+1)%(steps/8)===0){AA.push(A.slice());BB.push(B.slice())}}
+ return {ip,A,B,AA,BB,curve};
+}
+// ---- divergences to geometry by finite differences (6.22)-(6.24)
+function mixed(D,x,y,ops,h){
+ const n=x.length,z0=x.concat(y);
+ const one=hh=>{let tot=0;const L=ops.length;for(let m=0;m<(1<<L);m++){const z=z0.slice();let sg=1;for(let k=0;k<L;k++){const s=(m>>k&1)?-1:1;z[ops[k]]+=s*hh;sg*=s}tot+=sg*D(z.slice(0,n),z.slice(n))}return tot/Math.pow(2*hh,L)};
+ return (4*one(h/2)-one(h))/3;
+}
+function geometryFromD(D,x,h){
+ const n=2,g=[[0,0],[0,0]],Gam=[[[0,0],[0,0]],[[0,0],[0,0]]],Gs=[[[0,0],[0,0]],[[0,0],[0,0]]];
+ for(let i=0;i<n;i++)for(let j=0;j<n;j++){g[i][j]=-mixed(D,x,x,[i,n+j],h);for(let k=0;k<n;k++){Gam[i][j][k]=-mixed(D,x,x,[i,j,n+k],h);Gs[i][j][k]=-mixed(D,x,x,[k,n+i,n+j],h)}}
+ return {g,Gam,Gs};
+}
+const lowerG=(G,g)=>G.map(Gi=>Gi.map(Gij=>[0,1].map(k=>Gij[0]*g[0][k]+Gij[1]*g[1][k])));
+// ---- curvature of a connection given by closed-form coefficients (5.66), central differences
+function riemannFD(Gfun,x,h){
+ const n=2,G=Gfun(x),dG=[];for(let i=0;i<n;i++){const xp=x.slice(),xm=x.slice();xp[i]+=h;xm[i]-=h;const Gp=Gfun(xp),Gm=Gfun(xm);dG.push(Gp.map((a,ii)=>a.map((b,jj)=>b.map((c,kk)=>(c-Gm[ii][jj][kk])/(2*h)))))}
+ const R=[];for(let i=0;i<n;i++){R.push([]);for(let j=0;j<n;j++){R[i].push([]);for(let k=0;k<n;k++){R[i][j].push([]);for(let l=0;l<n;l++){let v=dG[i][j][k][l]-dG[j][i][k][l];for(let m=0;m<n;m++)v+=G[i][m][l]*G[j][k][m]-G[j][m][l]*G[i][k][m];R[i][j][k].push(v)}}}}
+ return R;
+}
+const kCoef=(R,g)=>(g[0][0]*R[0][1][1][0]+g[0][1]*R[0][1][1][1])/(g[0][0]*g[1][1]-g[0][1]*g[1][0]);
+// ---- two binary neurons
+function pFromMixed(e1,e2,th12){   // eta1, eta2 and theta12 -> (p00, p01, p10, p11)
+ const psi=Math.exp(th12),lo=Math.max(0,e1+e2-1),hi=Math.min(e1,e2);
+ const f=p11=>p11*(1-e1-e2+p11)-psi*(e1-p11)*(e2-p11);
+ let a=lo,b=hi;if(Math.abs(psi-1)<1e-12){const p=e1*e2;return [1-e1-e2+p,e2-p,e1-p,p]}
+ for(let i=0;i<200;i++){const m=(a+b)/2;if(f(a)*f(m)<=0)b=m;else a=m}
+ const p11=(a+b)/2;return [1-e1-e2+p11,e2-p11,e1-p11,p11];
+}
+const klArr=(p,q)=>{let s=0;for(let i=0;i<p.length;i++)s+=p[i]*Math.log(p[i]/q[i]);return s};
+function fisher2(p){   // Cov of (x1, x2, x1 x2) for p = (p00, p01, p10, p11)
+ const F=[[0,0,0],[0,1,0],[1,0,0],[1,1,1]],m=[0,0,0];for(let s=0;s<4;s++)for(let a=0;a<3;a++)m[a]+=p[s]*F[s][a];
+ const G=[[0,0,0],[0,0,0],[0,0,0]];for(let s=0;s<4;s++)for(let a=0;a<3;a++)for(let b=0;b<3;b++)G[a][b]+=p[s]*(F[s][a]-m[a])*(F[s][b]-m[b]);return G;
+}
+function inv3(M){const [[a,b,c],[d,e,f],[g,h,i]]=M,A=e*i-f*h,B=-(d*i-f*g),C=d*h-e*g,det=a*A+b*B+c*C;return [[A/det,-(b*i-c*h)/det,(b*f-c*e)/det],[B/det,(a*i-c*g)/det,-(a*f-c*d)/det],[C/det,-(a*h-b*g)/det,(a*e-b*d)/det]]}
+function mixedBlocks(p){
+ const G=fisher2(p),G11=[[G[0][0],G[0][1]],[G[1][0],G[1][1]]],G11i=inv2(G11),Gi=inv3(G);
+ const c=[G[0][2],G[1][2]],t=[G11i[0][0]*c[0]+G11i[0][1]*c[1],G11i[1][0]*c[0]+G11i[1][1]*c[1]],schur=G[2][2]-(c[0]*t[0]+c[1]*t[1]);
+ // the chart (eta1, eta2, v): metric = J^T G^{-1} J with d eta / d (eta1, eta2, v) = [[1,0,0],[0,1,0],[eta2, eta1, 1]]
+ const e1=p[2]+p[3],e2=p[1]+p[3],J=[[1,0,0],[0,1,0],[e2,e1,1]],Gv=[[0,0,0],[0,0,0],[0,0,0]];
+ for(let a=0;a<3;a++)for(let b=0;b<3;b++){let s=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++)s+=J[i][a]*Gi[i][j]*J[j][b];Gv[a][b]=s}
+ const Gm=[[G11i[0][0],G11i[0][1],0],[G11i[1][0],G11i[1][1],0],[0,0,schur]];
+ return {G,Gm,Gv,printed:{eta:[[Gi[0][0],Gi[0][1]],[Gi[1][0],Gi[1][1]]],th:G[2][2]}};
+}
+// ---- Gaussian channel y = A x + eps, x ~ N(0, I), eps ~ N(0, V)
+function matInv(M){const n=M.length,A=M.map((r,i)=>r.concat(Array.from({length:n},(_,j)=>i===j?1:0)));for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];const d=A[c][c];for(let j=0;j<2*n;j++)A[c][j]/=d;for(let r=0;r<n;r++)if(r!==c){const f=A[r][c];if(f!==0)for(let j=0;j<2*n;j++)A[r][j]-=f*A[c][j]}}return A.map(r=>r.slice(n))}
+function solveLin(M,b){const n=b.length,A=M.map((r,i)=>r.concat([b[i]]));for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];for(let r=c+1;r<n;r++){const f=A[r][c]/A[c][c];for(let j=c;j<=n;j++)A[r][j]-=f*A[c][j]}}const x=new Array(n).fill(0);for(let i=n-1;i>=0;i--){let s=A[i][n];for(let j=i+1;j<n;j++)s-=A[i][j]*x[j];x[i]=s/A[i][i]}return x}
+function cholOK(M){const n=M.length,L=M.map(r=>r.map(()=>0));for(let i=0;i<n;i++)for(let j=0;j<=i;j++){let s=M[i][j];for(let k=0;k<j;k++)s-=L[i][k]*L[j][k];if(i===j){if(s<=0)return false;L[i][j]=Math.sqrt(s)}else L[i][j]=s/L[j][j]}return true}
+function logdetSPD(M){const n=M.length,L=M.map(r=>r.map(()=>0));let s2=0;for(let i=0;i<n;i++)for(let j=0;j<=i;j++){let s=M[i][j];for(let k=0;k<j;k++)s-=L[i][k]*L[j][k];if(i===j){L[i][j]=Math.sqrt(s);s2+=Math.log(L[i][j])}else L[i][j]=s/L[j][j]}return 2*s2}
+const EDGES_S=[[0,0],[1,1],[2,2],[3,3],[0,1],[2,3],[0,2],[1,3]],EDGES_SP=[[0,0],[1,1],[2,2],[3,3],[0,1],[0,2],[1,3]];
+function precFrom(th,edges){const R=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];th.forEach((t,k)=>{const [i,j]=edges[k];R[i][j]=t;R[j][i]=t});return R}
+function covSelect(S,edges){
+ let th=edges.map(([i,j])=>i===j?1:0);const m=th.length;
+ const resid=t=>{const Sh=matInv(precFrom(t,edges));return [edges.map(([i,j])=>Sh[i][j]-S[i][j]),Sh]};
+ for(let it=0;it<100;it++){
+  const [r]=resid(th);if(Math.max(...r.map(Math.abs))<1e-14)break;
+  const J=Array.from({length:m},()=>new Array(m).fill(0)),h=1e-7;
+  for(let k=0;k<m;k++){const tp=th.slice(),tm=th.slice();tp[k]+=h;tm[k]-=h;const rp=resid(tp)[0],rm=resid(tm)[0];for(let i=0;i<m;i++)J[i][k]=(rp[i]-rm[i])/(2*h)}
+  const step=solveLin(J,r);let lam=1,nt;for(let q=0;q<60;q++){nt=th.map((t,i)=>t-lam*step[i]);if(cholOK(precFrom(nt,edges)))break;lam/=2}th=nt;
+ }
+ return resid(th)[1];
+}
+function gaussGI(A,V){
+ const S=[[1,0,A[0][0],A[1][0]],[0,1,A[0][1],A[1][1]],[0,0,0,0],[0,0,0,0]];
+ // Sigma = [[I, A^T],[A, A A^T + V]]
+ const AAt=[[A[0][0]*A[0][0]+A[0][1]*A[0][1],A[0][0]*A[1][0]+A[0][1]*A[1][1]],[A[0][0]*A[1][0]+A[0][1]*A[1][1],A[1][0]*A[1][0]+A[1][1]*A[1][1]]];
+ for(let i=0;i<2;i++)for(let j=0;j<2;j++){S[2+i][j]=A[i][j];S[j][2+i]=A[i][j];S[2+i][2+j]=AAt[i][j]+V[i][j]}
+ S[0][0]=1;S[1][1]=1;S[0][1]=0;S[1][0]=0;
+ const Sh=covSelect(S,EDGES_S),Shp=covSelect(S,EDGES_SP),ld=logdetSPD;
+ const GI=0.5*(ld(Sh)-ld(S)),GIp=0.5*(ld(Shp)-ld(S)),I=0.5*(ld([[S[0][0],S[0][1]],[S[1][0],S[1][1]]])+ld([[S[2][2],S[2][3]],[S[3][2],S[3][3]]])-ld(S));
+ const f=a=>{const D=[[A[0][0]-a[0],A[0][1]],[A[1][0],A[1][1]-a[1]]],W=[[V[0][0]+D[0][0]*D[0][0]+D[0][1]*D[0][1],V[0][1]+D[0][0]*D[1][0]+D[0][1]*D[1][1]],[V[1][0]+D[1][0]*D[0][0]+D[1][1]*D[0][1],V[1][1]+D[1][0]*D[1][0]+D[1][1]*D[1][1]]];return 0.5*(ld(W)-ld(V))};
+ const newton=a0=>{let a=a0.slice();
+  for(let it=0;it<60;it++){const h=1e-5,g=[0,0],H=[[0,0],[0,0]];for(let i=0;i<2;i++){const e=[0,0];e[i]=h;g[i]=(f([a[0]+e[0],a[1]+e[1]])-f([a[0]-e[0],a[1]-e[1]]))/(2*h);for(let j=0;j<2;j++){const e2=[0,0];e2[j]=h;H[i][j]=(f([a[0]+e[0]+e2[0],a[1]+e[1]+e2[1]])-f([a[0]+e[0]-e2[0],a[1]+e[1]-e2[1]])-f([a[0]-e[0]+e2[0],a[1]-e[1]+e2[1]])+f([a[0]-e[0]-e2[0],a[1]-e[1]-e2[1]]))/(4*h*h)}}
+   if(!(Math.max(Math.abs(g[0]),Math.abs(g[1]))>=1e-13))break;const Hi=inv2(H),st=[Hi[0][0]*g[0]+Hi[0][1]*g[1],Hi[1][0]*g[0]+Hi[1][1]*g[1]];let lam=1;const f0=f(a);while(lam>1e-8&&!(f([a[0]-lam*st[0],a[1]-lam*st[1]])<=f0))lam/=2;if(!(f([a[0]-lam*st[0],a[1]-lam*st[1]])<=f0))break;a=[a[0]-lam*st[0],a[1]-lam*st[1]]}
+  return a};
+ const Lg=3+Math.max(...A.flat().map(Math.abs)),grid=[];for(let i=0;i<61;i++)for(let j=0;j<61;j++){const u=-Lg+2*Lg*i/60,w=-Lg+2*Lg*j/60;const v=f([u,w]);if(isFinite(v))grid.push([v,u,w])}
+ grid.sort((p,q)=>p[0]-q[0]);let a=newton([A[0][0],A[1][1]]);for(const [,u,w] of grid.slice(0,6)){const c=newton([u,w]);if(f(c)<f(a))a=c}
+
+ const ahat=(M)=>{const Sxx=[[M[0][0],M[0][1]],[M[1][0],M[1][1]]],Sxxi=inv2(Sxx),Syx=[[M[2][0],M[2][1]],[M[3][0],M[3][1]]];return [[Syx[0][0]*Sxxi[0][0]+Syx[0][1]*Sxxi[1][0],Syx[0][0]*Sxxi[0][1]+Syx[0][1]*Sxxi[1][1]],[Syx[1][0]*Sxxi[0][0]+Syx[1][1]*Sxxi[1][0],Syx[1][0]*Sxxi[0][1]+Syx[1][1]*Sxxi[1][1]]]};
+ return {GI,GIp,GIpp:f(a),I,Ahat:ahat(Sh),Ahatp:ahat(Shp),adiag:a};
+}
+// ---- input-output tables
+const IO_A=[[20,12,6],[10,30,14],[5,18,25]],IO_B=[[22,9,8],[14,26,11],[4,20,32]];
+const sum2=M=>M.reduce((s,r)=>s+r.reduce((a,b)=>a+b,0),0);
+const rowSums=M=>M.map(r=>r.reduce((a,b)=>a+b,0)),colSums=M=>M[0].map((_,j)=>M.reduce((s,r)=>s+r[j],0));
+function ras(K,r,c,iters){let A=K.map(x=>x.slice());for(let it=0;it<iters;it++){const rs=rowSums(A);A=A.map((row,i)=>row.map(v=>v*r[i]/rs[i]));const cs=colSums(A);A=A.map(row=>row.map((v,j)=>v*c[j]/cs[j]))}return A}
+function Dio(A,B){let s=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++)s+=B[i][j]*Math.log(B[i][j]/A[i][j])-B[i][j]+A[i][j];return s}
+function Ltil(A){const L=A.map(r=>r.map(Math.log));return [[0,1].map(j=>0),[0,1].map(j=>0)].map((row,i)=>row.map((_,j)=>L[i][j]-L[i][2]-L[2][j]+L[2][2]))}
+function ioDecomp(A,B){const TA=sum2(A),Bs=B.map(r=>r.map(v=>v*TA/sum2(B))),rB=rowSums(Bs),cB=colSums(Bs),rA=rowSums(A),cA=colSums(A);const Rba=ras(A,rB,cB,2000),Rab=ras(Bs,rA,cA,2000);return {Bs,Dab:Dio(A,Bs),viaBA:Dio(A,Rba)+Dio(Rba,Bs),viaAB:Dio(A,Rab)+Dio(Rab,Bs),Dba:Dio(Bs,A),viaAB_rev:Dio(Bs,Rab)+Dio(Rab,A)}}
+</script>
+
+<script id="widgets">
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f6=v=>v.toFixed(6),f9=v=>v.toFixed(9);
+const ex=v=>{if(v===0)return "0";if(v>=0.01)return v.toFixed(4);const p=v.toExponential(1).split("e"),e=parseInt(p[1],10);return p[0]+"e"+(e<0?"−":"+")+Math.abs(e)};
+const exd=v=>v<1e-7?"&lt; 1e-7":ex(v);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const mn=v=>Math.abs(v)<5e-5?"0.0000":(v<0?"−":"")+Math.abs(v).toFixed(4);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fy||f2)(v)})};
+function arrow(P,x1,y1,x2,y2,col,sw,head){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<1e-6)return;const ux=dx/L,uy=dy/L,hx=x2-ux*head,hy=y2-uy*head;el("line",{x1,y1,x2:hx,y2:hy,stroke:col,"stroke-width":sw,"stroke-linecap":"round"},P);el("polygon",{points:`${x2},${y2} ${hx-uy*head*.42},${hy+ux*head*.42} ${hx+uy*head*.42},${hy-ux*head*.42}`,fill:col},P)}
+function bars(S,x0,y0,w,h,items,ymax,fmt,title){
+ const P=axes(S,x0,y0,w,h,[0,items.length],[0,ymax],null);if(title)el("text",{x:x0,y:y0-8,fill:"var(--muted)","font-size":11},S).textContent=title;
+ const n=items.length,bw=w/n*0.62;
+ items.forEach((it,k)=>{const cx=P.X(k+0.5),top=P.Y(Math.max(0,Math.min(ymax,it.v)));el("rect",{x:cx-bw/2,y:top,width:bw,height:P.Y(0)-top,fill:it.c,opacity:.85},P.G);el("text",{x:cx,y:Math.max(top-4,y0+11),"text-anchor":"middle",fill:"var(--ink)","font-size":10},S).textContent=fmt(it.v);
+  const lab=el("text",{x:cx,y:y0+h+13,"text-anchor":"middle",fill:"var(--muted)","font-size":9.5},S);lab.textContent=it.l});
+ return P;
+}
+
+// ===== widget 1: transport round a loop
+(function(){
+ const A0=[1,0.3],B0=[-0.2,0.8];
+ function draw(){
+  const al=+g("w1a").value,z=+g("w1z").value,mode=g("w1m").value;g("w1ao").textContent=al.toFixed(1);g("w1zo").textContent=z.toFixed(1);
+  const dual=transportLoop(al,-al,z,A0,B0,2000),same=transportLoop(al,al,z,A0,B0,2000),lc=transportLoop(0,0,z,A0,B0,2000);
+  const sel=mode==="dual"?dual:(mode==="same"?same:lc);
+  const L=g("w1l");clear(L);const P=axes(L,36,12,296,256,[0,2],[1,3],"loop: A in blue, B in orange","μ","σ");ticks(P,[0.5,1,1.5],[1.5,2,2.5],f2,f2);
+  path(P.G,Array.from({length:121},(_,i)=>{const c=sel.curve(i/120);return [P.X(c[0]),P.Y(c[1])]}),"var(--faint)",1.2);
+  const k=0.22;
+  for(let i=0;i<8;i++){const c=sel.curve(i/8),A=sel.AA[i],B=sel.BB[i];
+   arrow(L,P.X(c[0]),P.Y(c[1]),P.X(c[0]+k*A[0]),P.Y(c[1]+k*A[1]),"var(--s1)",1.8,6);arrow(L,P.X(c[0]),P.Y(c[1]),P.X(c[0]+k*B[0]),P.Y(c[1]+k*B[1]),"var(--s2)",1.8,6);
+   el("circle",{cx:P.X(c[0]),cy:P.Y(c[1]),r:2.2,fill:"var(--faint)"},L)}
+  const all=[...dual.ip,...same.ip,...lc.ip],lo=Math.min(...all),hi=Math.max(...all),pad=0.1*(hi-lo)+0.02;
+  const R=g("w1r");clear(R);const Q=axes(R,46,12,270,256,[0,1],[lo-pad,hi+pad],"⟨A, B⟩ in the Fisher metric","t along the loop","");ticks(Q,[0,0.25,0.5,0.75,1],[0,0.05,0.1].filter(v=>v>lo-pad&&v<hi+pad),f2,f2);
+  const mk=(c,col,wd,dash)=>path(Q.G,c.ip.map((v,i)=>[Q.X(i/(c.ip.length-1)),Q.Y(v)]),col,wd,dash);
+  mk(lc,"var(--s3)",1.6,"5 3");mk(same,"var(--s2)",mode==="same"?2.8:1.6);mk(dual,"var(--s1)",mode==="dual"?2.8:1.6);
+  const ip=sel.ip,drift=Math.max(...ip.map(v=>Math.abs(v-ip[0]))),dA=Math.hypot(sel.A[0]-A0[0],sel.A[1]-A0[1]),dB=Math.hypot(sel.B[0]-B0[0],sel.B[1]-B0[1]);
+  g("w1s").innerHTML=`<div>⟨A,B⟩ at the start <b>${f6(ip[0])}</b></div><div>at the end <b>${f6(ip[ip.length-1])}</b></div><div>largest drift <b>${drift<1e-12?"&lt; 1e-12":drift.toFixed(4)}</b></div><div>|A<sub>end</sub> − A<sub>0</sub>| <b>${dA<1e-9?"&lt; 1e-9":f4(dA)}</b></div><div>|B<sub>end</sub> − B<sub>0</sub>| <b>${dB<1e-9?"&lt; 1e-9":f4(dB)}</b></div>`;
+ }
+ ["w1a","w1z"].forEach(i=>g(i).addEventListener("input",draw));g("w1m").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 2: Eguchi's construction
+(function(){
+ function draw(){
+  const kind=g("w2d").value,al=+g("w2a").value,mu=+g("w2m").value,s=+g("w2s").value,x=[mu,s];
+  g("w2ao").textContent=al.toFixed(1);g("w2mo").textContent=mu.toFixed(1);g("w2so").textContent=s.toFixed(1);
+  let D,pa;const Da=alphaDivG(al);
+  if(kind==="alpha"){D=Da;pa=al}else if(kind==="klpq"){D=klG;pa=-1}else if(kind==="klqp"){D=(a,b)=>klG(b,a);pa=1}else if(kind==="half"){D=(a,b)=>0.5*frDistG(a,b)**2;pa=0}
+  else if(kind==="cubic"){D=(a,b)=>Da(a,b)+0.5*(b[0]-a[0])**3;pa=al}else{D=(a,b)=>{const d=Da(a,b),dx=b[0]-a[0],dy=b[1]-a[1];return d+3*d*d+3*(dx*dx+dy*dy)**2};pa=al}
+  const geo=geometryFromD(D,x,0.01),g0=gaussMetric(x),T0=gaussT(x);
+  const Gp=lowerG(gaussGamma(pa,x),g0),Gq=lowerG(gaussGamma(-pa,x),g0);
+  const eg=maxAbs(geo.g.map((r,i)=>r.map((v,j)=>v-g0[i][j]))),e1=maxAbs(geo.Gam.map((a,i)=>a.map((b,j)=>b.map((c,k)=>c-Gp[i][j][k])))),e2=maxAbs(geo.Gs.map((a,i)=>a.map((b,j)=>b.map((c,k)=>c-Gq[i][j][k])))),e3=maxAbs(geo.Gs.map((a,i)=>a.map((b,j)=>b.map((c,k)=>c-geo.Gam[i][j][k]-pa*T0[i][j][k]))));
+  let rows="";const nm=["μ","σ"];
+  for(let i=0;i<2;i++)for(let j=i;j<2;j++)for(let k=0;k<2;k++){const T=geo.Gs[i][j][k]-geo.Gam[i][j][k];rows+=`<tr><td>(${nm[i]}${nm[j]}${nm[k]})</td><td>${mn(geo.Gam[i][j][k])}</td><td>${mn(Gp[i][j][k])}</td><td>${mn(geo.Gs[i][j][k])}</td><td>${mn(Gq[i][j][k])}</td><td>${mn(T)}</td><td>${mn(pa*T0[i][j][k])}</td></tr>`}
+  g("w2s_").innerHTML=`<div>metric from D: g<sub>μμ</sub> <b>${f4(geo.g[0][0])}</b>, g<sub>μσ</sub> <b>${f4(geo.g[0][1])}</b>, g<sub>σσ</sub> <b>${f4(geo.g[1][1])}</b> (Fisher ${f4(g0[0][0])}, 0, ${f4(g0[1][1])})</div><div>predicted α: <b>${pa>0?"+":""}${pa.toFixed(1)}</b></div><div>max |g − Fisher| <b>${exd(eg)}</b></div><div>max |Γ<sup>D</sup> − Γ<sup>(α)</sup>| <b>${exd(e1)}</b></div><div>max |Γ<sup>D*</sup> − Γ<sup>(−α)</sup>| <b>${exd(e2)}</b></div><div>max |T<sup>D</sup> − αT| <b>${exd(e3)}</b></div>`;
+  g("w2tab").innerHTML=`<table class="t"><tr><th>index</th><th>Γ<sup>D</sup><sub>ijk</sub> (from D)</th><th>Γ<sup>(α)</sup><sub>ijk</sub></th><th>Γ<sup>D*</sup><sub>ijk</sub> (from D)</th><th>Γ<sup>(−α)</sup><sub>ijk</sub></th><th>T<sup>D</sup></th><th>αT</th></tr>${rows}</table><div class="cap">Finite differences of D(p, q) with step 0.01 and Richardson extrapolation; residuals below 1e-7 are finite-difference noise (the script prints them to 1e-9). The rows i ≤ j are shown, the others follow by symmetry in the first two indices.</div>`;
+ }
+ ["w2a","w2m","w2s"].forEach(i=>g(i).addEventListener("input",draw));g("w2d").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 3: alpha-geodesics in the triangle, and curvature
+(function(){
+ const tri=(p1,p2)=>{const p3=1-p1-p2;return [p2+0.5*p3,0.8660254*p3]};
+ function draw(){
+  const al=+g("w3a").value,p0=[+g("w3p1").value,+g("w3p2").value],v0=[+g("w3v1").value,+g("w3v2").value];
+  g("w3ao").textContent=al.toFixed(1);g("w3p1o").textContent=p0[0].toFixed(2);g("w3p2o").textContent=p0[1].toFixed(2);g("w3v1o").textContent=v0[0].toFixed(2);g("w3v2o").textContent=v0[1].toFixed(2);
+  const L=g("w3l");clear(L);
+  const ox=20,oy=24,sx=300,X=(a,b)=>{const t=tri(a,b);return [ox+sx*t[0],oy+sx*(0.8660254-t[1])]};
+  const inside=p0[0]+p0[1]<0.98;
+  const corners=[[1,0],[0,1],[0,0]].map(c=>X(c[0],c[1]));
+  el("polygon",{points:corners.map(c=>c[0]+","+c[1]).join(" "),fill:"var(--soft)",stroke:"var(--faint)"},L);
+  el("text",{x:corners[0][0]+2,y:corners[0][1]+14,fill:"var(--muted)","font-size":10},L).textContent="p₁=1";el("text",{x:corners[1][0]-2,y:corners[1][1]+14,"text-anchor":"end",fill:"var(--muted)","font-size":10},L).textContent="p₂=1";el("text",{x:corners[2][0],y:corners[2][1]-6,"text-anchor":"middle",fill:"var(--muted)","font-size":10},L).textContent="p₃=1";
+  if(inside){
+   const traj=(a,col,wd,dash)=>{const acc=s2Acc(a);let x1=p0[0],x2=p0[1],v1=v0[0],v2=v0[1];const n=240,dt=1/n,pts=[X(x1,x2)];
+    for(let k=0;k<n;k++){const [a1,a2]=acc(x1,x2,v1,v2);let y1=x1+dt/2*v1,y2=x2+dt/2*v2,u1=v1+dt/2*a1,u2=v2+dt/2*a2;const [b1,b2]=acc(y1,y2,u1,u2);y1=x1+dt/2*u1;y2=x2+dt/2*u2;const w1=v1+dt/2*b1,w2=v2+dt/2*b2;const [c1,c2]=acc(y1,y2,w1,w2);y1=x1+dt*w1;y2=x2+dt*w2;const z1=v1+dt*c1,z2=v2+dt*c2;const [d1,d2]=acc(y1,y2,z1,z2);
+     x1+=dt/6*(v1+2*u1+2*w1+z1);x2+=dt/6*(v2+2*u2+2*w2+z2);v1+=dt/6*(a1+2*b1+2*c1+d1);v2+=dt/6*(a2+2*b2+2*c2+d2);if(!(x1>0.003&&x2>0.003&&1-x1-x2>0.003))break;pts.push(X(x1,x2))}
+    path(L,pts,col,wd,dash);return [x1,x2]};
+   traj(0,"var(--s3)",1.2);const e1=traj(-al,"var(--s2)",2,"5 3"),e2=traj(al,"var(--s1)",2.8);
+   const c=X(p0[0],p0[1]);el("circle",{cx:c[0],cy:c[1],r:4.5,fill:"var(--s4)",stroke:"var(--surface)"},L);
+  }
+  const gm=s2Metric(p0[0]+p0[1]<0.98?p0:[0.3,0.25]),pt=p0[0]+p0[1]<0.98?p0:[0.3,0.25];
+  const Kof=a=>kCoef(riemannFD(x=>s2Gamma(a,x),pt,1e-5),gm),Ka=Kof(al),K0=Kof(0),Km=Kof(-al);
+  const R=g("w3r");clear(R);const Q=axes(R,46,12,286,256,[-1.6,1.6],[-0.65,0.35],"curvature coefficient K⁽ᵅ⁾ of the simplex","α","");ticks(Q,[-1,0,1],[-0.5,-0.25,0,0.25],f2,f2);
+  path(Q.G,Array.from({length:101},(_,i)=>{const a=-1.6+3.2*i/100;return [Q.X(a),Q.Y(0.25*(1-a*a))]}),"var(--s1)",2);
+  el("circle",{cx:Q.X(al),cy:Q.Y(Ka),r:5,fill:"var(--s2)"},Q.G);
+  g("w3s").innerHTML=`<div>K<sup>(α)</sup> computed <b>${f6(Ka)}</b></div><div>(1 − α²) K<sup>(0)</sup> <b>${f6((1-al*al)*K0)}</b></div><div>K<sup>(0)</sup> <b>${f6(K0)}</b></div><div>K<sup>(−α)</sup> <b>${f6(Km)}</b></div><div>${Math.abs(al)===1?"flat: the geodesics are straight in θ or η":"curved"}</div>${inside?"":"<div>start point outside the triangle</div>"}`;
+ }
+ ["w3a","w3p1","w3p2","w3v1","w3v2"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 4: canonical divergence and the projection condition
+(function(){
+ const defaults={gauss:{p1:[-1,3,0.05,1],p2:[0.8,3.5,0.05,2],q1:[-1,3,0.05,1.8],q2:[0.8,3.5,0.05,2.7]},s2:{p1:[0.05,0.9,0.01,0.3],p2:[0.05,0.9,0.01,0.25],q1:[0.05,0.9,0.01,0.4],q2:[0.05,0.9,0.01,0.3]}};
+ function setManifold(){const d=defaults[g("w4m").value];["p1","p2","q1","q2"].forEach(k=>{const e=g("w4"+k);e.min=d[k][0];e.max=d[k][1];e.step=d[k][2];e.value=d[k][3]})}
+ function draw(){
+  const man=g("w4m").value,al=+g("w4a").value,P=[+g("w4p1").value,+g("w4p2").value],Q=[+g("w4q1").value,+g("w4q2").value];
+  g("w4ao").textContent=al.toFixed(1);g("w4p1o").textContent=P[0].toFixed(2);g("w4p2o").textContent=P[1].toFixed(2);g("w4q1o").textContent=Q[0].toFixed(2);g("w4q2o").textContent=Q[1].toFixed(2);
+  const gs=man==="gauss",accP=gs?gaussAcc(al):s2Acc(al),accD=gs?gaussAcc(-al):s2Acc(-al),quad=gs?gaussQuad:s2Quad,gf=gs?gaussMetric:s2Metric,steps=64;
+  const bad=gs?(P[1]<=0||Q[1]<=0):(P[0]+P[1]>=0.97||Q[0]+Q[1]>=0.97);
+  const S=g("w4l");clear(S);
+  let cd=[NaN,NaN,NaN];if(!bad)cd=canonicalD(accP,accD,quad,P,Q,steps);
+  const Da=gs?alphaDivG(al):alphaDivS2(al),Dm=gs?alphaDivG(-al):alphaDivS2(-al),half=gs?0.5*frDistG(P,Q)**2:0.5*frDistS2(P,Q)**2;
+  // left panel: the two points and the two geodesics
+  let xr,yr,tr;if(gs){const mnx=Math.min(P[0],Q[0]),mxx=Math.max(P[0],Q[0]),mny=Math.min(P[1],Q[1]),mxy=Math.max(P[1],Q[1]),dx=Math.max(0.6,(mxx-mnx)*0.6),dy=Math.max(0.5,(mxy-mny)*0.6);xr=[mnx-dx,mxx+dx];yr=[Math.max(0.05,mny-dy),mxy+dy];tr=(a,b)=>[a,b]}else{xr=[-0.02,1.02];yr=[-0.02,0.9];tr=(a,b)=>{const p3=1-a-b;return [b+0.5*p3,0.8660254*p3]}}
+  const A=axes(S,36,12,296,256,xr,yr,gs?"geodesics from P to Q":"geodesics from P to Q in the triangle",gs?"μ":"",gs?"σ":"");
+  if(gs){const tk=(lo,hi)=>{const st=hi-lo>3?1:0.5;const o=[];for(let v=Math.ceil(lo/st)*st;v<=hi;v+=st)o.push(v);return o};ticks(A,tk(xr[0],xr[1]),tk(yr[0],yr[1]),f2,f2)}else{const c=[[1,0],[0,1],[0,0]].map(c_=>tr(c_[0],c_[1]));el("polygon",{points:c.map(q=>A.X(q[0])+","+A.Y(q[1])).join(" "),fill:"none",stroke:"var(--faint)"},A.G)}
+  const geo=(acc,col,dash)=>{const v=logMap(acc,quad,P,Q,steps);if(!v)return;const pts=[];const n=80;for(let k=0;k<=n;k++){const e=integ(acc,quad,P,v,0,Math.max(1,Math.round(steps*k/n))).x;pts.push(e)}
+   // integrate once with a trajectory instead: sample by repeated short integration
+   const traj=[];let x1=P[0],x2=P[1],v1=v[0],v2=v[1];const m=160,dt=1/m;traj.push([x1,x2]);
+   for(let k=0;k<m;k++){const [a1,a2]=acc(x1,x2,v1,v2);let y1=x1+dt/2*v1,y2=x2+dt/2*v2,u1=v1+dt/2*a1,u2=v2+dt/2*a2;const [b1,b2]=acc(y1,y2,u1,u2);y1=x1+dt/2*u1;y2=x2+dt/2*u2;const w1=v1+dt/2*b1,w2=v2+dt/2*b2;const [c1,c2]=acc(y1,y2,w1,w2);y1=x1+dt*w1;y2=x2+dt*w2;const z1=v1+dt*c1,z2=v2+dt*c2;const [d1,d2]=acc(y1,y2,z1,z2);x1+=dt/6*(v1+2*u1+2*w1+z1);x2+=dt/6*(v2+2*u2+2*w2+z2);v1+=dt/6*(a1+2*b1+2*c1+d1);v2+=dt/6*(a2+2*b2+2*c2+d2);traj.push([x1,x2])}
+   path(A.G,traj.map(q=>{const t=tr(q[0],q[1]);return [A.X(t[0]),A.Y(t[1])]}),col,2.2,dash)};
+  if(!bad){geo(accP,"var(--s1)");geo(accD,"var(--s2)","5 3")}
+  [[P,"P","var(--s4)"],[Q,"Q","var(--ink)"]].forEach(([pt,lab,col])=>{const t=tr(pt[0],pt[1]);el("circle",{cx:A.X(t[0]),cy:A.Y(t[1]),r:4.5,fill:col,stroke:"var(--surface)"},A.G);el("text",{x:A.X(t[0])+7,y:A.Y(t[1])-6,fill:"var(--ink)","font-size":11},S).textContent=lab});
+  // right panel: bars
+  const R=g("w4r");clear(R);
+  const items=[{l:"D̃",v:cd[0],c:"var(--s1)"},{l:"D̃*",v:cd[1],c:"var(--s1)"},{l:"D",v:cd[2],c:"var(--s1)"},{l:"D(α)",v:Da(P,Q),c:"var(--s2)"},{l:"D(−α)",v:Dm(P,Q),c:"var(--s2)"},{l:"½d²",v:half,c:"var(--s3)"}];
+  const ymax=Math.max(0.05,...items.map(i=>isFinite(i.v)?i.v:0))*1.15;
+  bars(R,46,28,286,240,items,ymax,v=>isFinite(v)?v.toFixed(4):"–","divergences between P and Q");
+  // angles
+  let angA=NaN,angD=NaN;if(!bad&&isFinite(cd[2])){angA=angleDeg(accP,quad,gf,Da,P,Q,steps);angD=angleDeg(accP,quad,gf,(a,b)=>canonicalD(accP,accD,quad,a,b,steps)[2],P,Q,steps)}
+  g("w4s").innerHTML=`<div>D̃ <b>${isFinite(cd[0])?f9(cd[0]):"no geodesic"}</b></div><div>D̃* <b>${isFinite(cd[1])?f9(cd[1]):"–"}</b></div><div>D = ½(D̃+D̃*) <b>${isFinite(cd[2])?f9(cd[2]):"–"}</b></div><div>D<sub>α</sub>[P:Q] <b>${f9(Da(P,Q))}</b>, D<sub>−α</sub>[P:Q] <b>${f9(Dm(P,Q))}</b>, ½d² <b>${f9(half)}</b></div><div>angle in (6.81), D<sub>α</sub>: <b>${isFinite(angA)?(angA<1e-3?angA.toExponential(1)+"°":angA.toFixed(4)+"°"):"–"}</b></div><div>angle in (6.81), D: <b>${isFinite(angD)?(angD<1e-3?angD.toExponential(1)+"°":angD.toFixed(4)+"°"):"–"}</b></div>`;
+ }
+ ["w4a","w4p1","w4p2","w4q1","w4q2"].forEach(i=>g(i).addEventListener("input",draw));g("w4m").addEventListener("change",()=>{setManifold();draw()});draw();
+})();
+
+// ===== widget 5: two neurons, mixed coordinates
+(function(){
+ const fmt=v=>(Math.abs(v)<1e-9?"0":(v<0?"−":"")+Math.abs(v).toFixed(3));
+ function matrix(S,x0,y0,M,title,labs){
+  const cs=70,ch=30;el("text",{x:x0,y:y0-8,fill:"var(--ink)","font-size":11},S).textContent=title;
+  const mx=Math.max(...M.flat().map(Math.abs));
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++){const v=M[i][j],zero=Math.abs(v)<1e-9,off=i!==j;el("rect",{x:x0+j*cs,y:y0+i*ch,width:cs,height:ch,fill:zero?"var(--surface)":(off?"var(--s2)":"var(--s1)"),opacity:zero?1:0.12+0.3*Math.min(1,Math.abs(v)/mx*(off?6:1)),stroke:"var(--faint)","stroke-width":.7},S);el("text",{x:x0+j*cs+cs/2,y:y0+i*ch+19,"text-anchor":"middle",fill:"var(--ink)","font-size":11},S).textContent=fmt(v)}
+  labs.forEach((l,k)=>el("text",{x:x0+k*cs+cs/2,y:y0+3*ch+13,"text-anchor":"middle",fill:"var(--muted)","font-size":10},S).textContent=l);
+ }
+ function draw(){
+  const e1=+g("w5e1").value,e2=+g("w5e2").value,t=+g("w5t").value,f1=+g("w5f1").value,f2_=+g("w5f2").value,u=+g("w5u").value;
+  g("w5e1o").textContent=e1.toFixed(2);g("w5e2o").textContent=e2.toFixed(2);g("w5to").textContent=t.toFixed(3);g("w5f1o").textContent=f1.toFixed(2);g("w5f2o").textContent=f2_.toFixed(2);g("w5uo").textContent=u.toFixed(3);
+  const p=pFromMixed(e1,e2,t),q=pFromMixed(f1,f2_,u),r=pFromMixed(e1,e2,u),r2=pFromMixed(f1,f2_,t);   // r = rates of p, interaction of q;  r' = rates of q, interaction of p
+  const B=mixedBlocks(p);
+  const S=g("w5l");clear(S);matrix(S,40,34,B.Gv,"metric in (η₁, η₂, v), v = Cov[x₁,x₂]",["η₁","η₂","v"]);matrix(S,40,176,B.Gm,"metric in (η₁, η₂; θ¹²)",["η₁","η₂","θ¹²"]);
+  const R=g("w5r");clear(R);
+  const items=[{l:"KL[p:q]",v:klArr(p,q),c:"var(--s1)"},{l:"via r",v:klArr(p,r)+klArr(r,q),c:"var(--s1)"},{l:"via r′",v:klArr(p,r2)+klArr(r2,q),c:"var(--s2)"},{l:"KL[q:p]",v:klArr(q,p),c:"var(--s3)"},{l:"via r′ (rev.)",v:klArr(q,r2)+klArr(r2,p),c:"var(--s3)"}];
+  bars(R,46,34,286,216,items,Math.max(0.1,...items.map(i=>i.v))*1.15,v=>v.toFixed(4),"");
+  el("text",{x:52,y:24,fill:"var(--muted)","font-size":11},R).textContent="KL[p:q] and its two decompositions";
+  const c1=B.Gv[0][2]/Math.sqrt(B.Gv[0][0]*B.Gv[2][2]),c2=B.Gv[1][2]/Math.sqrt(B.Gv[1][1]*B.Gv[2][2]);
+  const row=(n,a)=>`<tr><td>${n}</td>${a.map(v=>`<td>${v.toFixed(4)}</td>`).join("")}</tr>`;
+  g("w5tab").innerHTML=`<table class="t"><tr><th></th><th>00</th><th>01</th><th>10</th><th>11</th></tr>${row("p",p)}${row("q",q)}${row("r (rates of p, interaction of q)",r)}${row("r′ (rates of q, interaction of p)",r2)}</table>
+  <div class="stats"><div>cos(∂<sub>v</sub>, ∂<sub>η₁</sub>) <b>${f4(c1)}</b>, cos(∂<sub>v</sub>, ∂<sub>η₂</sub>) <b>${f4(c2)}</b></div><div>η block in the mixed chart: (G₁₁)⁻¹ = <b>[[${f4(B.Gm[0][0])}, ${f4(B.Gm[0][1])}], [${f4(B.Gm[1][0])}, ${f4(B.Gm[1][1])}]]</b>, read literally (6.90) would give [[${f4(B.printed.eta[0][0])}, ${f4(B.printed.eta[0][1])}], [${f4(B.printed.eta[1][0])}, ${f4(B.printed.eta[1][1])}]]</div><div>θ¹² entry: Schur complement <b>${f4(B.Gm[2][2])}</b>, G(θ¹²,θ¹²) = ${f4(B.printed.th)}</div></div>`;
+ }
+ ["w5e1","w5e2","w5t","w5f1","w5f2","w5u"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 6: Gaussian channel
+(function(){
+ function draw(){
+  const a=+g("w6a").value,d=+g("w6d").value,b=+g("w6b").value,c=+g("w6c").value,rho=+g("w6r").value;
+  g("w6ao").textContent=a.toFixed(2);g("w6do").textContent=d.toFixed(2);g("w6bo").textContent=b.toFixed(2);g("w6co").textContent=c.toFixed(2);g("w6ro").textContent=rho.toFixed(2);
+  const r=gaussGI([[a,b],[c,d]],[[1,rho],[rho,1]]);
+  const S=g("w6l");clear(S);
+  const items=[{l:"I(X:Y)",v:r.I,c:"var(--faint)"},{l:"GI′ (M′)",v:r.GIp,c:"var(--s2)"},{l:"GI (M)",v:r.GI,c:"var(--s1)"},{l:"GI″ (curved)",v:Math.max(0,r.GIpp),c:"var(--s3)"}];
+  bars(S,46,28,286,190,items,Math.max(0.1,...items.map(i=>i.v))*1.15,v=>v.toFixed(4),"geometric measures, in nats");
+  const m=M=>`[[${f4(M[0][0])}, ${f4(M[0][1])}], [${f4(M[1][0])}, ${f4(M[1][1])}]]`;
+  g("w6tab").innerHTML=`<table class="t"><tr><th></th><th>projection Â</th></tr><tr><td>true A</td><td>${m([[a,b],[c,d]])}</td></tr><tr><td>Â of the split model M<sub>S</sub> (GI)</td><td>${m(r.Ahat)}</td></tr><tr><td>Â′ of M<sub>S</sub>′ (GI′)</td><td>${m(r.Ahatp)}</td></tr><tr><td>diagonal Â″ of the curved model</td><td>[${f4(r.adiag[0])}, ${f4(r.adiag[1])}]</td></tr></table>`;
+  g("w6s").innerHTML=`<div>I(X:Y) <b>${f4(r.I)}</b></div><div>GI <b>${f4(r.GI)}</b></div><div>GI′ <b>${f4(r.GIp)}</b></div><div>GI″ <b>${f4(Math.abs(r.GIpp)<1e-9?0:r.GIpp)}</b></div><div>GI′ − GI <b>${f6(r.GIp-r.GI)}</b> = ½ log det Σ̂′/Σ̂ ≥ 0</div><div>${r.GIp>r.I+1e-9?"GI′ &gt; I(X:Y): postulate (6.124) violated":(r.GI<=r.I+1e-9?"GI ≤ I(X:Y) holds":"")}</div>`;
+ }
+ ["w6a","w6d","w6b","w6c","w6r"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 7: input-output tables
+(function(){
+ const dec=ioDecomp(IO_A,IO_B);
+ const S1=(A_)=>A_.map((r,i)=>r.map((v,j)=>Math.log(v/(rowSums(A_)[i]*colSums(A_)[j]))));
+ function table(S,x0,y0,M,title,cs,showMargins){
+  el("text",{x:x0,y:y0-6,fill:"var(--ink)","font-size":11},S).textContent=title;
+  const mx=Math.max(...M.flat());
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++){el("rect",{x:x0+j*cs,y:y0+i*26,width:cs,height:26,fill:"var(--s1)",opacity:0.1+0.45*M[i][j]/mx,stroke:"var(--faint)","stroke-width":.6},S);el("text",{x:x0+j*cs+cs/2,y:y0+i*26+17,"text-anchor":"middle",fill:"var(--ink)","font-size":10.5},S).textContent=M[i][j].toFixed(1)}
+  const rs=rowSums(M),cs_=colSums(M);rs.forEach((v,i)=>el("text",{x:x0+3*cs+6,y:y0+i*26+17,fill:"var(--muted)","font-size":10},S).textContent=v.toFixed(1));cs_.forEach((v,j)=>el("text",{x:x0+j*cs+cs/2,y:y0+3*26+13,"text-anchor":"middle",fill:"var(--muted)","font-size":10},S).textContent=v.toFixed(1));
+ }
+ function draw(){
+  const mu=["w7m1","w7m2","w7m3"].map(i=>+g(i).value),lam=["w7l1","w7l2","w7l3"].map(i=>+g(i).value);
+  ["w7m1","w7m2","w7m3","w7l1","w7l2","w7l3"].forEach(i=>g(i+"o").textContent=(+g(i).value).toFixed(2));
+  const Ab=IO_A.map((r,i)=>r.map((v,j)=>v*mu[i]*lam[j])),rA=rowSums(IO_A),cA=colSums(IO_A),rb=rowSums(Ab),cb=colSums(Ab);
+  const S=g("w7l");clear(S);table(S,10,28,IO_A,"A (margins at right and below)",66);table(S,10,150,Ab,"Ā = μᵢ λⱼ Aᵢⱼ (scaled table)",66);
+  const Lt0=Ltil(IO_A),Lt1=Ltil(Ab),dL=maxAbs(Lt1.map((r,i)=>r.map((v,j)=>v-Lt0[i][j]))),S0=S1(IO_A),S2=S1(Ab),dS=maxAbs(S2.map((r,i)=>r.map((v,j)=>v-S0[i][j])));
+  const R=g("w7r");clear(R);
+  const items=[{l:"D[A:B]",v:dec.Dab,c:"var(--s1)"},{l:"via R",v:dec.viaBA,c:"var(--s1)"},{l:"via R′",v:dec.viaAB,c:"var(--s2)"}];
+  bars(R,46,34,286,170,items,Math.max(0.5,...items.map(i=>i.v))*1.15,v=>v.toFixed(5),"");
+  el("text",{x:52,y:24,fill:"var(--muted)","font-size":11},R).textContent="D[A:B] and its two decompositions (fixed B)";
+  const rr=rb.map((v,i)=>v/rA[i]),cr=cb.map((v,j)=>v/cA[j]);
+  g("w7s").innerHTML=`<div>row sums change by <b>${rr.map(v=>f4(v)).join(", ")}</b> (μ = ${mu.map(v=>v.toFixed(2)).join(", ")})</div><div>column sums change by <b>${cr.map(v=>f4(v)).join(", ")}</b> (λ = ${lam.map(v=>v.toFixed(2)).join(", ")})</div><div>max change of L̃ <b>${dL<1e-12?"&lt; 1e-12":ex(dL)}</b></div><div>max change of S<sub>ij</sub> <b>${dS<1e-12?"0":f4(dS)}</b></div><div>D[A:B] = <b>${dec.Dab.toFixed(8)}</b>; via R: <b>${dec.viaBA.toFixed(8)}</b>; via R′: <b>${dec.viaAB.toFixed(8)}</b></div><div>reversed: D[B:A] = ${dec.Dba.toFixed(8)} = via R′ ${dec.viaAB_rev.toFixed(8)}</div>`;
+ }
+ ["w7m1","w7m2","w7m3","w7l1","w7l2","w7l3"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
