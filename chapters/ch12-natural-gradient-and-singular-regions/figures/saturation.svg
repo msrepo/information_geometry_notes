@@ -1,0 +1,110 @@
+<svg viewBox="0 0 800 405" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Saturation: natural against plain gradient on one neuron</title>
+<desc>Left: on logarithmic axes, for one erf neuron with noise variance 1 and true weight 1, the squared size of the plain gradient falls like w to the minus 3, the natural gradient's Riemannian size stays between 1 and 1.4, and the squared size of the natural step in weight units grows like w cubed, reaching 3100 at w = 8. Right: distance to the true weight against the number of iterations for the averaged plain gradient with step 1, which needs 124 iterations, and the averaged natural gradient with step 0.5, which needs 4; dots show medians of online runs.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="70" y1="289.3" x2="390" y2="289.3"/>
+<text class="sm" x="64" y="292.8" text-anchor="end">10⁻³</text>
+<line class="gd" x1="70" y1="239.3" x2="390" y2="239.3"/>
+<text class="sm" x="64" y="242.8" text-anchor="end">10⁻¹·⁵</text>
+<line class="gd" x1="70" y1="189.3" x2="390" y2="189.3"/>
+<text class="sm" x="64" y="192.8" text-anchor="end">1</text>
+<line class="gd" x1="70" y1="139.3" x2="390" y2="139.3"/>
+<text class="sm" x="64" y="142.8" text-anchor="end">10¹·⁵</text>
+<line class="gd" x1="70" y1="89.3" x2="390" y2="89.3"/>
+<text class="sm" x="64" y="92.8" text-anchor="end">10³</text>
+<line class="gd" x1="92.9" y1="56" x2="92.9" y2="306"/>
+<text class="sm" x="92.9" y="321" text-anchor="middle">0.5</text>
+<line class="gd" x1="164.2" y1="56" x2="164.2" y2="306"/>
+<text class="sm" x="164.2" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="235.4" y1="56" x2="235.4" y2="306"/>
+<text class="sm" x="235.4" y="321" text-anchor="middle">2</text>
+<line class="gd" x1="306.7" y1="56" x2="306.7" y2="306"/>
+<text class="sm" x="306.7" y="321" text-anchor="middle">4</text>
+<line class="gd" x1="377.9" y1="56" x2="377.9" y2="306"/>
+<text class="sm" x="377.9" y="321" text-anchor="middle">8</text>
+<line class="ax" x1="70" y1="306" x2="390" y2="306"/>
+<line class="ax" x1="70" y1="56" x2="70" y2="306"/>
+<text class="lab" x="230.0" y="338" text-anchor="middle">w</text>
+<text class="lab" transform="translate(30,181.0) rotate(-90)" text-anchor="middle">value</text>
+<text class="hd" x="70" y="44">One erf neuron, y = φ(w₀x) + noise, w₀ = 1</text>
+<polyline class="ln s2" points="70.0,200.1 79.1,201.4 88.3,202.8 97.4,204.3 106.6,206.0 115.7,207.8 124.9,209.8 134.0,211.9 143.1,214.1 152.3,216.5 161.4,219.0 170.6,221.6 179.7,224.3 188.9,227.1 198.0,229.9 207.1,232.9 216.3,235.9 225.4,239.0 234.6,242.2 243.7,245.4 252.9,248.7 262.0,252.0 271.1,255.4 280.3,258.8 289.4,262.2 298.6,265.7 307.7,269.2 316.9,272.7 326.0,276.3 335.1,279.9 344.3,283.5 353.4,287.1 362.6,290.8 371.7,294.5 380.9,298.2 390.0,301.9"/>
+<polyline class="ln s1" points="70.0,187.5 79.1,187.8 88.3,188.1 97.4,188.3 106.6,188.6 115.7,188.8 124.9,189.0 134.0,189.1 143.1,189.2 152.3,189.3 161.4,189.3 170.6,189.3 179.7,189.3 188.9,189.2 198.0,189.1 207.1,188.9 216.3,188.7 225.4,188.5 234.6,188.3 243.7,188.0 252.9,187.8 262.0,187.5 271.1,187.3 280.3,187.0 289.4,186.8 298.6,186.5 307.7,186.3 316.9,186.1 326.0,185.9 335.1,185.7 344.3,185.5 353.4,185.3 362.6,185.1 371.7,185.0 380.9,184.9 390.0,184.7"/>
+<polyline class="ln s3" points="70.0,174.9 79.1,174.2 88.3,173.4 97.4,172.3 106.6,171.1 115.7,169.7 124.9,168.1 134.0,166.3 143.1,164.3 152.3,162.1 161.4,159.7 170.6,157.1 179.7,154.3 188.9,151.3 198.0,148.2 207.1,144.9 216.3,141.5 225.4,138.0 234.6,134.3 243.7,130.6 252.9,126.9 262.0,123.0 271.1,119.2 280.3,115.2 289.4,111.3 298.6,107.4 307.7,103.4 316.9,99.4 326.0,95.4 335.1,91.4 344.3,87.5 353.4,83.5 362.6,79.5 371.7,75.5 380.9,71.6 390.0,67.6"/>
+<circle class="f2 ring" cx="92.9" cy="203.6" r="3.6"/>
+<circle class="f1 ring" cx="92.9" cy="188.2" r="3.6"/>
+<circle class="f3 ring" cx="92.9" cy="172.9" r="3.6"/>
+<circle class="f2 ring" cx="164.2" cy="219.7" r="3.6"/>
+<circle class="f1 ring" cx="164.2" cy="189.3" r="3.6"/>
+<circle class="f3 ring" cx="164.2" cy="158.9" r="3.6"/>
+<circle class="f2 ring" cx="235.4" cy="242.5" r="3.6"/>
+<circle class="f1 ring" cx="235.4" cy="188.3" r="3.6"/>
+<circle class="f3 ring" cx="235.4" cy="134.0" r="3.6"/>
+<circle class="f2 ring" cx="306.7" cy="268.8" r="3.6"/>
+<circle class="f1 ring" cx="306.7" cy="186.3" r="3.6"/>
+<circle class="f3 ring" cx="306.7" cy="103.9" r="3.6"/>
+<circle class="f2 ring" cx="377.9" cy="297.0" r="3.6"/>
+<circle class="f1 ring" cx="377.9" cy="184.9" r="3.6"/>
+<circle class="f3 ring" cx="377.9" cy="72.8" r="3.6"/>
+<line class="s2" style="stroke-width:2.2" x1="86" y1="70" x2="108" y2="70"/>
+<text class="sm" x="114" y="73.5">plain: E|∇l|² = Ḡ</text>
+<line class="s1" style="stroke-width:2.2" x1="86" y1="85" x2="108" y2="85"/>
+<text class="sm" x="114" y="88.5">natural: tr(Ḡ G⁻¹)</text>
+<line class="s3" style="stroke-width:2.2" x1="86" y1="100" x2="108" y2="100"/>
+<text class="sm" x="114" y="103.5">natural step in w: Ḡ/G²</text>
+<line class="gd" x1="470" y1="240.8" x2="770" y2="240.8"/>
+<text class="sm" x="464" y="244.3" text-anchor="end">0.1</text>
+<line class="gd" x1="470" y1="132.1" x2="770" y2="132.1"/>
+<text class="sm" x="464" y="135.6" text-anchor="end">1</text>
+<line class="gd" x1="470.0" y1="56" x2="470.0" y2="306"/>
+<text class="sm" x="470.0" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="581.1" y1="56" x2="581.1" y2="306"/>
+<text class="sm" x="581.1" y="321" text-anchor="middle">10</text>
+<line class="gd" x1="692.2" y1="56" x2="692.2" y2="306"/>
+<text class="sm" x="692.2" y="321" text-anchor="middle">100</text>
+<line class="ax" x1="470" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="470" y1="56" x2="470" y2="306"/>
+<text class="lab" x="620.0" y="338" text-anchor="middle">iteration t</text>
+<text class="lab" transform="translate(430,181.0) rotate(-90)" text-anchor="middle">|w − w₀|</text>
+<text class="hd" x="470" y="44">From w = 4: averaged and online</text>
+<polyline class="ln s2" points="470.0,80.2 503.4,80.5 523.0,80.8 536.9,81.1 547.7,81.3 556.5,81.6 563.9,81.9 570.3,82.2 576.0,82.5 581.1,82.8 585.7,83.1 589.9,83.4 593.8,83.7 597.3,84.0 600.7,84.4 603.8,84.7 606.7,85.0 609.5,85.3 612.1,85.7 614.6,86.0 616.9,86.4 619.2,86.7 621.3,87.1 623.4,87.4 625.3,87.8 627.2,88.2 629.0,88.6 630.8,89.0 632.5,89.3 634.1,89.7 635.7,90.2 637.2,90.6 638.7,91.0 640.2,91.4 641.6,91.8 642.9,92.3 644.2,92.7 645.5,93.2 646.8,93.6 648.0,94.1 649.2,94.6 650.4,95.1 651.5,95.6 652.6,96.1 653.7,96.6 654.8,97.1 655.8,97.7 656.8,98.2 657.8,98.8 658.8,99.4 659.7,99.9 660.7,100.5 661.6,101.2 662.5,101.8 663.4,102.4 664.2,103.1 665.1,103.7 665.9,104.4 666.8,105.1 667.6,105.8 668.4,106.6 669.2,107.3 669.9,108.1 670.7,108.9 671.4,109.7 672.2,110.5 672.9,111.4 673.6,112.3 674.3,113.2 675.0,114.1 675.7,115.1 676.4,116.1 677.0,117.1 677.7,118.1 678.3,119.2 679.0,120.3 679.6,121.5 680.2,122.7 680.8,123.9 681.5,125.2 682.1,126.5 682.6,127.9 683.2,129.3 683.8,130.8 684.4,132.3 684.9,133.9 685.5,135.6 686.1,137.3 686.6,139.1 687.1,140.9 687.7,142.9 688.2,144.9 688.7,147.0 689.2,149.2 689.7,151.5 690.3,153.8 690.8,156.3 691.2,158.9 691.7,161.6 692.2,164.4 692.7,167.3 693.2,170.4 693.6,173.6 694.1,176.9 694.6,180.3 695.0,183.9 695.5,187.6 695.9,191.5 696.4,195.5 696.8,199.6 697.3,203.9 697.7,208.3 698.1,212.8 698.5,217.5 699.0,222.2 699.4,227.1 699.8,232.1 700.2,237.2 700.6,242.4 701.0,247.7 701.4,253.1 701.8,258.6 702.2,264.1 702.6,269.7 703.0,275.4 703.4,281.1 703.8,286.9 704.1,292.7 704.5,298.5 704.9,304.4"/>
+<polyline class="ln s1" points="470.0,80.2 503.4,171.7 523.0,214.9 536.9,251.8 547.7,286.4"/>
+<circle class="f2 ring" cx="581.1" cy="82.5" r="3.6"/>
+<circle class="f2 ring" cx="634.1" cy="89.0" r="3.6"/>
+<circle class="f2 ring" cx="692.2" cy="126.4" r="3.6"/>
+<circle class="f2 ring" cx="759.1" cy="143.0" r="3.6"/>
+<circle class="f1 ring" cx="581.1" cy="127.8" r="3.6"/>
+<circle class="f1 ring" cx="634.1" cy="181.4" r="3.6"/>
+<circle class="f1 ring" cx="692.2" cy="188.5" r="3.6"/>
+<circle class="f1 ring" cx="759.1" cy="190.7" r="3.6"/>
+<line class="s2" style="stroke-width:2.2" x1="556" y1="262" x2="578" y2="262"/>
+<text class="sm" x="584" y="265.5">plain η = 1</text>
+<line class="s1" style="stroke-width:2.2" x1="556" y1="277" x2="578" y2="277"/>
+<text class="sm" x="584" y="280.5">natural η = 0.5</text>
+<text class="sm" x="70" y="372">Left: the plain gradient's size falls like w⁻³ in saturation; the natural gradient's Riemannian size stays above k = 1, but its step in w grows like w<tspan dy="-4.5" font-size="8.5">3/2</tspan><tspan dy="4.5"> (Ḡ/G² ∝ w³).</tspan></text>
+<text class="sm" x="70" y="387">Right: lines are the averaged iteration (plain 124 steps, natural 4), dots the median of 400 online runs (one sample per step, natural gain 0.05).</text>
+</svg>

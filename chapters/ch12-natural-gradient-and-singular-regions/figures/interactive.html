@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Natural Gradient Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Natural gradient, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 12 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Seven small experiments on the chapter's two halves: how the natural gradient behaves (steepest descent in a metric, online efficiency, saturation, the learning constant) and what happens near the singular regions of a two-hidden-unit perceptron $f(x)=v_1\varphi(w_1x)+v_2\varphi(w_2x)$ with $\varphi(u)=\operatorname{erf}(u/\sqrt2)$ and input $x\sim N(0,1)$.
+Averages over $x$ are done with closed forms (arcsin kernels), so the learning flows are the averaged equations (12.129), not simulations. The numbers match <code>code/natural_gradient.py</code> (exactly for the deterministic parts, up to Monte Carlo error for the buttons marked as simulations).</p>
+
+<h2>1. Steepest descent depends on the metric</h2>
+<p>A step of length $\epsilon$ in the metric $G$ means $a^{\mathsf T}Ga=1$: an ellipse, not a circle. Of all steps on it, the one that lowers $L$ most is $G^{-1}\nabla L$ (the natural gradient, blue); the plain gradient (orange), rescaled to the same $G$-length, is only best when $G$ is a multiple of the identity or $\nabla L$ is an eigenvector. Move the sliders and watch the brute-force maximum over 3600 directions agree with $\sqrt{\nabla L^{\mathsf T}G^{-1}\nabla L}$. Switching the <b>chart</b> to $\xi'=J\xi$ with $J=\left[\begin{smallmatrix}1&0.3\\0&2\end{smallmatrix}\right]$ recomputes both directions in the new coordinates and maps them back: the natural gradient does not move, the plain gradient does (it is a covector, the natural gradient a vector).</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$G_{11}$ <input type="range" id="w1a" min="0.5" max="6" step="0.1" value="4"><output id="w1ao"></output></label>
+    <label>$G_{12}$ <input type="range" id="w1b" min="-3" max="3" step="0.1" value="1.2"><output id="w1bo"></output></label>
+    <label>$G_{22}$ <input type="range" id="w1c" min="0.2" max="4" step="0.1" value="0.5"><output id="w1co"></output></label>
+    <label>$\partial_1L$ <input type="range" id="w1g1" min="-2" max="2" step="0.1" value="1"><output id="w1g1o"></output></label>
+    <label>$\partial_2L$ <input type="range" id="w1g2" min="-2" max="2" step="0.1" value="0.6"><output id="w1g2o"></output></label>
+    <label>compute in chart <select id="w1ch"><option value="0">ξ (original)</option><option value="1">ξ′ = Jξ, then map back</option></select></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1v" viewBox="0 0 340 320" role="img" aria-label="The metric ellipse, the gradient, the plain direction and the natural direction"></svg></div>
+    <div id="w1s" class="stats" style="flex-direction:column;align-items:stretch"></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--ink)"></span>$a^{\mathsf T}Ga=1$</span><span><span class="sw dash" style="border-color:var(--faint)"></span>$|a|=1$</span><span><span class="sw" style="border-color:var(--s1)"></span>natural $G^{-1}\nabla L$</span><span><span class="sw" style="border-color:var(--s2)"></span>plain $\nabla L$</span><span><span class="sw" style="border-color:var(--faint)"></span>$\nabla L$ (direction)</span></div>
+</div>
+
+<h2>2. Online learning: what the learning constant does to the error</h2>
+<p>For the Gaussian linear model $y=\xi\cdot x+\varepsilon$ with input covariance $G=\operatorname{diag}(1,0.04)$ the error covariance of online learning obeys an exact recursion (Isserlis' formula for the fourth moment of $x$), so no sampling is needed. The table shows $t\,\lambda_a\operatorname{Var}_a$, the ratio to the Cramér–Rao value $1/(t\lambda_a)$. With the natural gradient and $\eta_t=c/t$ the limit is $c^2/(2c-1)$ for $c&gt;1/2$, equal to $1$ only for $c=1$ (Theorem 12.1); below $c=1/2$ it never settles. With the plain gradient the factor in direction $a$ is $(c\lambda_a)^2/(2c\lambda_a-1)$: the flat direction needs $c&gt;12.5$ to have a $1/t$ rate at all and $c=25$ to be efficient, and then the steep one pays $12.8$. Try $c_{\rm GD}=1$: the flat direction's error decays like $t^{-0.08}$.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>natural $c$ <input type="range" id="w2a" min="0.3" max="3" step="0.05" value="1"><output id="w2ao"></output></label>
+    <label>plain $c$ <input type="range" id="w2b" min="1" max="60" step="1" value="25"><output id="w2bo"></output></label>
+    <label>plain $t_0$ <input type="range" id="w2c" min="0" max="200" step="5" value="100"><output id="w2co"></output></label>
+  </div>
+  <svg id="w2v" viewBox="0 0 700 300" role="img" aria-label="Ratio of online error variance times t to the Cramér–Rao value against t"></svg>
+  <div id="w2t"></div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>natural, steep</span><span><span class="sw dash" style="border-color:var(--s1)"></span>natural, flat</span><span><span class="sw" style="border-color:var(--s2)"></span>plain, steep</span><span><span class="sw dash" style="border-color:var(--s2)"></span>plain, flat</span></div>
+</div>
+
+<h2>3. Stochastic relaxation: the natural gradient is a constant vector</h2>
+<p>To minimise $\mathbb E_p[f]$ over distributions on a finite set, write $p$ in the natural parameters $\theta_i=\log(p_i/p_0)$. The expected cost is linear in the expectation parameters $\eta_i=p_i$ and $G=\partial\eta/\partial\theta$, so the natural gradient is exactly $f_i-f_0$, whatever $p$ is: the flow is $p_t\propto p_0e^{-tf}$, a straight line in $\theta$. The plain gradient $p_j(f_j-L)$ carries the factor $p_j$, which dies near a vertex. Start close to the wrong vertex and compare the times to give the best outcome probability $0.9$ (outcome 0 costs $0$).</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\log_{10}\varepsilon$, start $p=(\varepsilon,1-2\varepsilon,\varepsilon)$ <input type="range" id="w3e" min="-3" max="-0.5" step="0.05" value="-3"><output id="w3eo"></output></label>
+    <label>cost $f_1$ <input type="range" id="w3f1" min="0.1" max="2" step="0.05" value="0.5"><output id="w3f1o"></output></label>
+    <label>cost $f_2$ <input type="range" id="w3f2" min="0.1" max="3" step="0.05" value="1"><output id="w3f2o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w3l" viewBox="0 0 340 300" role="img" aria-label="Trajectories on the probability triangle"></svg></div>
+    <div><svg id="w3r" viewBox="0 0 340 300" role="img" aria-label="Probability of the best outcome against time"></svg></div>
+  </div>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>4. Saturation: the natural gradient does not vanish, but its step explodes</h2>
+<p>One erf neuron $f=\varphi(wx)$, true weight $w_0$, noise variance 1. The Fisher information $G(w)=\mathbb E[\varphi'(wx)^2x^2]$ falls like $w^{-3}$, and so does the plain gradient's squared size $\bar G$. The natural gradient's Riemannian size $\operatorname{tr}(\bar GG^{-1})$ never drops below $k=1$ (Theorem 12.2), which is why it escapes saturation (the averaged iteration from $w=4$ needs 4 steps against 124). But its length in $w$ units, $\sqrt{\bar G}/G$, grows like $w^{3/2}$: a single online sample at $w=8$ moves $w$ by about 56 units for a gain of 1. Run the online simulation and watch a gain of $0.2$ fling the runs away.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>current $w$ <input type="range" id="w4w" min="0.4" max="9" step="0.1" value="4"><output id="w4wo"></output></label>
+    <label>true $w_0$ <input type="range" id="w4w0" min="0.3" max="2" step="0.1" value="1"><output id="w4w0o"></output></label>
+    <label>plain $\eta$ <select id="w4g"><option>0.5</option><option selected>1</option><option>5</option></select></label>
+    <label>natural $\eta$ (averaged) <select id="w4n"><option>0.2</option><option selected>0.5</option><option>1</option></select></label>
+    <label>online natural gain <select id="w4o"><option>0.02</option><option selected>0.05</option><option>0.1</option><option>0.2</option></select></label>
+    <button id="w4b" type="button">simulate 400 online runs</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w4l" viewBox="0 0 340 300" role="img" aria-label="Gradient sizes against w"></svg></div>
+    <div><svg id="w4r" viewBox="0 0 340 300" role="img" aria-label="Distance to the true weight against iteration"></svg></div>
+  </div>
+  <div class="stats" id="w4s"></div>
+</div>
+
+<h2>5. The Fisher matrix near the overlap singularity</h2>
+<p>Two hidden units with the same input weight, $w_1=w_2$, compute $(v_1+v_2)\varphi(wx)$ whatever $v_1-v_2$ is: the Fisher matrix of $(w_1,w_2,v_1,v_2)$ loses rank. In the chart $u=w_2-w_1$, $z=\frac{v_1-v_2}{v_1+v_2}$, $s=\frac{v_1w_1+v_2w_2}{v_1+v_2}$, $r=v_1+v_2$ the book's $R_o$ is $u=0$. The plot shows the four eigenvalues against $u$ at the current $(z,s,r)$: two stay of order one, the next falls like $u^2$ and the smallest like $u^6$ (determinant $u^8$): the book says only that $G^{-1}$ diverges. Tick <b>on $R_o$</b> to put $u$ exactly $0$ and see two zero eigenvalues (the null space is two-dimensional although $R_o$ is a line). The dashed curves are a layer-wise block-diagonal approximation, which keeps the null vectors but is only $O(u^2)$ small.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>$\log_{10}u$ <input type="range" id="w5u" min="-1.6" max="-0.3" step="0.02" value="-1"><output id="w5uo"></output></label>
+    <label>$z$ <input type="range" id="w5z" min="-2" max="2" step="0.05" value="0.4"><output id="w5zo"></output></label>
+    <label>$s$ <input type="range" id="w5s" min="0.3" max="3" step="0.05" value="1"><output id="w5so"></output></label>
+    <label>$r$ <input type="range" id="w5r" min="0.3" max="3" step="0.05" value="1"><output id="w5ro"></output></label>
+    <label><input type="checkbox" id="w5o"> on $R_o$ ($u=0$)</label>
+  </div>
+  <svg id="w5v" viewBox="0 0 700 300" role="img" aria-label="Eigenvalues of the Fisher matrix against u"></svg>
+  <div id="w5t"></div>
+</div>
+
+<h2>6. Plateau: plain against natural gradient</h2>
+<p>Run the averaged flows (12.129) of the two-neuron perceptron from a point near $R_o$. <b>Teacher inside $R$</b> (one neuron): the plain flow slows down like $u\sim t^{-1/2}$, $L\sim t^{-2}$ (critical slowdown); the natural flow has $L\sim e^{-2t}$ and ends on $R_e$ ($z\to1$), not on $R_o$. <b>Teacher outside $R$</b>, $K>0$: the stable part of $R_o$ is $\lvert z\rvert&gt;1$; from there the plain flow stays at the plateau value $L_1$ for ever, from $\lvert z\rvert&lt;1$ it leaves after a time of order $\ln(1/u_0)$; the natural flow leaves in about $0.4$ time units, from $u_0=0.3$ and $u_0=0.1$ alike. For $K&lt;0$ the roles of $\lvert z\rvert&lt;1$ and $&gt;1$ swap. The natural flow started on the stable part is not integrated here (the parameters make huge excursions, see the notes), and for $u_0<0.1$ my integrator fails or does not converge (the Fisher matrix is too close to singular for double precision), so the natural flow is only run from $u_0\ge0.1$.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>teacher <select id="w6t"><option value="in">inside R: φ(x)</option><option value="pos" selected>outside R, K &gt; 0</option><option value="neg">outside R, K &lt; 0</option></select></label>
+    <label>$z_0$ <input type="range" id="w6z" min="-3" max="3" step="0.05" value="0.6"><output id="w6zo"></output></label>
+    <label>$\log_{10}u_0$ <input type="range" id="w6u" min="-2.5" max="-0.3" step="0.1" value="-1"><output id="w6uo"></output></label>
+    <button id="w6b" type="button">run both flows</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w6l" viewBox="0 0 340 300" role="img" aria-label="Loss against time for the plain and natural gradient flows"></svg></div>
+    <div id="w6s" class="stats" style="flex-direction:column;align-items:stretch"></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s2)"></span>plain gradient flow</span><span><span class="sw" style="border-color:var(--s1)"></span>natural gradient flow</span><span><span class="sw dash" style="border-color:var(--faint)"></span>plateau value $L_1$</span></div>
+</div>
+
+<h2>7. The adaptive learning constant</h2>
+<p>The rule $\eta_{t+1}=\eta_t\exp\{\alpha[\beta\,l_t-\eta_t]\}$ raises the learning constant when the loss is large. Its averaged equations are $\dot e=-2\eta e$, $\dot\eta=\alpha\beta\eta e-\alpha\eta^2$, and the book states $e_t\to\frac1\beta(\frac12-\frac1\alpha)\frac1t$, $\eta_t\to\frac1{2t}$. That needs $\alpha&gt;2$: for $\alpha\le2$ the right side is $\le0$ although $e$ is a square, and what happens instead is $\eta_t\approx1/(\alpha t)$ with $e_t$ decaying faster than $1/t$. The table integrates the equations. The simulation button runs the stochastic rule on $y=\xi x+\text{noise}$ with $\beta=0.05$: without noise it follows the averaged analysis, with noise the instantaneous loss never reaches $0$ and $\eta_t$ stalls at $\beta\sigma^2/2$.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w7a" min="0.5" max="10" step="0.1" value="4"><output id="w7ao"></output></label>
+    <label>$\beta$ <input type="range" id="w7b" min="0.05" max="3" step="0.05" value="1"><output id="w7bo"></output></label>
+    <label>noise sd (simulation) <select id="w7n"><option value="0" selected>0</option><option value="0.3">0.3</option></select></label>
+    <button id="w7r" type="button">simulate 400 runs</button>
+  </div>
+  <svg id="w7v" viewBox="0 0 700 280" role="img" aria-label="t e_t and t eta_t against t from the averaged equations"></svg>
+  <div id="w7t"></div>
+  <div class="stats" id="w7s"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-34,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-34} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P),root:P};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const sci=(v,d)=>v===0?"0":v.toExponential(d===undefined?2:d).replace("e","e");
+const pw=k=>!Number.isInteger(k)?"10^"+k:"10"+String(k).replace(/-/g,"⁻").replace(/0/g,"⁰").replace(/1/g,"¹").replace(/2/g,"²").replace(/3/g,"³").replace(/4/g,"⁴").replace(/5/g,"⁵").replace(/6/g,"⁶").replace(/7/g,"⁷").replace(/8/g,"⁸").replace(/9/g,"⁹");
+const ticks=(P,xs,ys,fx,fy)=>{const R=P.root;(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},R);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},R).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},R);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},R).textContent=(fy||f2)(v)})};
+const arrow=(P,x1,y1,x2,y2,col,w)=>{const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<1e-6)return;const ux=dx/L,uy=dy/L,hl=8;el("line",{x1,y1,x2:x2-ux*hl*0.8,y2:y2-uy*hl*0.8,stroke:col,"stroke-width":w||2.4,"stroke-linecap":"round"},P);el("polygon",{points:`${x2},${y2} ${x2-ux*hl-uy*hl*0.4},${y2-uy*hl+ux*hl*0.4} ${x2-ux*hl+uy*hl*0.4},${y2-uy*hl-ux*hl*0.4}`,fill:col},P)};
+
+// ---------- numerical core (no DOM): the same mathematics as natural_gradient.py
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mkRand(seed){const U=rng(seed);let spare=null;const N01=()=>{if(spare!==null){const s=spare;spare=null;return s}let u=0,v=0;while(u===0)u=U();v=U();const r=Math.sqrt(-2*Math.log(u));spare=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v)};return{U,N01}}
+// erf: Numerical Recipes erfc Chebyshev fit, fractional error below 1.2e-7
+function erf(x){const z=Math.abs(x),t=1/(1+0.5*z),r=t*Math.exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));return x>=0?1-r:r-1}
+const S2PI=Math.sqrt(2/Math.PI);
+const phi=u=>erf(u/Math.SQRT2),dphi=u=>S2PI*Math.exp(-u*u/2),ddphi=u=>-u*S2PI*Math.exp(-u*u/2),d3phi=u=>(u*u-1)*S2PI*Math.exp(-u*u/2);
+// expectation over x ~ N(0,1) by the trapezoid rule on a fine grid (smooth Gaussian-weighted integrands)
+const QX=[],QW=[];(function(){const h=0.02;for(let x=-9;x<=9+1e-9;x+=h){QX.push(x);QW.push(h*Math.exp(-x*x/2)/Math.sqrt(2*Math.PI))}})();
+const Ex=f=>{let s=0;for(let i=0;i<QX.length;i++)s+=QW[i]*f(QX[i]);return s};
+// arcsin kernels E[phi(ax)phi(bx)] and its derivatives
+const kC=(a,b)=>2/Math.PI*Math.asin(a*b/Math.sqrt((1+a*a)*(1+b*b)));
+const kCa=(a,b)=>2/Math.PI*b/((1+a*a)*Math.sqrt(1+a*a+b*b));
+const kCab=(a,b)=>2/Math.PI*Math.pow(1+a*a+b*b,-1.5);
+const kCaa=(a,b)=>2/Math.PI*b*(-2*a*Math.pow(1+a*a,-2)*Math.pow(1+a*a+b*b,-0.5)-a/(1+a*a)*Math.pow(1+a*a+b*b,-1.5));
+// ---------- small linear algebra
+function solve(A,b){const n=b.length,M=A.map((r,i)=>r.slice().concat([b[i]]));for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];for(let r=c+1;r<n;r++){const f=M[r][c]/M[c][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k]}}const x=new Array(n).fill(0);for(let r=n-1;r>=0;r--){let s=M[r][n];for(let k=r+1;k<n;k++)s-=M[r][k]*x[k];x[r]=s/M[r][r]}return x}
+function eigSym(A){const n=A.length;let a=A.map(r=>r.slice()),V=A.map((r,i)=>r.map((_,j)=>i===j?1:0));for(let sweep=0;sweep<60;sweep++){let off=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)off+=a[i][j]*a[i][j];if(off<1e-60)break;for(let p=0;p<n;p++)for(let q=p+1;q<n;q++){if(Math.abs(a[p][q])<1e-300)continue;const th=(a[q][q]-a[p][p])/(2*a[p][q]),t=Math.sign(th||1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;for(let k=0;k<n;k++){const akp=a[k][p],akq=a[k][q];a[k][p]=c*akp-s*akq;a[k][q]=s*akp+c*akq}for(let k=0;k<n;k++){const apk=a[p][k],aqk=a[q][k];a[p][k]=c*apk-s*aqk;a[q][k]=s*apk+c*aqk}for(let k=0;k<n;k++){const vkp=V[k][p],vkq=V[k][q];V[k][p]=c*vkp-s*vkq;V[k][q]=s*vkp+c*vkq}}}const idx=[...Array(n).keys()].sort((i,j)=>a[i][i]-a[j][j]);return{vals:idx.map(i=>a[i][i]),vecs:idx.map(i=>V.map(r=>r[i]))}}
+const mm=(A,B)=>A.map(r=>B[0].map((_,j)=>r.reduce((s,v,k)=>s+v*B[k][j],0)));
+const mv=(A,x)=>A.map(r=>r.reduce((s,v,k)=>s+v*x[k],0));
+const tr_=A=>A[0].map((_,j)=>A.map(r=>r[j]));
+// ---------- the two-hidden-unit perceptron f = v1 phi(w1 x) + v2 phi(w2 x), x ~ N(0,1); parameters xi = [w1,w2,v1,v2]
+const mkT=(om,c)=>({om,c,f:x=>om.reduce((s,o,k)=>s+c[k]*phi(o*x),0)});
+const T_IN=mkT([1],[1]),T_POS=mkT([0.4,4],[10,5]),T_NEG=mkT([0.3,1],[10,-10]);
+function lossGrad(xi,T){const w=[xi[0],xi[1]],v=[xi[2],xi[3]];let Eff=0,Eff0=0,E00=0;const gv=[0,0],gw=[0,0];
+ for(let i=0;i<2;i++){let cvi=0;for(let j=0;j<2;j++){const c=kC(w[i],w[j]);Eff+=v[i]*v[j]*c;cvi+=v[j]*c}
+  let co=0;for(let k=0;k<T.om.length;k++){const c=kC(w[i],T.om[k]);Eff0+=v[i]*T.c[k]*c;co+=T.c[k]*c}gv[i]=cvi-co;
+  let ca=0;for(let j=0;j<2;j++)ca+=v[j]*kCa(w[i],w[j]);let cb=0;for(let k=0;k<T.om.length;k++)cb+=T.c[k]*kCa(w[i],T.om[k]);gw[i]=v[i]*(ca-cb)}
+ for(let k=0;k<T.om.length;k++)for(let l=0;l<T.om.length;l++)E00+=T.c[k]*T.c[l]*kC(T.om[k],T.om[l]);
+ return{L:0.5*(Eff-2*Eff0+E00),g:[gw[0],gw[1],gv[0],gv[1]]}}
+function fisher(xi){const w=[xi[0],xi[1]],v=[xi[2],xi[3]],G=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+ for(let i=0;i<2;i++)for(let j=0;j<2;j++){G[2+i][2+j]=kC(w[i],w[j]);G[i][2+j]=v[i]*kCa(w[i],w[j]);G[2+j][i]=G[i][2+j];G[i][j]=v[i]*v[j]*kCab(w[i],w[j])}return G}
+function hessLoss(xi,T){const w=[xi[0],xi[1]],v=[xi[2],xi[3]],G=fisher(xi),H=G.map(r=>r.slice());
+ for(let i=0;i<2;i++){let r0=0,r1=0;for(let k=0;k<T.om.length;k++){r0+=T.c[k]*kCaa(w[i],T.om[k]);r1+=T.c[k]*kCa(w[i],T.om[k])}for(let j=0;j<2;j++){r0-=v[j]*kCaa(w[i],w[j]);r1-=v[j]*kCa(w[i],w[j])}
+  H[i][i]-=v[i]*r0;H[i][2+i]-=r1;H[2+i][i]-=r1}return H}
+const toZeta=xi=>{const r=xi[2]+xi[3];return[xi[1]-xi[0],(xi[2]-xi[3])/r,(xi[2]*xi[0]+xi[3]*xi[1])/r,r]};
+const fromZeta=ze=>{const[u,z,s,r]=ze,v1=r*(1+z)/2,v2=r*(1-z)/2;return[s-v2/r*u,s+v1/r*u,v1,v2]};
+function oneNeuron(T){const rho=s=>{let n=0;for(let k=0;k<T.om.length;k++)n+=T.c[k]*kC(s,T.om[k]);return n*n/kC(s,s)};let bs=0.05,bv=-1;for(let i=0;i<=800;i++){const s=0.05+(8-0.05)*i/800,v=rho(s);if(v>bv){bv=v;bs=s}}
+ let a=Math.max(0.05,bs-0.02),b=Math.min(8,bs+0.02);const gr=(Math.sqrt(5)-1)/2;for(let i=0;i<80;i++){const c1=b-gr*(b-a),c2=a+gr*(b-a);if(rho(c1)>rho(c2))b=c2;else a=c1}
+ const s=(a+b)/2;let n=0;for(let k=0;k<T.om.length;k++)n+=T.c[k]*kC(s,T.om[k]);const r=n/kC(s,s);
+ const L1=lossGrad([s,s,r,0],T).L;let kk=0;for(let k=0;k<T.om.length;k++)kk+=T.c[k]*kCaa(s,T.om[k]);const K=r/4*(kk-r*kCaa(s,s));return{s,r,L1,K}}
+// ---------- flows and the linearly implicit second-order step (ROS2)
+const flowGD=(xi,T)=>lossGrad(xi,T).g.map(x=>-x);
+function flowNG(xi,T){const g=lossGrad(xi,T).g,{vals,vecs}=eigSym(fisher(xi)),mx=vals[3];const out=[0,0,0,0];
+ for(let k=0;k<4;k++){if(vals[k]>1e-13*mx){let c=0;for(let i=0;i<4;i++)c+=vecs[k][i]*g[i];c/=vals[k];for(let i=0;i<4;i++)out[i]-=c*vecs[k][i]}}return out}
+function fdJac(f,xi,T){const J=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];for(let k=0;k<4;k++){const h=1e-6*Math.max(1,Math.abs(xi[k])),p=xi.slice(),m=xi.slice();p[k]+=h;m[k]-=h;const fp=f(p,T),fm=f(m,T);for(let i=0;i<4;i++)J[i][k]=(fp[i]-fm[i])/(2*h)}return J}
+function ros2(f,xi,T,dt,jac){const g=1+1/Math.SQRT2,J=jac?jac(xi,T):fdJac(f,xi,T),A=J.map((r,i)=>r.map((v,j)=>(i===j?1:0)-g*dt*v));
+ const k1=solve(A,f(xi,T)),x1=xi.map((v,i)=>v+dt*k1[i]),f1=f(x1,T),k2=solve(A,f1.map((v,i)=>v-2*k1[i]));return xi.map((v,i)=>v+1.5*dt*k1[i]+0.5*dt*k2[i])}
+const jacGD=(xi,T)=>hessLoss(xi,T).map(r=>r.map(v=>-v));
+// plain gradient flow with steps growing like rel*t; returns [{t,xi}] recorded at times growing by `grow`
+function integrateGD(xi0,T,tEnd,o={}){const dt0=o.dt0||0.01,rel=o.rel||0.03,dtmax=o.dtmax||50,grow=o.grow||1.1,stop=o.stop;let t=0,xi=xi0.slice();const out=[{t:0,xi:xi.slice()}];let nxt=1;
+ while(t<tEnd){let dt=Math.min(dtmax,Math.max(dt0,rel*t));if(t+dt>tEnd)dt=tEnd-t;xi=ros2(flowGD,xi,T,dt,jacGD);t+=dt;if(t>=nxt-1e-12||t>=tEnd-1e-12){out.push({t,xi:xi.slice()});nxt=t*grow}if(stop&&stop(t,xi)){out.push({t,xi:xi.slice()});break}}return out}
+function integrateNG(xi0,T,tEnd,dt,rec){let t=0,xi=xi0.slice();const out=[{t:0,xi:xi.slice()}];let nxt=rec||dt;while(t<tEnd-1e-12){xi=ros2(flowNG,xi,T,dt);t+=dt;if(t>=nxt-1e-12){out.push({t,xi:xi.slice()});nxt+=rec||dt}}return out}
+// ---------- Gaussian linear model: exact error covariance recursion (Isserlis) for online learning with gain c/(t+t0)
+function exactCov(kind,c,t0,T,rec,lam){const V=[1,1],out={};for(let t=1;t<=T;t++){const eta=c/(t+t0),trSV=lam[0]*V[0]+lam[1]*V[1];for(let a=0;a<2;a++){V[a]=kind==="NG"?V[a]*(1-2*eta+2*eta*eta)+eta*eta*(trSV/lam[a]+1/lam[a]):V[a]*(1-2*eta*lam[a]+2*eta*eta*lam[a]*lam[a])+eta*eta*(lam[a]*trSV+lam[a])}if(rec.has(t))out[t]=[t*lam[0]*V[0],t*lam[1]*V[1]]}return out}
+
+
+// ===== widget 1: steepest descent in a metric
+(function(){
+ const J=[[1,0.3],[0,2]],Ji=[[1,-0.15],[0,0.5]];
+ const mv2=(A,x)=>[A[0][0]*x[0]+A[0][1]*x[1],A[1][0]*x[0]+A[1][1]*x[1]],inv2=A=>{const d=A[0][0]*A[1][1]-A[0][1]*A[1][0];return[[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]]};
+ const mm2=(A,B)=>[[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]],T2=A=>[[A[0][0],A[1][0]],[A[0][1],A[1][1]]];
+ function draw(){
+  let a=+g("w1a").value,b=+g("w1b").value,c=+g("w1c").value;const lim=0.98*Math.sqrt(a*c);b=Math.max(-lim,Math.min(lim,b));
+  const g1=+g("w1g1").value,g2=+g("w1g2").value,chart=g("w1ch").value==="1";
+  g("w1ao").textContent=f2(a);g("w1bo").textContent=f2(b);g("w1co").textContent=f2(c);g("w1g1o").textContent=f2(g1);g("w1g2o").textContent=f2(g2);
+  const G=[[a,b],[b,c]],gv=[g1,g2],Gi=inv2(G);
+  const ngRaw=mv2(Gi,gv),q=Math.sqrt(gv[0]*ngRaw[0]+gv[1]*ngRaw[1]);
+  // natural direction, possibly computed in the chart xi' = J xi and mapped back
+  const Jit=T2(inv2(J)),Gp=mm2(mm2(Jit,G),inv2(J)),gp=mv2(Jit,gv);
+  const ngP=mv2(Ji,mv2(inv2(Gp),gp)),gdP=mv2(Ji,gp);
+  const ngv=chart?ngP:ngRaw,gdv=chart?gdP:gv;
+  const nrm=v=>{const s=Math.sqrt(v[0]*(G[0][0]*v[0]+G[0][1]*v[1])+v[1]*(G[1][0]*v[0]+G[1][1]*v[1]));return[v[0]/s,v[1]/s]};
+  const aN=nrm(ngv),aG=nrm(gdv);
+  // ellipse a^T G a = 1 by Cholesky; brute force 3600 directions
+  const l11=Math.sqrt(a),l21=b/l11,l22=Math.sqrt(c-l21*l21);
+  const el_=t=>{const u1=Math.cos(t),u2=Math.sin(t),a2=u2/l22,a1=(u1-l21*a2)/l11;return[a1,a2]};
+  let best=-1e9;for(let i=0;i<3600;i++){const p=el_(2*Math.PI*i/3600),d=g1*p[0]+g2*p[1];if(d>best)best=d}
+  let R=0;for(let i=0;i<200;i++){const p=el_(2*Math.PI*i/200);R=Math.max(R,Math.abs(p[0]),Math.abs(p[1]))}R=Math.max(R,1)*1.15;
+  const S=g("w1v");clear(S);const P=axes(S,48,14,270,270,[-R,R],[-R,R],"steps a in the chart ξ","a₁","a₂");
+  ticks(P,[],[]);
+  const cir=[],ell=[];for(let i=0;i<=120;i++){const t=2*Math.PI*i/120;cir.push([P.X(Math.cos(t)),P.Y(Math.sin(t))]);const p=el_(t);ell.push([P.X(p[0]),P.Y(p[1])])}
+  path(P.G,cir,"var(--faint)",1.2,"4 3");path(P.G,ell,"var(--ink)",2.2);
+  const O=[P.X(0),P.Y(0)],gl=Math.hypot(g1,g2)||1;
+  arrow(P.G,O[0],O[1],P.X(g1/gl*R*0.85),P.Y(g2/gl*R*0.85),"var(--faint)",1.6);
+  arrow(P.G,O[0],O[1],P.X(aG[0]),P.Y(aG[1]),"var(--s2)",2.6);arrow(P.G,O[0],O[1],P.X(aN[0]),P.Y(aN[1]),"var(--s1)",2.6);
+  const dec=v=>g1*v[0]+g2*v[1],dn=dec(aN),dg=dec(aG);
+  const noChart=nrm(gv),kant=(g1*g1+g2*g2)**2/((gv[0]*(G[0][0]*gv[0]+G[0][1]*gv[1])+gv[1]*(G[1][0]*gv[0]+G[1][1]*gv[1]))*(q*q));
+  const diffNG=Math.max(...[0,1].map(i=>Math.abs(ngP[i]-ngRaw[i]))),diffGD=Math.max(...[0,1].map(i=>Math.abs(gdP[i]-gv[i])));
+  // |G'^-1 g' - J G^-1 g| and |g' - J g| exactly as in the script (differences in the new chart)
+  const d1=mv2(inv2(Gp),gp),d2=mv2(J,ngRaw),dd1=Math.max(Math.abs(d1[0]-d2[0]),Math.abs(d1[1]-d2[1])),dd2=Math.max(Math.abs(gp[0]-mv2(J,gv)[0]),Math.abs(gp[1]-mv2(J,gv)[1]));
+  g("w1s").innerHTML=`<div>largest decrease on the ellipse, brute force over 3600 directions: <b>${f4(best)}</b></div><div>natural direction: decrease <b>${f4(dn)}</b> = √(∇Lᵀ G⁻¹ ∇L) = ${f4(q)}</div><div>plain direction (same G-length): decrease <b>${f4(dg)}</b>, <b>${f3(dg/best)}</b> of the maximum; ratio² = (g·g)²/((gᵀGg)(gᵀG⁻¹g)) = <b>${f4(kant)}</b> in chart ξ</div><div>chart ξ′ = Jξ: |G′⁻¹∇′L − J G⁻¹∇L| = <b>${dd1.toExponential(1)}</b>, |∇′L − J ∇L| = <b>${f2(dd2)}</b> (the natural gradient is a vector, the plain gradient a covector)</div><div>mapped-back plain direction differs from the chart-ξ one by ${f2(diffGD)}, natural by ${diffNG.toExponential(1)}</div>`;
+ }
+ ["w1a","w1b","w1c","w1g1","w1g2","w1ch"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 2: online covariance recursion
+(function(){
+ const lam=[1,0.04],tabT=[100,1000,10000,30000];
+ const rec=new Set(tabT);const ts=[];for(let k=0;k<=70;k++){const t=Math.round(Math.pow(10,1+3.45*k/70));if(!rec.has(t)){rec.add(t);ts.push(t)}}ts.push(...tabT);ts.sort((a,b)=>a-b);
+ function curve(kind,c,t0){const o=exactCov(kind,c,t0,30000,rec,lam);return ts.map(t=>[t,o[t]])}
+ function draw(){
+  const cN=+g("w2a").value,cG=+g("w2b").value,t0=+g("w2c").value;g("w2ao").textContent=f2(cN);g("w2bo").textContent=cG;g("w2co").textContent=t0;
+  const N=curve("NG",cN,0),D=curve("GD",cG,t0);
+  let ymax=0.3;[N,D].forEach(cv=>cv.forEach(([t,v])=>{ymax=Math.max(ymax,Math.log10(Math.max(v[0],v[1])))}));ymax=Math.min(ymax,4.2);
+  const S=g("w2v");clear(S);const P=axes(S,60,14,600,230,[1,4.5],[-0.1,ymax+0.15],"t λ Var / Cramér–Rao value, both directions","t","ratio");
+  ticks(P,[1,2,3,4],[0,1,2,3,4].filter(v=>v<ymax+0.1),v=>pw(v),v=>String(Math.pow(10,v)));
+  const lg=(cv,a)=>cv.map(([t,v])=>[P.X(Math.log10(t)),P.Y(Math.log10(Math.max(v[a],1e-3)))]);
+  path(P.G,[[P.X(1),P.Y(0)],[P.X(4.5),P.Y(0)]],"var(--faint)",1,"3 3");
+  path(P.G,lg(N,0),"var(--s1)",2.4);path(P.G,lg(N,1),"var(--s1)",2,"5 3");path(P.G,lg(D,0),"var(--s2)",2.4);path(P.G,lg(D,1),"var(--s2)",2,"5 3");
+  const at=(cv,t)=>cv.find(r=>r[0]===t)[1];
+  const asym=(kind,c,l)=>kind==="NG"?(c>0.5?f3(c*c/(2*c-1)):"no 1/t rate"):((c*l>0.5)?f3((c*l)**2/(2*c*l-1)):"no 1/t rate");
+  const row=(name,cv,kind,c,a)=>`<tr><td>${name}</td>${tabT.map(t=>`<td><b>${f3(at(cv,t)[a])}</b></td>`).join("")}<td>${asym(kind,c,lam[a])}</td></tr>`;
+  g("w2t").innerHTML=`<table class="t"><tr><th>t λ Var / bound</th><th>t = 100</th><th>1000</th><th>10⁴</th><th>3·10⁴</th><th>limit</th></tr>${row("natural, steep (λ = 1)",N,"NG",cN,0)}${row("natural, flat (λ = 0.04)",N,"NG",cN,1)}${row("plain, steep (λ = 1)",D,"GD",cG,0)}${row("plain, flat (λ = 0.04)",D,"GD",cG,1)}</table><div class="cap">Exact recursion, start error (1, 1). Script values: natural c = 1: 1.683 1.648 | 1.077 1.074 | 1.008 1.008 | 1.003 1.003; plain c = 25, t₀ = 100: 7.992 1.299 | 12.026 1.198 | 12.678 1.028 | 12.729 1.010.</div>`;
+ }
+ ["w2a","w2b","w2c"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: stochastic relaxation on three outcomes
+(function(){
+ const sm=th=>{const z=[0,th[0],th[1]],m=Math.max(...z),e=z.map(v=>Math.exp(v-m)),s=e[0]+e[1]+e[2];return e.map(v=>v/s)};
+ const rk4=(f,y,h)=>{const k1=f(y),k2=f(y.map((v,i)=>v+h/2*k1[i])),k3=f(y.map((v,i)=>v+h/2*k2[i])),k4=f(y.map((v,i)=>v+h*k3[i]));return y.map((v,i)=>v+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]))};
+ function draw(){
+  const le=+g("w3e").value,f1=+g("w3f1").value,f2_=+g("w3f2").value,eps=Math.pow(10,le);g("w3eo").textContent=sci(eps,1);g("w3f1o").textContent=f2(f1);g("w3f2o").textContent=f2_.toFixed(2);
+  const f=[0,f1,f2_],p0=[eps,1-2*eps,eps],th0=[Math.log(p0[1]/p0[0]),Math.log(p0[2]/p0[0])];
+  const grad=th=>{const p=sm(th),L=p[0]*f[0]+p[1]*f[1]+p[2]*f[2];return[-p[1]*(f[1]-L),-p[2]*(f[2]-L)]};
+  const tilt=t=>{const q=p0.map((v,i)=>v*Math.exp(-t*f[i])),s=q[0]+q[1]+q[2];return q.map(v=>v/s)};
+  let lo=0,hi=1e5;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(tilt(m)[0]<0.9)lo=m;else hi=m}const tNG=lo;
+  // plain gradient flow in theta
+  let th=th0.slice(),t=0,tGD=Infinity,prev=p0[0];const rec=[[0,p0[0]]],tmax=3e4,path_gd=[p0.slice()];let nxt=0.1;
+  while(t<tmax){const h=Math.min(5,Math.max(0.01,0.01*t));const th2=rk4(grad,th,h),pb=sm(th2)[0];if(pb>=0.9){tGD=t+h*(0.9-prev)/(pb-prev);break}th=th2;t+=h;prev=pb;if(t>=nxt){rec.push([t,pb]);nxt=t*1.1;path_gd.push(sm(th))}}
+  const L=g("w3l");clear(L);const s3=Math.sqrt(3)/2,P=axes(L,10,10,320,280,[-0.04,1.04],[-0.05,0.93],"",null,null);
+  const xy=p=>[p[1]+p[2]/2,p[2]*s3];
+  path(P.G,[[0,0],[1,0],[0.5,s3],[0,0]].map(q=>[P.X(q[0]),P.Y(q[1])]),"var(--ink)",2);
+  const trN=[],trG=[];for(let i=0;i<=160;i++){const q=tilt(tNG*3*i/160);const c=xy(q);trN.push([P.X(c[0]),P.Y(c[1])])}path(P.G,trN,"var(--s1)",2.4);
+  path_gd.forEach(p=>{const c=xy(p);trG.push([P.X(c[0]),P.Y(c[1])])});path(P.G,trG,"var(--s2)",2.4);
+  const c0=xy(p0);el("circle",{cx:P.X(c0[0]),cy:P.Y(c0[1]),r:4,fill:"var(--faint)"},P.G);
+  [["cost 0 (best)",0,0,"start"],["cost "+f1.toFixed(2),1,0,"end"],["cost "+f2_.toFixed(2),0.5,s3,"middle"]].forEach(([tx,x,y,an])=>el("text",{x:P.X(x),y:P.Y(y)+(y>0?-6:14),"text-anchor":an,fill:"var(--muted)","font-size":10},P.root).textContent=tx);
+  const R=g("w3r");clear(R);const Q=axes(R,40,10,290,260,[-1,4.5],[0,1],"","t (log)","probability of the best outcome");ticks(Q,[0,1,2,3,4],[0,0.5,0.9,1],v=>pw(v),f2);
+  const lt=[];for(let k=0;k<=100;k++){const tt=Math.pow(10,-1+5.5*k/100);lt.push([Q.X(Math.log10(tt)),Q.Y(tilt(tt)[0])])}path(Q.G,lt,"var(--s1)",2.4);
+  path(Q.G,rec.filter(r=>r[0]>0).map(r=>[Q.X(Math.log10(r[0])),Q.Y(r[1])]).concat(isFinite(tGD)?[[Q.X(Math.log10(tGD)),Q.Y(0.9)]]:[]),"var(--s2)",2.4);
+  path(Q.G,[[Q.X(-1),Q.Y(0.9)],[Q.X(4.5),Q.Y(0.9)]],"var(--faint)",1,"4 3");
+  g("w3s").innerHTML=`<div>natural gradient G⁻¹∇L = f₁−f₀, f₂−f₀ = (${f2(f1)}, ${f2(f2_)}) at every p; p_t ∝ p₀ e^(−t f)</div><div>time to P(best) = 0.9: natural <b>${tNG.toFixed(2)}</b> (closed form), plain gradient <b>${isFinite(tGD)?tGD.toFixed(0):"&gt; 30000"}</b>${isFinite(tGD)?` (${(tGD/tNG).toFixed(0)}× longer)`:""}</div><div class="cap" style="background:none;padding:0">Script, ε = 0.001, costs (0, 0.5, 1): natural 18.21, plain 4073, 224× longer.</div>`;
+ }
+ ["w3e","w3f1","w3f2"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 4: saturation of one erf neuron
+(function(){
+ const G=(w)=>kCab(w,w),Lp=(w,w0)=>kCa(w,w)-kCa(w,w0);
+ const Gbar=(w,w0)=>Ex(x=>(Math.pow(phi(w0*x)-phi(w*x),2)+1)*Math.pow(dphi(w*x)*x,2));
+ const iters=(w,eta,kind,w0)=>{const tr=[w];for(let k=0;k<300;k++){const lp=Lp(w,w0);w=kind==="gd"?w-eta*lp:w-eta*lp/G(w);tr.push(w)}let n=300;for(let k=0;k<tr.length;k++)if(Math.abs(tr[k]-w0)<0.05){n=k;break}return{tr,n}};
+ let online=null;
+ function draw(){
+  const w=+g("w4w").value,w0=+g("w4w0").value,eg=+g("w4g").value,en=+g("w4n").value;g("w4wo").textContent=f2(w);g("w4w0o").textContent=f2(w0);
+  const L=g("w4l");clear(L);const P=axes(L,44,14,284,240,[Math.log10(0.4),Math.log10(9)],[-3.5,4],"","w","");
+  ticks(P,[Math.log10(0.5),0,Math.log10(2),Math.log10(4),Math.log10(8)],[-3,-2,-1,0,1,2,3,4],v=>String(+Math.pow(10,v).toPrecision(2)),v=>pw(v));
+  const A=[],B=[],C=[];for(let i=0;i<=40;i++){const ww=Math.exp(Math.log(0.4)+(Math.log(9)-Math.log(0.4))*i/40),gb=Gbar(ww,w0),gg=G(ww);A.push([P.X(Math.log10(ww)),P.Y(Math.log10(gb))]);B.push([P.X(Math.log10(ww)),P.Y(Math.log10(gb/gg))]);C.push([P.X(Math.log10(ww)),P.Y(Math.log10(gb/gg/gg))])}
+  path(P.G,A,"var(--s2)",2.4);path(P.G,B,"var(--s1)",2.4);path(P.G,C,"var(--s3)",2.4);
+  const gb=Gbar(w,w0),gg=G(w);P.G.appendChild(el("line",{x1:P.X(Math.log10(w)),x2:P.X(Math.log10(w)),y1:P.y0,y2:P.y0+P.h,stroke:"var(--ink)","stroke-dasharray":"2 3","stroke-width":1},P.G));
+  [[A,"plain E|∇l|² = Ḡ","var(--s2)"],[B,"natural tr(Ḡ G⁻¹)","var(--s1)"],[C,"natural step² Ḡ/G²","var(--s3)"]].forEach(([_,tx,col],i)=>{el("rect",{x:P.x0+8,y:P.y0+20+i*14-8,width:12,height:3,fill:col},P.root);el("text",{x:P.x0+26,y:P.y0+20+i*14-3,fill:"var(--muted)","font-size":10},P.root).textContent=tx});
+  // right: iterations
+  const gd=iters(w,eg,"gd",w0),ng=iters(w,en,"ng",w0);
+  const R=g("w4r");clear(R);const Q=axes(R,44,14,284,240,[0,2.5],[-1.6,0.8],"|w − w₀| against iteration","iteration t","");ticks(Q,[0,1,2],[-1,0],v=>String(Math.round(Math.pow(10,v))),v=>String(Math.pow(10,v)));
+  const trc=a=>a.tr.map((x,k)=>[Q.X(Math.log10(1+k)),Q.Y(Math.log10(Math.max(Math.abs(x-w0),1e-3)))]);
+  path(Q.G,trc(gd),"var(--s2)",2.4);path(Q.G,trc(ng),"var(--s1)",2.4);
+  if(online){[["gd","var(--s2)"],["ng","var(--s1)"]].forEach(([k,col])=>{for(const t of [10,30,100,400]){const m=online[k][t];el("circle",{cx:Q.X(Math.log10(t)),cy:Q.Y(Math.log10(Math.max(m,1e-2))),r:3.6,fill:col},Q.G)}})}
+  g("w4s").innerHTML=`<div>at w = ${f2(w)}: G = <b>${f5(gg)}</b>, Ḡ = E|∇l|² = <b>${f5(gb)}</b>, natural size tr(Ḡ G⁻¹) = <b>${f4(gb/gg)}</b> (≥ 1), natural step² Ḡ/G² = <b>${(gb/gg/gg).toFixed(1)}</b> (|step| = ${Math.sqrt(gb/gg/gg).toFixed(1)}), dL/dw = ${sg(Lp(w,w0),5)}</div><div>averaged iterations from w until |w − w₀| &lt; 0.05: plain η = ${eg}: <b>${gd.n}</b>, natural η = ${en}: <b>${ng.n}</b> (script, w₀ = 1, from w = 4: plain η = 1: 124, η = 5: 25; natural η = 1: 5, 0.5: 4, 0.2: 15)</div>`+(online?`<div>online (400 runs, one sample per step; median |w − w₀| at t = 10, 30, 100, 400): plain η = ${eg}: <b>${[10,30,100,400].map(t=>f3(online.gd[t])).join(", ")}</b>; natural gain ${online.gain}: <b>${[10,30,100,400].map(t=>online.ng[t]>100?online.ng[t].toExponential(1):f3(online.ng[t])).join(", ")}</b> <span class="cap">(script: plain 2.857, 2.492, 1.129, 0.794; natural 0.05: 1.095, 0.352, 0.303, 0.289; natural 0.2 blows up)</span></div>`:"");
+ }
+ function simulate(){
+  const w0=+g("w4w0").value,w=+g("w4w").value,eg=+g("w4g").value,gain=+g("w4o").value,Rn=400,rd=mkRand(3);
+  const run=(kind,eta)=>{const ws=new Float64Array(Rn).fill(w),out={};for(let t=1;t<=400;t++){for(let i=0;i<Rn;i++){const x=rd.N01(),y=phi(w0*x)+rd.N01(),f=phi(ws[i]*x),gr=-(y-f)*dphi(ws[i]*x)*x;ws[i]=kind==="gd"?ws[i]-eta*gr:ws[i]-eta*gr/G(ws[i]);if(!isFinite(ws[i])||Math.abs(ws[i])>1e6)ws[i]=1e6}if(t===10||t===30||t===100||t===400){const a=Array.from(ws,v=>Math.abs(v-w0)).sort((p,q)=>p-q);out[t]=a[Rn/2]}}return out};
+  online={gd:run("gd",eg),ng:run("ng",gain),gain};draw();
+ }
+ ["w4w","w4w0","w4g","w4n"].forEach(i=>g(i).addEventListener("input",()=>{online=null;draw()}));g("w4o").addEventListener("input",()=>{online=null;draw()});g("w4b").addEventListener("click",simulate);draw();
+})();
+
+// ===== widget 5: Fisher eigenvalues near the overlap singularity
+(function(){
+ function eigs(u,z,s,r,block){const G=fisher(fromZeta([u,z,s,r]));if(block){for(let i=0;i<2;i++)for(let j=2;j<4;j++){G[i][j]=0;G[j][i]=0}}return eigSym(G).vals}
+ function draw(){
+  const onR=g("w5o").checked,lu=+g("w5u").value,z=+g("w5z").value,s=+g("w5s").value,r=+g("w5r").value;g("w5uo").textContent=f3(Math.pow(10,lu));g("w5zo").textContent=f2(z);g("w5so").textContent=f2(s);g("w5ro").textContent=f2(r);
+  const u=onR?0:Math.pow(10,lu);
+  const S=g("w5v");clear(S);const P=axes(S,60,14,600,230,[Math.log10(0.02),Math.log10(0.5)],[-15,1.9],"eigenvalues of the Fisher matrix against u = w₂ − w₁ (current z, s, r)","u","");
+  ticks(P,[Math.log10(0.03),Math.log10(0.05),Math.log10(0.1),Math.log10(0.2),Math.log10(0.4)],[-12,-8,-4,0],v=>String(+Math.pow(10,v).toPrecision(1)),v=>pw(v));
+  const cols=["var(--s2)","var(--s1)","var(--s3)","var(--faint)"],N=36,us=[];for(let i=0;i<N;i++)us.push(Math.exp(Math.log(0.5)+(Math.log(0.02)-Math.log(0.5))*i/(N-1)));
+  const E=us.map(v=>eigs(v,z,s,r,false)),Eb=us.map(v=>eigs(v,z,s,r,true));
+  for(let k=0;k<4;k++)path(P.G,us.map((v,i)=>[P.X(Math.log10(v)),P.Y(Math.log10(Math.max(E[i][k],1e-17)))]),cols[k],2.2);
+  for(let k=0;k<2;k++)path(P.G,us.map((v,i)=>[P.X(Math.log10(v)),P.Y(Math.log10(Math.max(Eb[i][k],1e-17)))]),cols[k],1.4,"5 3");
+  if(!onR)P.G.appendChild(el("line",{x1:P.X(lu),x2:P.X(lu),y1:P.y0,y2:P.y0+P.h,stroke:"var(--ink)","stroke-dasharray":"2 3","stroke-width":1},P.G));
+  const ev=eigs(u,z,s,r,false),evb=eigs(u,z,s,r,true),G=fisher(fromZeta([u,z,s,r]));
+  let det=1;ev.forEach(v=>det*=v);
+  let sl="";if(!onR){const e2=eigs(2*u,z,s,r,false),eb2=eigs(2*u,z,s,r,true);sl=`slopes between ${f3(2*u)} and ${f3(u)}: <b>${(Math.log(e2[0]/ev[0])/Math.log(2)).toFixed(2)}, ${(Math.log(e2[1]/ev[1])/Math.log(2)).toFixed(2)}</b> (smallest two); block approximation: <b>${(Math.log(eb2[0]/evb[0])/Math.log(2)).toFixed(2)}, ${(Math.log(eb2[1]/evb[1])/Math.log(2)).toFixed(2)}</b>`}
+  else{const v1=fromZeta([0,z,s,r]),a1=[0,0,1,-1],a2=[v1[3],-v1[2],0,0];const Ga1=Math.max(...G.map(rw=>Math.abs(rw.reduce((q,v,k)=>q+v*a1[k],0)))),Ga2=Math.max(...G.map(rw=>Math.abs(rw.reduce((q,v,k)=>q+v*a2[k],0))));sl=`on R_o: |G a₁| = ${Ga1.toExponential(1)} for a₁ = (0,0,1,−1) (along R_o), |G a₂| = ${Ga2.toExponential(1)} for a₂ = (v₂,−v₁,0,0): <b>two</b> null directions, R_o is one-dimensional`}
+  g("w5t").innerHTML=`<table class="t"><tr><th></th><th>λ₁ (smallest)</th><th>λ₂</th><th>λ₃</th><th>λ₄</th><th>det G</th></tr><tr><td>Fisher matrix G${onR?" at u = 0":" at u = "+f4(u)}</td>${ev.map(v=>`<td><b>${Math.abs(v)<1e-15?"≈ 0":v.toExponential(3)}</b></td>`).join("")}<td>${Math.abs(det)<1e-30?"≈ 0":det.toExponential(2)}</td></tr><tr><td>layer-wise block approx.</td>${evb.map(v=>`<td>${Math.abs(v)<1e-15?"≈ 0":v.toExponential(3)}</td>`).join("")}<td></td></tr></table><div class="cap">${sl}. Script at (u, z, s, r) = (0.1, 0.4, 1, 1): 1.304e-10 1.293e-05 0.0108 0.7432, slopes 5.88 and 2.02; block approximation 5.469e-05 1.056e-04 (slopes 1.80, 1.98). Below u ≈ 0.02 double precision no longer resolves λ₁.</div>`;
+ }
+ ["w5u","w5z","w5s","w5r","w5o"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 6: plateau, plain against natural gradient
+(function(){
+ const info={in:{T:T_IN,s:1,r:1,K:0,L1:null,name:"teacher inside R"},pos:{T:T_POS,name:"T_pos (K > 0)"},neg:{T:T_NEG,name:"T_neg (K < 0)"}};
+ for(const k of ["pos","neg"]){const o=oneNeuron(info[k].T);Object.assign(info[k],o)}
+ function draw(res){
+  const key=g("w6t").value,z0=+g("w6z").value,u0=Math.pow(10,+g("w6u").value);g("w6zo").textContent=f2(z0);g("w6uo").textContent=sci(u0,1);
+  const L=g("w6l");clear(L);const P=axes(L,44,14,284,240,key==="in"?[-1,5]:[-1.3,2.7],key==="in"?[-14,-4]:[-3.2,0],"loss against time","t (log)","L (log)");
+  ticks(P,key==="in"?[0,2,4]:[-1,0,1,2],key==="in"?[-12,-8,-4]:[-3,-2,-1,0],v=>pw(v),v=>pw(v));
+  if(!res){g("w6s").innerHTML=`<div>press “run both flows”: ${info[key].name}, start (u, z) = (${sci(u0,1)}, ${f2(z0)}) with (s, r) at the best single neuron.</div>`;return}
+  const inf=info[key];
+  if(key!=="in")path(P.G,[[P.X(-1.3),P.Y(Math.log10(inf.L1))],[P.X(2.7),P.Y(Math.log10(inf.L1))]],"var(--faint)",1.2,"4 3");
+  const pts=(a,T)=>a.filter(o=>o.t>0).map(o=>[P.X(Math.log10(o.t)),P.Y(Math.log10(Math.max(lossGrad(o.xi,T).L,1e-300)))]);
+  path(P.G,pts(res.gd,inf.T),"var(--s2)",2.4);if(res.ng)path(P.G,pts(res.ng,inf.T),"var(--s1)",2.4);
+  g("w6s").innerHTML=res.html;
+ }
+ function run(){
+  const key=g("w6t").value,z0=+g("w6z").value,u0=Math.pow(10,+g("w6u").value),inf=info[key],T=inf.T,s=key==="in"?1:inf.s,r=key==="in"?1:inf.r,xi0=fromZeta([u0,z0,s,r]);
+  let gd,ng=null,html="";
+  if(key==="in"){
+   gd=integrateGD(xi0,T,1e5,{dt0:0.01,rel:0.05,dtmax:1e4,grow:1.3});ng=integrateNG(xi0,T,9,0.05,1);
+   const a=gd[gd.length-1],zg=toZeta(a.xi),zn=toZeta(ng[ng.length-1].xi),L0=lossGrad(xi0,T).L;
+   html=`<div>teacher inside R, start (u, z) = (${sci(u0,1)}, ${f2(z0)}), (s, r) = (1, 1), L(0) = ${sci(L0,2)}</div><div>plain flow at t = 10⁵: |u| = <b>${f4(Math.abs(zg[0]))}</b>, z = ${f3(zg[1])}, L = <b>${sci(lossGrad(a.xi,T).L,2)}</b> (u ~ t^(−1/2), L ~ t^(−2))</div><div>natural flow at t = 9: |u| = <b>${f4(Math.abs(zn[0]))}</b>, z = <b>${f4(zn[1])}</b> (→ ±1: ends on R_e), L = <b>${sci(lossGrad(ng[ng.length-1].xi,T).L,2)}</b> (e^(−2t))</div><div class="cap" style="background:none;padding:0">Script, start (0.3, 0.4): plain u = 0.0879 at 10⁵ (0.0095 at 10⁷); natural u = 0.117, z = 0.9997, L = 1.4e-13 at t = 9. u·z stays at ${f3(Math.abs(u0*z0))} under the natural flow: ${f3(Math.abs(zn[0]*zn[1]))} at t = 9.</div>`;
+  }else{
+   const stableGD=(1-z0*z0)*inf.K<0,L1=inf.L1;
+   gd=integrateGD(xi0,T,400,{dt0:0.01,rel:0.05,dtmax:2,grow:1.3});
+   const gs=integrateGD(xi0,T,400,{dt0:0.01,rel:0.05,dtmax:2,grow:1.3,stop:(t,x)=>lossGrad(x,T).L<0.5*L1}),tHalf=lossGrad(gs[gs.length-1].xi,T).L<0.5*L1?gs[gs.length-1].t:null;
+   html=`<div>${inf.name}: best single neuron s = ${f4(inf.s)}, r = ${f4(inf.r)}, L₁ = <b>${f5(inf.L1)}</b>, K = <b>${sg(inf.K,5)}</b>; at z₀ = ${f2(z0)}: (1 − z²) K = ${sg((1-z0*z0)*inf.K,4)} → ${stableGD?"stable part of R_o (trapped)":"unstable part (leaves)"}</div><div>plain flow: L(400) = <b>${f5(lossGrad(gd[gd.length-1].xi,T).L)}</b>${tHalf===null?(stableGD?" — still on the plateau (trapped)":" — not yet below L₁/2 at t = 400 (the escape rate is small)"):`, below L₁/2 at t = <b>${tHalf.toFixed(1)}</b>`}</div>`;
+   if(key==="neg")html+=`<div>natural flow not shown for T_neg: my fixed-step integrator is unreliable there (it returned a loss far above the start, which an exact descent flow cannot do); see the notes</div>`;
+   else if(!stableGD&&u0<0.0999)html+=`<div>natural flow not integrated for u₀ &lt; 0.1: in double precision my integrator fails or does not converge there (the smallest Fisher eigenvalue is below 10⁻¹¹); the function-space argument in the notes covers small u₀</div>`;
+   else if(!stableGD){
+    ng=integrateNG(xi0,T,1.0,0.0005,0.05);const ls=ng.map(o=>lossGrad(o.xi,T).L);
+    const bad=ls.some((v,i)=>!isFinite(v)||(i>0&&v>ls[i-1]*(1+1e-6)));
+    if(bad){ng=null;html+=`<div>natural flow: my fixed-step integrator fails from this start (the loss does not decrease, which an exact descent flow cannot do: the Fisher matrix is too close to singular for double precision). See the notes.</div>`}
+    else{const g5=[0,5,10,15,20].map(i=>ls[i]);let th=null;for(let i=1;i<5;i++)if(g5[i]<0.5*L1){th=0.25*(i-1)+0.25*(g5[i-1]-0.5*L1)/(g5[i-1]-g5[i]);break}
+     html+=`<div>natural flow (step 0.0005): L at t = 0, 0.25, 0.5, 0.75, 1 is <b>${g5.map(v=>f3(v)).join(", ")}</b>; crosses L₁/2 at t ≈ <b>${th===null?"> 1":th.toFixed(2)}</b></div>`}}
+   else html+=`<div>natural flow not integrated from the stable part of R_o (huge parameter excursions, step-size dependent; see the notes)</div>`;
+   html+=`<div class="cap" style="background:none;padding:0">Script (T_pos, u₀ = 0.1): plain, z₀ = 1.5: trapped at 0.26573; z₀ = 0.6: below L₁/2 at t = 40.8; natural z₀ = 0.6, step 0.0005: L = 0.2654, 0.1657, 0.1025, 0.0629, 0.0385 at t = 0, 0.25, …, 1, crossing L₁/2 at t = 0.38 (u₀ = 0.3: 0.375). The last digit of the natural flow depends on rounding (the Fisher matrix has an eigenvalue of 2×10⁻¹¹ here), hence three decimals above.</div>`;
+  }
+  draw({gd,ng,html});
+ }
+ ["w6t","w6z","w6u"].forEach(i=>g(i).addEventListener("input",()=>draw(null)));g("w6b").addEventListener("click",run);draw(null);run();
+})();
+
+// ===== widget 7: adaptive learning constant
+(function(){
+ function ode(alpha,beta,tend){const f=y=>[-2*y[1]*y[0],alpha*beta*y[1]*y[0]-alpha*y[1]*y[1]];let y=[0.5,0.5],t=0,nxt=10;const out=[];
+  while(t<tend){const dt=Math.min(Math.max(1e-3,0.005*t),1e3);const k1=f(y),k2=f([y[0]+dt/2*k1[0],y[1]+dt/2*k1[1]]),k3=f([y[0]+dt/2*k2[0],y[1]+dt/2*k2[1]]),k4=f([y[0]+dt*k3[0],y[1]+dt*k3[1]]);y=[y[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),y[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])];t+=dt;if(t>=nxt){out.push([t,t*y[0],t*y[1]]);nxt*=Math.pow(10,0.25)}}return out}
+ let sim=null;
+ function draw(){
+  const al=+g("w7a").value,be=+g("w7b").value;g("w7ao").textContent=f2(al);g("w7bo").textContent=f2(be);
+  const o=ode(al,be,1e6),pred=(1/be)*(0.5-1/al);
+  const S=g("w7v");clear(S);const ymax=Math.max(1.3,Math.min(8,Math.max(...o.map(r=>Math.max(r[1],r[2])))*1.2));
+  const P=axes(S,60,12,600,215,[1,6],[0,ymax],"t·e_t and t·η_t from the averaged equations (12.97)–(12.98)","t","");ticks(P,[1,2,3,4,5,6],[0,0.5,1].concat(ymax>2?[2]:[]),v=>pw(v),f2);
+  path(P.G,o.map(r=>[P.X(Math.log10(r[0])),P.Y(r[1])]),"var(--s1)",2.4);path(P.G,o.map(r=>[P.X(Math.log10(r[0])),P.Y(r[2])]),"var(--s2)",2.4);
+  path(P.G,[[P.X(1),P.Y(0.5)],[P.X(6),P.Y(0.5)]],"var(--s2)",1,"4 3");if(pred>0)path(P.G,[[P.X(1),P.Y(pred)],[P.X(6),P.Y(pred)]],"var(--s1)",1,"4 3");
+  const near=t=>o.reduce((b,r)=>Math.abs(Math.log10(r[0])-Math.log10(t))<Math.abs(Math.log10(b[0])-Math.log10(t))?r:b);
+  const rows=[1e3,1e4,1e5,1e6].map(t=>near(t));
+  g("w7t").innerHTML=`<table class="t"><tr><th></th><th>t ≈ 10³</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>formula</th></tr><tr><td>t·e_t (blue)</td>${rows.map(r=>`<td><b>${f4(r[1])}</b></td>`).join("")}<td>${pred>0?f4(pred):"≤ 0: (12.99) fails"}</td></tr><tr><td>t·η_t (orange)</td>${rows.map(r=>`<td><b>${f4(r[2])}</b></td>`).join("")}<td>${al>2?"1/2":"1/α = "+f4(1/al)}</td></tr></table><div class="cap">Script, (α, β) = (4, 1): t·e = 0.2504, 0.2501, 0.2500, 0.2500; t·η = 0.5007, 0.5001, 0.5000, 0.5000. (3, 2): 0.0852 … 0.0834. (1.5, 1): t·η → 0.668, t·e → 0.0012 (not −0.1667).</div>`;
+  g("w7s").innerHTML=sim?`<div>stochastic rule, α = ${f2(sim.al)}, β = 0.05, noise sd ${sim.sg}, 400 runs from ξ = 0.7, η = 0.05: t = 100, 10³, 10⁴: mean t·e = <b>${sim.e.map(f3).join(", ")}</b>; median t·η = <b>${sim.te.map(f3).join(", ")}</b>; median η = ${sim.eta.map(v=>v.toExponential(2)).join(", ")}</div><div class="cap" style="background:none;padding:0">Script (α = 4): mean t·e 3.308, 4.406, 4.843, median t·η 0.374, 0.461, 0.490 (prediction 5.0 and 0.5); α = 1.5: t·η → 0.679; noise 0.3: η stalls at 2.24e-03 ≈ βσ²/2 = 2.25e-03.</div>`:`<div class="cap" style="background:none;padding:0">press “simulate 400 runs” for the stochastic rule (β = 0.05).</div>`;
+ }
+ function simulate(){
+  const al=+g("w7a").value,sg_=+g("w7n").value,R=400,beta=0.05,rd=mkRand(5);const xi=new Float64Array(R).fill(0.7),eta=new Float64Array(R).fill(0.05),out={e:[],te:[],eta:[]};
+  for(let t=1;t<=10000;t++){for(let i=0;i<R;i++){const x=rd.N01(),y=sg_*rd.N01(),r=y-xi[i]*x,l=0.5*r*r;xi[i]+=eta[i]*r*x;eta[i]*=Math.exp(Math.max(-30,Math.min(30,al*(beta*l-eta[i]))))}
+   if(t===100||t===1000||t===10000){let m=0;for(let i=0;i<R;i++)m+=t*0.5*xi[i]*xi[i];const a=Array.from(eta).sort((p,q)=>p-q);out.e.push(m/R);out.te.push(t*a[R/2]);out.eta.push(a[R/2])}}
+  sim={al,sg:sg_,e:out.e,te:out.te,eta:out.eta};draw();
+ }
+ ["w7a","w7b"].forEach(i=>g(i).addEventListener("input",()=>{sim=null;draw()}));g("w7n").addEventListener("input",()=>{sim=null;draw()});g("w7r").addEventListener("click",simulate);draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>

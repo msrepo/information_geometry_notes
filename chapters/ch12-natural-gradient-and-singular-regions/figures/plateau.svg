@@ -1,0 +1,98 @@
+<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Critical slowdown and plateaus: plain against natural gradient</title>
+<desc>Left: loss against time on logarithmic axes for a one-neuron teacher inside the critical region: the plain gradient flow decays like t to the minus 2 over seven decades of time while the natural gradient flow decays like exp(minus 2t) and is at 10 to the minus 13 by t = 9. Right: for a two-neuron teacher outside the critical region, loss against time on a logarithmic time axis: the plain flow started on the stable part stays at the plateau value for ever, the plain flow started on the unstable part leaves after about 40 time units, and the natural flow leaves in less than one time unit.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="70" y1="278.2" x2="390" y2="278.2"/>
+<text class="sm" x="64" y="281.7" text-anchor="end">10⁻¹³</text>
+<line class="gd" x1="70" y1="222.7" x2="390" y2="222.7"/>
+<text class="sm" x="64" y="226.2" text-anchor="end">10⁻¹¹</text>
+<line class="gd" x1="70" y1="167.1" x2="390" y2="167.1"/>
+<text class="sm" x="64" y="170.6" text-anchor="end">10⁻⁹</text>
+<line class="gd" x1="70" y1="111.6" x2="390" y2="111.6"/>
+<text class="sm" x="64" y="115.1" text-anchor="end">10⁻⁷</text>
+<line class="gd" x1="70" y1="56.0" x2="390" y2="56.0"/>
+<text class="sm" x="64" y="59.5" text-anchor="end">10⁻⁵</text>
+<line class="gd" x1="70.0" y1="56" x2="70.0" y2="306"/>
+<text class="sm" x="70.0" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="161.4" y1="56" x2="161.4" y2="306"/>
+<text class="sm" x="161.4" y="321" text-anchor="middle">10²</text>
+<line class="gd" x1="252.9" y1="56" x2="252.9" y2="306"/>
+<text class="sm" x="252.9" y="321" text-anchor="middle">10⁴</text>
+<line class="gd" x1="344.3" y1="56" x2="344.3" y2="306"/>
+<text class="sm" x="344.3" y="321" text-anchor="middle">10⁶</text>
+<line class="ax" x1="70" y1="306" x2="390" y2="306"/>
+<line class="ax" x1="70" y1="56" x2="70" y2="306"/>
+<text class="lab" x="230.0" y="338" text-anchor="middle">t</text>
+<text class="lab" transform="translate(30,181.0) rotate(-90)" text-anchor="middle">loss L</text>
+<text class="hd" x="70" y="44">Teacher inside R (one neuron)</text>
+<polyline class="ln s2" points="70.0,72.4 75.8,75.7 81.6,78.9 87.4,81.3 93.3,82.7 99.1,83.2 104.9,83.4 110.7,83.6 116.5,83.7 122.3,83.9 128.1,84.2 133.9,84.6 139.8,85.0 145.6,85.4 151.4,85.9 157.2,86.4 163.0,86.9 168.8,87.3 174.6,87.6 180.4,87.9 186.3,88.1 192.1,88.5 197.9,88.9 203.7,89.5 209.5,90.3 215.3,91.2 221.1,92.5 226.9,94.0 232.7,96.0 238.6,98.3 244.4,101.2 250.2,104.4 256.0,108.2 261.8,112.5 267.6,117.1 273.4,122.2 279.2,127.6 285.1,133.3 290.9,139.3 296.7,145.4 302.5,151.8 308.3,158.3 314.1,164.8 319.9,171.5 325.7,178.3 331.5,185.1 337.4,192.0 343.2,198.9 349.0,205.8 354.8,212.8 360.6,219.8 366.4,226.8 372.2,233.8 378.0,240.8 383.9,247.8 389.7,254.8 390.0,255.2"/>
+<polyline class="ln s1" points="70.0,82.3 83.8,106.2 91.8,130.0 97.5,153.9 102.0,177.9 105.6,201.9 108.6,226.0 111.3,250.1 113.6,274.1"/>
+<polyline class="dash s0" points="252.9,88.6 390.0,255.3"/>
+<text class="sm" x="252.9" y="183.8" text-anchor="start">slope −2</text>
+<line class="s2" style="stroke-width:2.2" x1="190" y1="262" x2="212" y2="262"/>
+<text class="sm" x="218" y="265.5">plain gradient</text>
+<line class="s1" style="stroke-width:2.2" x1="190" y1="277" x2="212" y2="277"/>
+<text class="sm" x="218" y="280.5">natural gradient</text>
+<line class="gd" x1="470" y1="306.0" x2="770" y2="306.0"/>
+<text class="sm" x="464" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="470" y1="222.7" x2="770" y2="222.7"/>
+<text class="sm" x="464" y="226.2" text-anchor="end">0.1</text>
+<line class="gd" x1="470" y1="139.3" x2="770" y2="139.3"/>
+<text class="sm" x="464" y="142.8" text-anchor="end">0.2</text>
+<line class="gd" x1="470" y1="56.0" x2="770" y2="56.0"/>
+<text class="sm" x="464" y="59.5" text-anchor="end">0.3</text>
+<line class="gd" x1="487.6" y1="56" x2="487.6" y2="306"/>
+<text class="sm" x="487.6" y="321" text-anchor="middle">0.3</text>
+<line class="gd" x1="531.8" y1="56" x2="531.8" y2="306"/>
+<text class="sm" x="531.8" y="321" text-anchor="middle">1</text>
+<line class="gd" x1="620.0" y1="56" x2="620.0" y2="306"/>
+<text class="sm" x="620.0" y="321" text-anchor="middle">10</text>
+<line class="gd" x1="708.2" y1="56" x2="708.2" y2="306"/>
+<text class="sm" x="708.2" y="321" text-anchor="middle">100</text>
+<line class="ax" x1="470" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="470" y1="56" x2="470" y2="306"/>
+<text class="lab" x="620.0" y="338" text-anchor="middle">t</text>
+<text class="lab" transform="translate(430,181.0) rotate(-90)" text-anchor="middle">loss L</text>
+<text class="hd" x="470" y="44">Teacher outside R, start at u₀ = 0.1</text>
+<polyline class="dash s0" points="470.0,84.6 770.0,84.6"/>
+<polyline class="ln s2" points="531.8,84.1 543.0,84.1 554.2,84.2 565.4,84.2 576.7,84.3 587.9,84.3 599.1,84.4 610.3,84.4 621.5,84.5 632.7,84.5 644.0,84.5 655.2,84.5 666.4,84.6 677.5,84.6 687.9,84.6 698.1,84.6 708.5,84.6 719.1,84.6 729.2,84.6 739.3,84.6 749.4,84.6 759.5,84.6 761.4,84.6"/>
+<polyline class="ln s3" points="531.8,84.9 543.0,85.0 554.2,85.0 565.4,85.1 576.7,85.2 587.9,85.4 599.1,85.7 610.3,86.2 621.5,87.4 632.7,90.1 644.0,97.1 655.2,115.4 666.4,157.5 677.5,227.3 687.9,284.0 698.1,299.0 708.5,301.5 719.1,303.0 729.2,304.0 739.3,304.6 749.4,305.0 759.5,305.3 761.4,305.4"/>
+<polyline class="ln s1" points="478.6,167.9 505.2,220.6 520.7,253.6 531.8,273.9"/>
+<circle class="f1 ring" cx="470.0" cy="84.9" r="3.6"/>
+<text class="sm" x="473.5" y="94.9" text-anchor="start">natural at t = 0</text>
+<text class="sm" x="761.2" y="77.9" text-anchor="end">L₁ (best single neuron)</text>
+<line class="s2" style="stroke-width:2.2" x1="486" y1="120" x2="508" y2="120"/>
+<text class="sm" x="514" y="123.5">plain, z₀ = 1.5: trapped</text>
+<line class="s3" style="stroke-width:2.2" x1="486" y1="135" x2="508" y2="135"/>
+<text class="sm" x="514" y="138.5">plain, z₀ = 0.6: escapes late</text>
+<line class="s1" style="stroke-width:2.2" x1="486" y1="150" x2="508" y2="150"/>
+<text class="sm" x="514" y="153.5">natural, z₀ = 0.6</text>
+<text class="sm" x="70" y="372">Left: the plain gradient flow slows down (u ~ t<tspan dy="-4.5" font-size="8.5">−1/2</tspan><tspan dy="4.5">, L ~ t⁻²); the natural flow has L ~ e</tspan><tspan dy="-4.5" font-size="8.5">−2t</tspan><tspan dy="4.5">. Right: the plain flow</tspan></text>
+<text class="sm" x="70" y="387">stays at the plateau value L₁ for ever (z₀ = 1.5) or leaves after t ≈ 40 (z₀ = 0.6); the natural flow from z₀ = 0.6 is below L₁/2</text>
+<text class="sm" x="70" y="402">at t ≈ 0.4. All curves are the averaged flow (12.129) of the two-neuron perceptron, from closed forms.</text>
+</svg>
