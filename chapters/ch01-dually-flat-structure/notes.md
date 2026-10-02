@@ -765,7 +765,7 @@ $0.23815\to0.19299\to0.19278\to\cdots\to0.192745$ from the first start, and **al
 <img src="figures/alternating.svg" alt="Five random starts of alternating projection between an m-flat set and the e-flat independence model: the error log10(D_t - D*) falls on straight lines over 24 half-steps, to about -12, and all runs approach the minimum 0.192745.">
 
 In the book's terms the algorithm alternates an e-projection and an m-projection, hence "em" (the book introduces these names on p. 28). This
-is the geometric form of the EM algorithm (Chapter 8): the data manifold $K$ is m-flat and the model $S$ is e-flat when the full model is an exponential family.
+is the geometric form of the EM algorithm ([Chapter 8](../ch08-hidden-variables/index.html), whose notes check the bookkeeping exactly): the data manifold $K$ is m-flat and the model $S$ is e-flat when the full model is an exponential family.
 
 ## 7. Coordinates, tensors and index notation (closing remarks of §1.6)
 
@@ -809,13 +809,13 @@ times the first gives $(-0.39753,-1.37547)$. The book's closing argument for usi
   that the geometry of this chapter delivers it. In EM for mixtures the model is *not* an exponential family, and local optima are the norm.
 - **Is the reversed pairing in Theorem 1.4 a typo or a convention?** I found no reading of "geodesic" and "dual geodesic" under
   which the printed pairing is consistent with Theorems 1.2–1.3, so I take it as an inversion. It would be worth checking whether the
-  corrected edition or later chapters (§2.8, maximum likelihood as m-projection) use the corrected pairing silently.
+  corrected edition or later chapters (§2.8, maximum likelihood as m-projection) use the corrected pairing silently. (Later chapters as written up in these notes do: [Chapter 6](../ch06-dual-connections/index.html) finds the same inversion in the decomposition (6.96), and [Chapter 8](../ch08-hidden-variables/index.html) uses the corrected pairing for EM throughout.)
 - **The metric is $\nabla^2\psi$ by definition, but Fisher information by theorem — only for exponential families.** For a general convex $\psi$ there is no
   statistical model behind it, and the chapter's "converse" (every dually flat structure comes from a convex potential, announced on the last pages) is only
   promised. I would like to see what restrictions are needed on the manifold (simple connectivity? global affine charts?) for the potential to exist globally.
 - **How much freedom is there?** A different $\psi$ on the same manifold gives a different dually flat structure. Given the manifold of 3-outcome distributions,
-  log-sum-exp is one choice; the Euclidean $\tfrac12\|\xi\|^2$ in the probabilities is another. Are there principled reasons to prefer one beyond "it is the exponential family"? Chapter 3 (the Fisher metric
-  as the unique invariant one) and Chapter 4 (KL is the only invariant flat divergence) answer this; here it is only asserted by example.
+  log-sum-exp is one choice; the Euclidean $\tfrac12\|\xi\|^2$ in the probabilities is another. Are there principled reasons to prefer one beyond "it is the exponential family"? [Chapter 3](../ch03-invariant-geometry/index.html) (the Fisher metric
+  as the unique invariant one) and [Chapter 4](../ch04-alpha-geometry/index.html) (KL is the only invariant flat divergence) answer this; here it is only asserted by example.
 - **"Straight" vs "shortest".** The chapter is careful to say a geodesic here is a straight line in an affine chart and not a minimiser of length. The
   Fisher–Rao geodesic is a third curve. The book never says which of the three is the right path between two distributions for a given purpose (interpolating
   models, averaging experts, path-based training). In the softmax example the three midpoints differ in the second decimal place, which could matter for
