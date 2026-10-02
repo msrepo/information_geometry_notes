@@ -6,8 +6,8 @@ Study notes on Shun-ichi Amari, *Information Geometry and Its Applications* (Spr
 [DOI 10.1007/978-4-431-55978-8](https://doi.org/10.1007/978-4-431-55978-8)): the fundamentals worked out from
 scratch, one folder per chapter, with runnable checks of every claim and visualisations to poke at.
 
-The notes are written in my own words and re-derive the results. **The book itself is not in this repository and is
-never published**: it is under copyright, so it lives in a gitignored folder on the author's machine.
+Heavy use of AI went into these notes: they reflect my effort to understand this book using Claude as a tutor.
+**The book itself is not in this repository and is never published**: it is under copyright, so it lives in a gitignored folder on the author's machine.
 
 ## Layout
 

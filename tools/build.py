@@ -292,8 +292,8 @@ def render_index(entries: list[tuple[Path, dict]]) -> None:
     n_done = len(by_chapter)
     intro = (f'Study notes on <a href="{html.escape(BOOK["url"])}">{html.escape(BOOK["author"])}, '
              f'<i>{html.escape(BOOK["title"])}</i></a> ({html.escape(BOOK["publisher"])}, {BOOK["year"]}): the fundamentals worked '
-             'out from scratch, with checks you can run and visualisations you can poke at. The notes are written in my own words '
-             'and re-derive the results; the book itself is not included here.')
+             'out from scratch, with checks you can run and visualisations you can poke at. Heavy use of AI went into these notes: '
+             'they reflect my effort to understand this book using Claude as a tutor. The book itself is not included here.')
     doc = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
