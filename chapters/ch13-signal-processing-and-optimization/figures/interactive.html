@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal Processing and Optimization Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Signal processing and optimization, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 13 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Eight small experiments, one for each claim of the chapter that is worth seeing move. They use the same mathematics as <code>code/signal_processing.py</code>; the default readouts of widgets 1, 2, 3 (top table), 4, 5, 6 and 7 are the numbers that script prints.
+Widgets 3 (the simulation button) and 8 draw their own seeded random numbers, so their simulated numbers agree with the script only up to Monte Carlo error; widget 4 starts from the script's own source samples.</p>
+
+<h2>1. Is the Stiefel manifold stable under the principal-component flows?</h2>
+<p>Take $k=2$ orthonormal vectors in $\mathbb R^6$, collected in $W$ with $W^{\mathsf T}W=I$, and let the flow act on a slightly larger matrix $M$ that has been pushed off the manifold. The <b>defect</b> $\lVert M^{\mathsf T}M-I\rVert$ tells whether the flow brings $M$ back, leaves it where it is, or throws it away.
+Oja's flow (13.31) is stable; the ascent flow (13.34) for minor components blows up; the flow (13.35) of Chen et al. conserves $M^{\mathsf T}M$ exactly, so the defect neither grows nor decays; the sign of the second term of (13.36) as printed is wrong, and the printed flow shrinks $M$ to zero, while the sign-corrected version conserves $M^{\mathsf T}M$ like (13.35); (13.40) and (13.41) pull $M^{\mathsf T}M$ back to $D^2$.
+Change the push (slider) and compare the last column of the readout, the distance of the final subspace from the principal and the minor subspace of $V_X$.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>flow <select id="w1f"><option value="oja">(13.31) Oja subspace flow</option><option value="ascent">(13.34) ascent for minor components</option><option value="n35">(13.35)</option><option value="n36_printed">(13.36) as printed</option><option value="n36">(13.36) with the sign corrected</option><option value="n40">(13.40)</option><option value="n41">(13.41)</option></select></label>
+    <label>push off the manifold <input type="range" id="w1p" min="0" max="3" step="0.05" value="1"><output id="w1po"></output></label>
+  </div>
+  <svg id="w1v" viewBox="0 0 700 270" role="img" aria-label="log10 of the defect of M transpose M against time for the chosen flow"></svg>
+  <div class="stats" id="w1s"></div>
+</div>
+
+<h2>2. Second-order statistics leave a rotation free; independence picks it</h2>
+<p>Two independent uniform sources are mixed and then whitened by PCA, as in the book's example (13.44)–(13.46). The result is the source pair up to a rotation by some angle, and no covariance can tell which. Turn the rotation: the outputs stay uncorrelated for every angle, but they are independent only at $0^\circ$ and $90^\circ$.
+The mutual information of the pair has the closed form $I=2\ln a+b/a$ with $a=\max(\lvert\cos\theta\rvert,\lvert\sin\theta\rvert)$ and $b=\min(\ldots)$ (maximum $1-\ln2$ at $45^\circ$). The fourth-order statistics see the angle: the excess kurtosis of $y_1$ is $k(\cos^4\theta+\sin^4\theta)$ and the correlation of the squares is nonzero.
+The button puts the angle where the principal components of the book's example sit. Switch the sources to Gaussian and the picture, and every number, stops depending on the angle: this is the indefiniteness of rotation of (13.19).</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>sources <select id="w2k"><option value="uniform">uniform</option><option value="gauss">Gaussian</option></select></label>
+    <label>rotation $\theta$ <input type="range" id="w2a" min="0" max="90" step="0.01" value="31.72"><output id="w2ao"></output></label>
+    <button id="w2b1" type="button">PCA solution of the example (31.72°)</button><button id="w2b2" type="button">45°</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w2l" viewBox="0 0 340 300" role="img" aria-label="Scatter plot of the two rotated outputs"></svg></div>
+    <div><svg id="w2r" viewBox="0 0 340 300" role="img" aria-label="Mutual information of the outputs against the rotation angle"></svg></div>
+  </div>
+  <div class="stats" id="w2s"></div>
+</div>
+
+<h2>3. When does the separating point attract? The sign of one eigenvalue</h2>
+<p>For the natural-gradient rule $\dot C=(I-\varphi(y)y^{\mathsf T})C$ the Hessian of the loss at the separating point splits into $1\times1$ blocks $E[\varphi_i'(s_i)s_i^2]+1$ and $2\times2$ blocks $\left[\begin{smallmatrix}m_i\sigma_j^2&1\\1&m_j\sigma_i^2\end{smallmatrix}\right]$ (with $m_i=E\varphi_i'(s_i)$, sources rescaled so that $E[\varphi(s)s]=1$).
+With $\kappa_i=m_i\sigma_i^2$ the point is a minimum exactly when $\kappa_1\kappa_2>1$; the weak direction is the antisymmetric pair, a rotation of the outputs. For $\varphi=y^3$ this reads $(3+k_1)(3+k_2)<9$ in terms of the excess kurtoses. Pick two sources and a nonlinearity: a uniform pair is stable with $y^3$ and unstable with $\tanh$; a uniform and a Laplace source are unstable with $y^3$; a uniform and a sech source (kurtosis 2) sit exactly on the boundary.
+The button runs 3000 paired online chains started at $C=I\pm\delta v$ along the weakest eigenvector and compares the mean response at $t=2$ with $e^{-h_{\min}t}$ (the step $\varepsilon=0.005$ leaves an $O(\varepsilon)$ gap of a few percent, which the script removes by extrapolation).</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>source 1 <select id="w3a"><option value="uniform">uniform</option><option value="bimodal">bimodal</option><option value="logistic">logistic</option><option value="sech">sech</option><option value="laplace">Laplace</option></select></label>
+    <label>source 2 <select id="w3b"><option value="uniform">uniform</option><option value="bimodal">bimodal</option><option value="logistic">logistic</option><option value="sech">sech</option><option value="laplace">Laplace</option></select></label>
+    <label>$\varphi$ <select id="w3n"><option value="cubic">y³</option><option value="tanh">tanh y</option></select></label>
+    <button id="w3r" type="button">simulate 3000 chains</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w3l" viewBox="0 0 340 300" role="img" aria-label="Plane of the excess kurtoses with the stability region for the cubic nonlinearity"></svg></div>
+    <div><div id="w3tab"></div></div>
+  </div>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>4. The natural gradient does not care what the mixing matrix is</h2>
+<p>Write $C=WA$. For the natural gradient $W\leftarrow W+\varepsilon(I-\varphi(y)y^{\mathsf T})W$ the update of $C$ is $C\leftarrow C+\varepsilon(I-\varphi(Cs)(Cs)^{\mathsf T})C$ and contains $A$ nowhere: with the same source samples and the same $C(0)$, two different mixing matrices give the <i>same</i> trajectory of $C$, to rounding error (relative gradient, Cardoso and Laheld). The ordinary gradient $W\leftarrow W+\varepsilon(W^{-\mathsf T}-\varphi(y)x^{\mathsf T})$ gives $\Delta C=\varepsilon(C^{-\mathsf T}-\varphi(y)s^{\mathsf T})A^{\mathsf T}A$: the speed, and eventually the stability, depend on $A$.
+Uniform sources, $\varphi=y^3$, $\varepsilon=0.01$. Move the first entry of $A_2$ and watch the ordinary gradient (orange, green) change while the natural gradient (blue, dashed) does not. (The default samples are the script's own, so the default readout equals the script's; the second button draws a fresh random stream here, for which the numbers differ but the identity of the two natural trajectories does not.)</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>$A_2=\left[\begin{smallmatrix}a&-2\\0.5&0.4\end{smallmatrix}\right]$, $a$ <input type="range" id="w4a" min="0.5" max="6" step="0.1" value="3"><output id="w4ao"></output></label>
+    <button id="w4b" type="button">new random stream</button>
+    <button id="w4c" type="button">the script's samples</button>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 260" role="img" aria-label="Cross-talk index against learning step for natural and ordinary gradient and two mixing matrices"></svg>
+  <div class="stats" id="w4s"></div>
+</div>
+
+<h2>5. Lee–Seung is exponential gradient with a particular step</h2>
+<p>The multiplicative update (13.124)–(13.125) is presented as the analogue of the exponential gradient (13.121). It is exactly an exponential-gradient step $A\leftarrow A\,e^{-\eta_{it}(\partial L/\partial A)_{it}}$ whose rate is $\eta_{it}=1/\mathrm{logmean}(N_{it},P_{it})$ (with $\partial L/\partial A=P-N$), so it is not (13.121) for any single learning constant. It decreases the loss at every iteration, while exponential gradient with a fixed $\eta$ does so only for small $\eta$.
+The data are the matrices of the script ($X=AS$ with $A$ of size $6\times3$ and $S$ of size $3\times40$, 300 iterations from a common start).</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>EG step $\eta$ <select id="w5e"><option value="0.003">0.003</option><option value="0.01">0.01</option><option value="0.03">0.03</option><option value="0.1" selected>0.1</option><option value="0.3">0.3</option><option value="1">1.0</option></select></label>
+  </div>
+  <svg id="w5v" viewBox="0 0 700 260" role="img" aria-label="log10 of the loss against iteration for Lee-Seung and exponential gradient"></svg>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>6. Least angle: the inactive axes can be the closer ones</h2>
+<p>Along the lasso path the dual coordinates satisfy $\eta_A=-\lambda s_A$ on the active set, so $\lvert\langle\dot\theta,e_i\rangle\rvert$ is the same for all active $i$ (Theorem 13.4 (1)). The book adds that the inactive axes are at larger angles. With $d=G_{AA}^{-1}s_A$ the inactive inner products are $g_j=(G_{jA}d)$, per unit inner product of the active ones, and nothing keeps $\lvert g_j\rvert\le1$: that is the <i>irrepresentable condition</i> of lasso theory, and it fails often.
+Three unit columns in $\mathbb R^3$: the first two have correlation $\rho$ (set below), the third lies almost in their span. The table lists every segment of the exact path for the data of the script; at $\rho=-0.9$ the segment with active set $\{1,2\}$ has an inactive axis with $\lvert g_3\rvert=4.27$ and makes an angle of $17^\circ$ with the path, against $77^\circ$ for the active axes.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>$G_{12}=\rho$ <input type="range" id="w6r" min="-0.95" max="0.6" step="0.01" value="-0.9"><output id="w6ro"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w6l" viewBox="0 0 340 280" role="img" aria-label="Lasso coefficient paths against lambda"></svg></div>
+    <div><div id="w6tab"></div></div>
+  </div>
+  <div class="stats" id="w6s"></div>
+</div>
+
+<h2>7. The central path is straight in the dual coordinates</h2>
+<p>For a linear program over a polygon, minimise $c\cdot\theta$ with the barrier $\psi=-\sum_k\log(A_k\theta-b_k)$: the minimiser of $tc\cdot\theta+\psi$ satisfies $\nabla\psi(\theta^*(t))=-tc$, a <b>straight line in $\eta=\nabla\psi$</b> (an m-geodesic from the centre) and a curved path in $\theta$. The dual vector $y_k=1/(ts_k)$ is feasible and the gap is exactly $m/t$. The natural-gradient (affine-scaling) step $\theta\leftarrow\theta-\varepsilon G^{-1}c$ follows this path from the analytic centre with an error that is first order in $\varepsilon$: the path's curvature in the $\theta$ chart is what limits the step.
+Move $t$ along the path and change the step size; the table gives the error of the Euler iterates at $t=2$.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>$\log_{10}t$ <input type="range" id="w7t" min="-1" max="3" step="any" value="0.30102999566"><output id="w7to"></output></label>
+    <label>Euler step $\varepsilon$ <select id="w7e"><option value="0.4" selected>0.4</option><option value="0.2">0.2</option><option value="0.1">0.1</option><option value="0.05">0.05</option><option value="0.025">0.025</option></select></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w7l" viewBox="0 0 340 280" role="img" aria-label="The hexagon, the central path and the Euler iterates"></svg></div>
+    <div><div id="w7tab"></div></div>
+  </div>
+  <div class="stats" id="w7s"></div>
+</div>
+
+<h2>8. The Hyvärinen score is efficient only for the Gaussian</h2>
+<p>The score-matching estimator solves $\sum_i s(x_i,\theta)=0$ with $s=\partial_\theta(\ddot l+\tfrac12\dot l^2)$, needs no normalising constant and is consistent, but its asymptotic covariance $K^{-1}VK^{-1}$ exceeds the Cramér–Rao bound unless $s$ lies in the span of the score. For $p\propto\exp(-\theta\lvert x\rvert^k)$ the efficiency is a ratio of Gamma functions: $1$ at $k=2$ (Gaussian), $0.8214$ at $k=3$ (the book's Example 13.1, whose printed $\psi$ and $s$ have sign slips) and smaller for larger $k$.
+The simulation draws $\theta x^k\sim\mathrm{Gamma}(1/k)$ exactly, with $\hat\theta_{\rm MLE}=N\theta/(k\sum y_i)$ and $\hat\theta_{\rm H}=\frac{k-1}{k}\sum x_i^{k-2}/\sum x_i^{2k-2}$.</p>
+<div class="widget" id="w8">
+  <div class="controls">
+    <label>exponent $k$ <input type="range" id="w8k" min="2" max="8" step="0.1" value="3"><output id="w8ko"></output></label>
+    <label>sample size $N$ <input type="range" id="w8n" min="50" max="2000" step="10" value="400"><output id="w8no"></output></label>
+    <button id="w8b" type="button">resample</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w8l" viewBox="0 0 340 280" role="img" aria-label="Efficiency of the Hyvarinen estimator against the exponent k"></svg></div>
+    <div><svg id="w8r" viewBox="0 0 340 280" role="img" aria-label="Histograms of the MLE and the Hyvarinen estimator"></svg></div>
+  </div>
+  <div class="stats" id="w8s"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fy||f2)(v)})};
+const fE=v=>Math.abs(v)<1e-12?"≈ 0 (rounding)":v.toExponential(2);
+const dotp=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+
+// ---------- randomness: seeded generator, normal, gamma (Marsaglia-Tsang)
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mkRand(seed){
+ const U=rng(seed);let spare=null;
+ const N01=()=>{if(spare!==null){const s=spare;spare=null;return s}let u=0,v=0;while(u===0)u=U();v=U();const r=Math.sqrt(-2*Math.log(u));spare=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v)};
+ const gam=k=>{if(k<1){return gam(k+1)*Math.pow(U(),1/k)}const d=k-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{x=N01();v=1+c*x}while(v<=0);v=v*v*v;const u=U();if(u<1-0.0331*x*x*x*x)return d*v;if(Math.log(u)<0.5*x*x+d*(1-v+Math.log(v)))return d*v}};
+ return {U,N01,gam};
+}
+// ---------- Gauss-Legendre quadrature, composite
+function gauleg(n){const x=new Array(n),w=new Array(n),m=(n+1)>>1;for(let i=0;i<m;i++){let z=Math.cos(Math.PI*(i+0.75)/(n+0.5)),pp,z1;do{let p1=1,p2=0;for(let j=0;j<n;j++){const p3=p2;p2=p1;p1=((2*j+1)*z*p2-j*p3)/(j+1)}pp=n*(z*p1-p2)/(z*z-1);z1=z;z=z1-p1/pp}while(Math.abs(z-z1)>1e-15);x[i]=-z;x[n-1-i]=z;w[i]=2/((1-z*z)*pp*pp);w[n-1-i]=w[i]}return[x,w]}
+function glPieces(edges,n){const [x0,w0]=gauleg(n),xs=[],ws=[];for(let k=0;k<edges.length-1;k++){const a=edges[k],b=edges[k+1];for(let i=0;i<n;i++){xs.push(0.5*(b-a)*x0[i]+0.5*(b+a));ws.push(0.5*(b-a)*w0[i])}}return[xs,ws]}
+function lgamma(x){const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(x<0.5)return Math.log(Math.PI/Math.abs(Math.sin(Math.PI*x)))-lgamma(1-x);x-=1;let a=c[0];const t=x+7.5;for(let i=1;i<9;i++)a+=c[i]/(x+i);return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a)}
+
+// ---------- the sources of the script: zero mean, unit variance, exact quadrature
+const BETA=Math.sqrt(3)/Math.PI,BA=0.9,BB2=1-0.81;
+const SRC={
+ uniform:{name:"uniform",lp:x=>-Math.log(2*Math.sqrt(3)),phi:null,edges:[-Math.sqrt(3),0,Math.sqrt(3)],n:40,samp:rd=>(rd.U()*2-1)*Math.sqrt(3)},
+ laplace:{name:"Laplace",lp:x=>-Math.SQRT2*Math.abs(x)-0.5*Math.log(2),phi:x=>Math.SQRT2*Math.sign(x),edges:[-25,-10,-4,-1,0,1,4,10,25],n:24,samp:rd=>{const u=rd.U()-0.5;return -Math.sign(u)*Math.log(1-2*Math.abs(u))/Math.SQRT2}},
+ logistic:{name:"logistic",lp:x=>-Math.log(4*BETA)-2*Math.log(Math.cosh(x/(2*BETA))),phi:x=>Math.tanh(x/(2*BETA))/BETA,edges:[-22,-8,-3,-1,0,1,3,8,22],n:24,samp:rd=>{const u=rd.U();return BETA*Math.log(u/(1-u))}},
+ sech:{name:"sech",lp:x=>-Math.log(2*Math.cosh(Math.PI*x/2)),phi:x=>(Math.PI/2)*Math.tanh(Math.PI*x/2),edges:[-24,-8,-3,-1,0,1,3,8,24],n:24,samp:rd=>(2/Math.PI)*Math.log(Math.tan(Math.PI*rd.U()/2))},
+ bimodal:{name:"bimodal",lp:x=>{const g1=Math.exp(-0.5*(x+BA)*(x+BA)/BB2),g2=Math.exp(-0.5*(x-BA)*(x-BA)/BB2);return Math.log(0.5*(g1+g2)/Math.sqrt(2*Math.PI*BB2))},phi:null,edges:[-7,-3,-1,0,1,3,7],n:24,samp:rd=>(rd.U()<0.5?-BA:BA)+Math.sqrt(BB2)*rd.N01()},
+ gauss:{name:"Gaussian",lp:x=>-0.5*x*x-0.5*Math.log(2*Math.PI),phi:x=>x,edges:[-12,-4,-1,0,1,4,12],n:24,samp:rd=>rd.N01()}
+};
+for(const k in SRC){const s=SRC[k],[x,w]=glPieces(s.edges,s.n);s.x=x;s.w=w.map((wi,i)=>wi*Math.exp(s.lp(x[i])));s.E=f=>{let t=0;for(let i=0;i<x.length;i++)t+=s.w[i]*f(x[i]);return t};s.kurt=()=>{const v=s.E(t=>t*t);return s.E(t=>t**4)/(v*v)-3}}
+const NONLIN={cubic:{phi:y=>y*y*y,dphi:y=>3*y*y},tanh:{phi:y=>Math.tanh(y),dphi:y=>1-Math.tanh(y)**2}};
+// equilibrium scale: E[phi(c s) c s] = 1 (bisection in log c, as in the script)
+function eqScale(src,nl){let lo=0.02,hi=40;for(let i=0;i<60;i++){const mid=Math.sqrt(lo*hi);if(src.E(t=>NONLIN[nl].phi(mid*t)*mid*t)-1>0)hi=mid;else lo=mid}return lo}
+function stability(sa,sb,nl){
+ const L=NONLIN[nl],c=[eqScale(SRC[sa],nl),eqScale(SRC[sb],nl)],S=[SRC[sa],SRC[sb]];
+ const v2=[0,1].map(i=>S[i].E(t=>(c[i]*t)**2)),m=[0,1].map(i=>S[i].E(t=>L.dphi(c[i]*t))),mu=[0,1].map(i=>S[i].E(t=>L.dphi(c[i]*t)*(c[i]*t)**2)+1);
+ const a=m[0]*v2[1],b=m[1]*v2[0],mean=(a+b)/2,dd=Math.sqrt(((a-b)/2)**2+1),e1=mean-dd,e2=mean+dd;
+ const ev=[mu[0],mu[1],e1,e2].sort((p,q)=>p-q);
+ return {c,v2,m,mu,a,b,kap:[m[0]*v2[0],m[1]*v2[1]],hmin:ev[0],e1,e2,k:[S[0].kurt(),S[1].kurt()]};
+}
+
+// ---------- widget 1: the principal-component flows
+const PCA_N=6,PCA_K=2;
+const PCA_V=[[2.156797580895776, -0.07725436108301648, -0.46171500057188164, 0.6676015293157986, -0.5950425443703757, -0.652340826901677], [-0.07725436108301648, 1.2327738895622, 0.28995636677380504, -0.4125244841622256, -0.8154293873782958, 0.35967630311838644], [-0.46171500057188164, 0.28995636677380504, 0.7964563132583226, -0.11984968849563213, -1.0854594466702743, 0.6774359141308248], [0.6676015293157986, -0.41252448416222565, -0.11984968849563218, 1.5773440172926692, 0.07521112328827143, -0.0944681546388593], [-0.5950425443703757, -0.8154293873782957, -1.085459446670274, 0.07521112328827151, 3.732088833622112, -1.337297370801108], [-0.652340826901677, 0.35967630311838655, 0.6774359141308247, -0.0944681546388593, -1.337297370801108, 1.4045393653689198]], PCA_O=[[-0.014845696029707867, 0.8081730384417977, 0.291969888828428, 0.04599300612179173, -0.2724691125290256, -0.4301566637496013], [-0.24736179619502235, -0.10867077897565029, 0.46319147952216233, -0.8435477449339113, 0.02757658881887595, 0.01109912807813483], [-0.2954043358842259, -0.17138262330360063, -0.1764711354523707, 0.01888285466256415, 0.5227342624825971, -0.7606671688387071], [0.06633616834222704, 0.4299800550551828, -0.733900494189358, -0.47036681793277246, 0.16747869820145306, 0.15103864369615586], [0.8337667572590878, -0.23319186607431497, -0.029701909822547806, -0.24198429920720393, -0.18366888855446212, -0.39658754765335785], [-0.3895645423966387, -0.2577085641061904, -0.35996254923150806, -0.07844704410991055, -0.7680922017046198, -0.23692437062350669]], PCA_W0=[[-0.38163083240972284, 0.032287786260786634], [0.0400006213805745, -0.6894223739574667], [-0.2976381866155025, -0.6608148894314523], [-0.6276499690265289, 0.12722608765508064], [-0.5725605909874588, 0.1981997205936439], [-0.20591079121977598, -0.17750595603390062]], PCA_DM=[[-0.015353114350289796, 0.07540361357860671], [-0.029111468890295096, -0.011406190192564227], [-0.03622572522081428, -0.02586246687453911], [-0.015327894097728487, 0.01282758229337603], [-0.014692802751289974, -0.01773542324943842], [-0.030840757626857507, 0.004479223345304437]];
+const NMF_X=[[0.7077876174763804, 0.29105388576264163, 0.8329088230368621, 0.9943808398404508, 0.6377862587381639, 0.8255689159391044, 0.9201811680813246, 0.5595680006171667, 0.9763446330781184, 0.8472541184577179, 0.9253861719592206, 0.4608605419112269, 1.538035023914238, 0.5475895046248584, 1.161464608553161, 1.0607467130790085, 0.19686407462801983, 0.6775906204154162, 0.16240737190424387, 0.5683892943217025, 1.243290190322264, 0.4154620574021627, 0.32920950255512077, 0.8583996018904769, 1.134499748565802, 1.0267114012430256, 0.9455842676073364, 0.7992467063531853, 1.6127364485674334, 0.3814953909604893, 0.9739258607132943, 0.6308722789131025, 0.21139829277480152, 1.356718654860368, 0.7601436059988642, 0.22332263256322554, 0.43389847575572216, 0.9606093136323915, 0.14401119653637454, 1.1584408317413224], [0.681769752426815, 0.45439706117950585, 1.0963842004034974, 1.130433302393112, 0.5702720235515, 1.0499301372238787, 0.8598496403575522, 0.7050521941512853, 0.9179163299131032, 0.7623161259327955, 1.092091817609774, 0.5857810572348224, 1.5171666285498129, 0.725325242426547, 1.3234885413935724, 0.9806745458088421, 0.2577127392811835, 0.7418040673983872, 0.16666705107637772, 0.5457836592098787, 1.3045069850983246, 0.4405913154414147, 0.363175126335596, 1.1177782499602364, 1.2827866693660295, 1.000885662389749, 1.0543226028676407, 0.8104309106111165, 1.636520238961794, 0.4251709998277139, 0.8998869896737021, 0.7275176265536707, 0.2110416809382476, 1.4308413545656995, 0.7233998709067391, 0.35397018466318575, 0.6155886086523, 0.9189861721630412, 0.2372404593186716, 1.2805740402662344], [0.4686485165076707, 0.39525421225212354, 0.8851008969973164, 0.8500117860792784, 0.371945359782866, 0.8314595980472482, 0.5805351130505163, 0.5591108075339308, 0.6156657906332257, 0.4996344826990649, 0.8304779090288642, 0.46423859154438674, 1.0442273750434372, 0.5864794032175696, 1.00406093965342, 0.656450512274232, 0.20735252461605083, 0.5479833384393493, 0.1197604131049216, 0.3754530336192007, 0.9432252612156897, 0.31586429877930466, 0.2681229774837595, 0.8969783331329674, 0.9725970136320954, 0.6851990798656653, 0.7974468916828956, 0.5662990992683191, 1.1492518462834391, 0.3122535122935096, 0.5978071349340781, 0.5492135991274676, 0.14902993574440337, 1.0329769489596798, 0.48936283275367537, 0.3092094626788127, 0.5155403481785138, 0.6302001396228017, 0.21063573188920182, 0.9505953831168256], [0.6446939743081738, 0.78080920133865, 1.4936527831651896, 1.2708640872939003, 0.46507070158584446, 1.3236990667270812, 0.7927810511260507, 0.928464544463731, 0.75029327550917, 0.6319456878353649, 1.1875639550446813, 0.7453675473272884, 1.2592677672267434, 0.98465424060627, 1.6136930729863328, 0.8745099034103604, 0.34583552446957216, 0.8120296662694326, 0.18330701456170717, 0.5299702661113581, 1.379441006848413, 0.3995557453515997, 0.3816153953487812, 1.486603772696562, 1.6012378418991926, 0.8364919288801439, 1.3552339779675897, 0.6884892720884798, 1.4741280216864772, 0.40012639812331374, 0.7333585951221903, 0.8039572037115749, 0.22128569211151447, 1.4508543215787377, 0.607716979069096, 0.610888094729498, 0.9530909207782072, 0.8798938846113703, 0.43300781639201963, 1.4148396328054156], [0.39697399020768304, 0.5368534060860911, 0.9965470153189342, 0.8189289757600525, 0.274106516033728, 0.8730939836393086, 0.48397647790663445, 0.6155795794479987, 0.44525043927290264, 0.3743707728844227, 0.7630663360470443, 0.4922190947901909, 0.75440732992809, 0.6568596385448398, 1.0529126397224826, 0.5291965365074148, 0.23025751568090383, 0.5196291737148517, 0.1168329703687603, 0.3280554535644165, 0.8746708905439706, 0.2460968284382694, 0.24263190721117697, 0.988443277351119, 1.047819820422561, 0.501314847338718, 0.8897474705871072, 0.416034727595656, 0.9028145375809987, 0.249427405396895, 0.43393994741965725, 0.5171291283466827, 0.13953449305883148, 0.9133102127626219, 0.3636758804447383, 0.42036750817565854, 0.6468940759456562, 0.5428680375848753, 0.2996655904237529, 0.907394207703807], [0.7229832311162367, 0.27157872752781836, 0.8815113217043287, 1.0697844336128461, 0.6499882146485758, 0.9051593364729756, 0.9258186966162634, 0.5868720940380063, 1.0399177246975093, 0.8627301552130844, 1.0515810173963123, 0.5013155415638769, 1.7002915562720144, 0.5847032842382415, 1.1837851945715407, 1.073254804127823, 0.21018058469618997, 0.7166134721979989, 0.1616275171372834, 0.5714261604127004, 1.2921526555249092, 0.47201902610255225, 0.3592400834553747, 0.9193843199430198, 1.1281037634906377, 1.1198623677409079, 0.9072920992883344, 0.897256515672509, 1.7661254070757435, 0.44550367209215797, 1.022481865487621, 0.695091951517356, 0.21116343978123422, 1.4503550901737843, 0.8096230734922296, 0.2097529492965843, 0.42909331378739896, 0.9693228397591096, 0.12715610251046716, 1.2287909087394526]], NMF_A0=[[0.9219367643545808, 0.38327092643521676, 0.8804683533546928], [0.5139598766630882, 0.6899399365630019, 0.950909732759785], [0.8699673347675312, 0.35470230139858117, 0.4320773407614692], [0.1916397176762689, 0.3694306817839851, 0.9742995129858061], [0.8940058990694328, 0.7605924760353728, 0.9775169291932654], [0.9214459285563257, 0.3947094088503279, 0.24440861395380156]], NMF_S0=[[0.9236154517973783, 0.1365308984843089, 0.4106498961464846, 0.41620350855198374, 0.34905562540187085, 0.28966564438559295, 0.9031696445015583, 0.6747061759605693, 0.9481594041054626, 0.49097161134837386, 0.6985571478384172, 0.4770989371624553, 0.5312930747042858, 0.8659109938943602, 0.7194615932063035, 0.3158625058224631, 0.7685617862041624, 0.9266011209284346, 0.5885628128070577, 1.0671793310329951, 0.9442594076807184, 0.33035437681197743, 0.8543757126669275, 0.7546904582502172, 0.7674205657241752, 0.33568664217290245, 0.18570935121509938, 0.28233759086267973, 1.0141682749635397, 0.6496050901815087, 0.6579764393463438, 1.0786698120887295, 0.6048342822768973, 0.7218000856740341, 0.3313660174902239, 0.11574426792018824, 0.6442384041416521, 0.5479907237492485, 0.37603659023176905, 0.160369321056997], [0.3101693566460223, 0.34781923798333625, 0.5363100579448385, 0.8387800015327013, 0.14073667034174644, 0.7413489478075733, 0.3563520285421161, 0.7616875882613028, 0.5240315603701582, 0.10285141314569671, 0.33737870606495945, 0.6144750313121253, 0.4308415299486993, 0.48449708993578344, 0.6512414514060048, 0.5250094181120664, 0.5300980760312638, 0.4435247987601577, 0.7247621444570012, 0.8365557103082362, 0.37941540355503955, 0.8426910920071847, 0.6137088845408862, 0.8463796456478907, 0.8005430394676587, 0.35119142012958016, 0.6204836386859314, 0.30598567062524606, 0.1828827316962033, 0.8293771245970225, 0.9679487963114464, 0.788014193164929, 0.6926400100105259, 0.8579462774450185, 0.5855339872567569, 0.7645922787918956, 0.7953906048566054, 0.3594908857210507, 0.5405154811985532, 0.1963729066238247], [0.9965733730206348, 1.0230946147607056, 0.7114733128446071, 0.22298273851831155, 0.1485497871405195, 0.5360252540220587, 0.7908048424117927, 0.6104548331577564, 0.2734118485543966, 0.2730716879751566, 0.5919233205498715, 1.0115704233079459, 0.32114739894183286, 0.9579053362280309, 0.5261941572650425, 0.4266475420755844, 0.5237479860436268, 0.45441201902339823, 0.30986492506658003, 0.6563179669055133, 0.5470840653917375, 0.5895740506936945, 0.4373193039074662, 0.7462380468671448, 0.1560507936073269, 1.0542254621571345, 0.3178950070800989, 0.548450022970001, 0.652394527749757, 0.7621423705810294, 0.5824288934213493, 0.7748264518166811, 0.296630151198786, 0.3922704528554555, 0.17830346042703307, 0.9332698988601792, 0.7046425569039928, 0.7208588544496313, 0.31026196890437097, 0.8810957940398665]];
+const LASSO_X=[-0.28026273984482564, -0.9830533743101313, 0.16521072173409343];
+const mm=(A,B)=>A.map(r=>B[0].map((_,j)=>{let t=0;for(let i=0;i<B.length;i++)t+=r[i]*B[i][j];return t}));
+const tr_=A=>A[0].map((_,j)=>A.map(r=>r[j]));
+const add=(A,B,s)=>A.map((r,i)=>r.map((v,j)=>v+(s===undefined?1:s)*B[i][j]));
+const scl=(A,s)=>A.map(r=>r.map(v=>v*s));
+const fro=A=>Math.sqrt(A.reduce((t,r)=>t+r.reduce((u,v)=>u+v*v,0),0));
+const eye=n=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0));
+const D2=[[2.25,0],[0,0.64]];
+function flowRhs(name){
+ return M=>{
+  const VM=mm(PCA_V,M),MtM=mm(tr_(M),M),MtVM=mm(tr_(M),VM);
+  switch(name){
+   case "oja":return add(VM,mm(M,MtVM),-1);
+   case "ascent":return add(scl(VM,-1),mm(M,MtVM));
+   case "n35":return add(mm(VM,MtM),mm(M,MtVM),-1);
+   case "n36_printed":return add(scl(mm(VM,MtM),-1),mm(M,MtVM),-1);
+   case "n36":return add(scl(mm(VM,MtM),-1),mm(M,MtVM));
+   case "n40":return add(add(mm(VM,MtM),mm(M,MtVM),-1),mm(M,add(D2,MtM,-1)));
+   case "n41":return add(add(scl(mm(VM,MtM),-1),mm(M,MtVM)),mm(M,add(D2,MtM,-1)));
+  }};
+}
+function rk4(f,M,T,h,every){
+ const n=Math.round(T/h),rec=[];let t=0,blow=null;
+ for(let i=0;i<n;i++){
+  if(i%every===0)rec.push([t,M]);
+  const k1=f(M),k2=f(add(M,k1,0.5*h)),k3=f(add(M,k2,0.5*h)),k4=f(add(M,k3,h));
+  M=M.map((r,a)=>r.map((v,b)=>v+(h/6)*(k1[a][b]+2*k2[a][b]+2*k3[a][b]+k4[a][b])));t+=h;
+  if(!M.every(r=>r.every(v=>isFinite(v)&&Math.abs(v)<1e6))){blow=t;break}
+ }
+ rec.push([t,M]);return {M,t,rec,blow};
+}
+function projector(W){const Wt=tr_(W),G=mm(Wt,W),d=G[0][0]*G[1][1]-G[0][1]*G[1][0],Gi=[[G[1][1]/d,-G[0][1]/d],[-G[1][0]/d,G[0][0]/d]];return mm(mm(W,Gi),Wt)}
+function pcaRun(name,push){
+ const dM=PCA_DM.map(r=>r.map(v=>v*push));
+ let M0,ref,T;
+ if(name==="n40"||name==="n41"){M0=PCA_W0.map((r,i)=>[i===0?1.5:0,i===1?0.8:0]).map((r,i)=>[r[0]+0.5*dM[i][0],r[1]+0.5*dM[i][1]]);ref=D2;T=120}
+ else{M0=add(PCA_W0,dM);ref=eye(2);T=24}
+ const res=rk4(flowRhs(name),M0,T,0.05,10);
+ return {M0,ref,res,d0:fro(add(mm(tr_(M0),M0),ref,-1))};
+}
+(function(){
+ const Pp=(()=>{const O=PCA_O,W=O.map(r=>[r[0],r[1]]);return mm(W,tr_(W))})(),Pm=(()=>{const O=PCA_O,W=O.map(r=>[r[4],r[5]]);return mm(W,tr_(W))})();
+ const names={oja:"(13.31)",ascent:"(13.34)",n35:"(13.35)",n36_printed:"(13.36) as printed",n36:"(13.36) corrected",n40:"(13.40)",n41:"(13.41)"};
+ function draw(){
+  const name=g("w1f").value,push=+g("w1p").value;g("w1po").textContent=f2(push);
+  const r=pcaRun(name,push),S=g("w1v");clear(S);
+  const T=(name==="n40"||name==="n41")?120:24;
+  const P=axes(S,60,16,620,200,[0,T],[-16.5,3],"log10 of the defect |MᵀM − ref| for "+names[name],"t","");
+  ticks(P,T===24?[0,6,12,18,24]:[0,30,60,90,120],[-16,-12,-8,-4,0],v=>v.toFixed(0),v=>v.toFixed(0));
+  const pts=r.res.rec.map(([t,M])=>[P.X(t),P.Y(Math.min(3,Math.log10(Math.max(fro(add(mm(tr_(M),M),r.ref,-1)),1e-16))))]);
+  path(P.G,pts,"var(--s1)",2.4);
+  if(r.res.blow!==null){el("circle",{cx:P.X(r.res.blow),cy:P.Y(2.6),r:4,fill:"var(--s2)"},P.G);el("text",{x:P.X(r.res.blow)+8,y:P.Y(2.6)+4,fill:"var(--muted)","font-size":11},S).textContent="diverges at t = "+r.res.blow.toFixed(2)}
+  const M=r.res.M,ok=!r.res.blow,sing=ok&&fro(M)<0.5;
+  let html=`<div>|M|<sub>F</sub> at the end <b>${ok?f3(fro(M)):"∞"}</b></div><div>defect at t = 0 <b>${f3(r.d0)}</b></div>`;
+  if(ok){const dT=fro(add(mm(tr_(M),M),r.ref,-1)),drift=fro(add(mm(tr_(M),M),mm(tr_(r.M0),r.M0),-1));
+   html+=`<div>defect at t = ${T} <b>${fE(dT)}</b></div><div>drift of MᵀM <b>${fE(drift)}</b></div>`;
+   if(!sing){const P_=projector(M);html+=`<div>distance to principal / minor subspace <b>${fE(fro(add(P_,Pp,-1)))} / ${fE(fro(add(P_,Pm,-1)))}</b></div>`}else html+=`<div>M → 0: no subspace left</div>`;
+  }else html+=`<div>blow-up at t = <b>${r.res.blow.toFixed(2)}</b></div>`;
+  g("w1s").innerHTML=html+`<div class="cap">Script, push = 1: (13.31) 2.29e-16 / 1.0e-15 / 2.0; (13.35) defect stays 0.106, drift 2.8e-06; (13.36) as printed: |M| = 0.219, defect 1.38; (13.34) diverges at t = 1.20 (h = 0.05); (13.40), (13.41): 0.068 → ≈ 0.</div>`;
+ }
+ g("w1f").addEventListener("change",draw);g("w1p").addEventListener("input",draw);draw();
+})();
+
+// ---------- widget 2: rotation, mutual information, kurtosis
+const miUnif=t=>{const a=Math.max(Math.abs(Math.cos(t)),Math.abs(Math.sin(t))),b=Math.min(Math.abs(Math.cos(t)),Math.abs(Math.sin(t)));return 2*Math.log(a)+b/a};
+(function(){
+ const rd=mkRand(21),pts=[];for(let i=0;i<2500;i++)pts.push([rd.U()*2*Math.sqrt(3)-Math.sqrt(3),rd.U()*2*Math.sqrt(3)-Math.sqrt(3)]);
+ const gp=[];for(let i=0;i<2500;i++)gp.push([rd.N01(),rd.N01()]);
+ function draw(){
+  const kind=g("w2k").value,deg=+g("w2a").value;g("w2ao").textContent=f2(deg)+"°";
+  const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),gauss=kind==="gauss",data=gauss?gp:pts;
+  const L=g("w2l");clear(L);const P=axes(L,36,14,290,250,[-3,3],[-3,3],"outputs y₁, y₂ (2500 points)","y₁","y₂");
+  ticks(P,[-2,0,2],[-2,0,2],v=>v.toFixed(0),v=>v.toFixed(0));
+  // the square of the sources, rotated back for reference
+  if(!gauss){const h=Math.sqrt(3);path(P.G,[[-h,-h],[h,-h],[h,h],[-h,h],[-h,-h]].map(([a,b])=>[P.X(c*a+s*b),P.Y(-s*a+c*b)]),"var(--s1)",1.4,"4 3")}
+  data.forEach(([a,b])=>el("circle",{cx:P.X(c*a+s*b),cy:P.Y(-s*a+c*b),r:1.5,fill:"var(--faint)",opacity:0.7},P.G));
+  const R=g("w2r");clear(R);const Q=axes(R,36,14,290,250,[0,90],[0,0.36],"mutual information I(y₁, y₂), uniform sources","rotation (degrees)","nats");
+  ticks(Q,[0,15,30,45,60,75,90],[0,0.1,0.2,0.3],v=>v.toFixed(0),f2);
+  const cv=[];for(let d=0;d<=90;d+=0.5)cv.push([Q.X(d),Q.Y(miUnif(d*Math.PI/180))]);path(Q.G,cv,"var(--s1)",2.2,gauss?"3 3":"");
+  if(gauss)path(Q.G,[[Q.X(0),Q.Y(0)],[Q.X(90),Q.Y(0)]],"var(--s2)",2.4);
+  el("circle",{cx:Q.X(deg),cy:Q.Y(gauss?0:miUnif(t)),r:5,fill:"var(--s2)",stroke:"var(--surface)"},Q.G);
+  const k=gauss?0:-1.2,mi=gauss?0:miUnif(t),k1=k*(c**4+s**4),cov2=k*2*c*c*s*s,corr=cov2/(2+k1);
+  g("w2s").innerHTML=`<div>I(y₁, y₂) <b>${f4(mi)}</b> nats</div><div>E[y₁y₂] <b>0</b> (uncorrelated for every angle)</div><div>excess kurtosis of y₁ <b>${f3(k1)}</b></div><div>corr(y₁², y₂²) <b>${f4(corr)}</b></div><div class="cap">Script at 31.72°: I = 0.2945, correlation of the squares −0.3750; at 45°: 1 − ln 2 = 0.30685. Gaussian sources: nothing depends on the angle.</div>`;
+ }
+ ["w2k","w2a"].forEach(i=>g(i).addEventListener("input",draw));g("w2k").addEventListener("change",draw);
+ g("w2b1").addEventListener("click",()=>{g("w2a").value=31.72;draw()});g("w2b2").addEventListener("click",()=>{g("w2a").value=45;draw()});draw();
+})();
+
+// ---------- widget 3: stability of the separating point
+(function(){
+ let seed=34,res=null;
+ function table(st){
+  return `<table class="t"><tr><th></th><th>source 1</th><th>source 2</th></tr>
+  <tr><td>excess kurtosis</td><td>${f3(st.k[0])}</td><td>${f3(st.k[1])}</td></tr>
+  <tr><td>equilibrium scale c</td><td>${f4(st.c[0])}</td><td>${f4(st.c[1])}</td></tr>
+  <tr><td>m = E φ′(s)</td><td>${f4(st.m[0])}</td><td>${f4(st.m[1])}</td></tr>
+  <tr><td>κ = m σ²</td><td><b>${f4(st.kap[0])}</b></td><td><b>${f4(st.kap[1])}</b></td></tr>
+  <tr><td>diagonal block E[φ′ s²] + 1</td><td>${f4(st.mu[0])}</td><td>${f4(st.mu[1])}</td></tr></table>
+  <table class="t"><tr><th>pair block [[m₁σ₂², 1], [1, m₂σ₁²]]</th><th>eigenvalues</th></tr><tr><td>[[${f4(st.a)}, 1], [1, ${f4(st.b)}]]</td><td>${f4(st.e1)}, ${f4(st.e2)}</td></tr></table>`;
+ }
+ function draw(){
+  const sa=g("w3a").value,sb=g("w3b").value,nl=g("w3n").value,st=stability(sa,sb,nl);
+  const L=g("w3l");clear(L);const P=axes(L,40,14,290,250,[-1.5,3.5],[-1.5,3.5],"stable region, cubic φ: (3 + k₁)(3 + k₂) < 9","excess kurtosis of source 1","source 2");
+  ticks(P,[-1,0,1,2,3],[-1,0,1,2,3],v=>v.toFixed(0),v=>v.toFixed(0));
+  const pts=[];for(let i=0;i<=120;i++){const k1=-1.5+4.5*i/120;pts.push([P.X(k1),P.Y(9/(3+k1)-3)])}
+  el("path",{d:"M"+P.X(-1.5)+" "+P.Y(-1.5)+"L"+P.X(3)+" "+P.Y(-1.5)+pts.slice().reverse().map(q=>"L"+q[0].toFixed(1)+" "+q[1].toFixed(1)).join("")+"Z",fill:"var(--s1)",opacity:0.1},P.G);
+  path(P.G,pts,"var(--ink)",2);
+  el("circle",{cx:P.X(st.k[0]),cy:P.Y(st.k[1]),r:6,fill:st.hmin>1e-9?"var(--s1)":(Math.abs(st.hmin)<=1e-9?"var(--s4)":"var(--s2)"),stroke:"var(--surface)"},P.G);
+  g("w3tab").innerHTML=table(st);
+  const verdict=st.hmin>1e-9?"stable (a minimum)":(Math.abs(st.hmin)<=1e-9?"marginal":"unstable");
+  let html=`<div>κ₁κ₂ <b>${f4(st.kap[0]*st.kap[1])}</b></div><div>smallest eigenvalue of H <b>${(st.hmin>=0?"+":"−")+Math.abs(st.hmin).toFixed(4)}</b></div><div>verdict <b>${verdict}</b></div><div>predicted response at t = 2: exp(−h t) = <b>${f4(Math.exp(-st.hmin*2))}</b></div>`;
+  if(res&&res.key===sa+sb+nl)html+=`<div>simulated, ε = 0.005, 3000 paired chains: <b>${f4(res.val)} ± ${f4(res.se)}</b></div>`;
+  html+=`<div class="cap">Script table: uniform+uniform y³: κ = 1.6667, 1.6667, h = +0.6667; uniform+Laplace y³: 0.5, −0.0871; uniform+sech y³: 0.0000; uniform+uniform tanh: κ = 0.7621, h = −0.2379.</div>`;
+  g("w3s").innerHTML=html;
+ }
+ function simulate(){
+  const sa=g("w3a").value,sb=g("w3b").value,nl=g("w3n").value,st=stability(sa,sb,nl),rd=mkRand(seed++);
+  const R=3000,eps=0.005,steps=400,delta=0.02,phi=NONLIN[nl].phi,a=st.a,b=st.b,mean=(a+b)/2,dd=Math.sqrt(((a-b)/2)**2+1),lam=mean-dd;
+  let v=[1,lam-a];const nv=Math.hypot(v[0],v[1]);v=[v[0]/nv,v[1]/nv];
+  const resp=new Float64Array(R);
+  for(let r=0;r<R;r++){
+   let Cp=[1,delta*v[0],delta*v[1],1],Cm=[1,-delta*v[0],-delta*v[1],1];
+   const step=(C,s1,s2)=>{const y1=C[0]*s1+C[1]*s2,y2=C[2]*s1+C[3]*s2,p1=phi(y1),p2=phi(y2),f11=1-p1*y1,f12=-p1*y2,f21=-p2*y1,f22=1-p2*y2;return [C[0]+eps*(f11*C[0]+f12*C[2]),C[1]+eps*(f11*C[1]+f12*C[3]),C[2]+eps*(f21*C[0]+f22*C[2]),C[3]+eps*(f21*C[1]+f22*C[3])]};
+   for(let t=0;t<steps;t++){const s1=st.c[0]*SRC[sa].samp(rd),s2=st.c[1]*SRC[sb].samp(rd);Cp=step(Cp,s1,s2);Cm=step(Cm,s1,s2)}
+   resp[r]=((v[0]*Cp[1]+v[1]*Cp[2])-(v[0]*Cm[1]+v[1]*Cm[2]))/(2*delta);
+  }
+  let m1=0;for(const x of resp)m1+=x;m1/=R;let q=0;for(const x of resp)q+=(x-m1)**2;
+  res={key:sa+sb+nl,val:m1,se:Math.sqrt(q/R/R)};draw();
+ }
+ ["w3a","w3b","w3n"].forEach(i=>g(i).addEventListener("change",draw));g("w3r").addEventListener("click",simulate);draw();
+})();
+
+// ---------- widget 4: equivariance
+(function(){
+ // the script's own source samples (uniform, seed 33): 3000 values of source 1, then 3000 of source 2, as integers x 1e5
+ const STREAM33="-19523,23726,141371,-85130,30755,-48801,88810,14916,-103201,5579,-89354,-156033,-134089,-54460,-167858,94439,105185,-166070,9067,-23564,-34246,-148290,152459,-70398,149729,-33418,-100611,-86216,-87454,105598,114058,106825,-80950,-70744,13058,73385,71589,118621,91766,5009,66755,91555,-106498,165586,13302,46915,59324,72065,-142948,-146784,-69483,-127283,85544,-9475,-110176,-33544,-105004,85936,-34389,122000,72642,-12328,25736,172787,76229,-25967,-36386,121791,44860,67360,-117673,-19526,-167330,12479,-166264,52160,-122802,-147344,-116282,-28608,-3767,-86201,42811,37099,-98746,-40726,149634,-1743,109014,63367,52715,132833,-158269,17734,136959,17425,-167647,152227,83188,-41752,-110440,-165694,149196,115956,-129233,-117344,72522,-124770,24574,-47543,26667,49859,-69180,-69099,-108089,158990,-20391,-150979,-2062,52296,135442,-60573,99326,58821,148484,-57292,-103120,-169240,17807,33294,-36591,135646,-89325,106767,142799,-21420,-158664,26521,52693,155635,129185,-16676,60229,-102297,53766,98260,8935,-55942,-160174,-19958,-61037,140205,-104937,-166343,-69359,-14032,-80428,80242,-60421,-108371,-106213,108953,-131454,42348,1233,-70337,114856,58780,114468,-63834,85092,6380,79216,93492,-49771,35579,122206,-138790,143084,-75675,87596,-109789,166658,18690,-155952,-35012,47209,64995,-56859,155955,-29326,-108982,106224,150734,76511,-92762,-66680,84001,-161661,-74487,-1046,-117759,123968,109146,80811,-58160,127864,97601,-414,-103682,-151257,26146,-150764,25163,-166121,94327,130909,120236,120822,61923,113487,-96958,79869,73765,15769,-10705,70513,-170729,-107160,-51294,136864,5585,-48586,-55861,-50084,149420,-156473,-35046,126262,130914,-159459,-60381,-158491,-63438,-50403,-111433,164866,-165344,-92811,53162,501,32886,-166274,-50061,4717,-146283,-63026,10252,-14911,12702,-117945,22190,114677,-98413,-8535,-65773,-104598,153776,-33350,-169450,-87337,-125954,-114323,-24093,-40322,46100,79676,-79267,-107196,-75296,-45460,-82872,-78604,149068,-141077,104904,-15673,25764,108069,-17084,123065,-78918,54797,-154415,-22771,-103335,96611,108768,126150,9196,-32281,-16208,52933,121835,-64367,164184,-7544,32699,-164465,-95649,37093,93901,-66472,22695,-108645,-138991,45700,22536,37715,-135749,-31825,37647,141685,-108436,115290,100988,-151006,68955,146497,27243,-21948,64801,-21416,15422,73776,-63474,-97739,-52866,-109955,122490,-26619,-159829,76158,131223,93948,76695,-61310,-94103,56551,-21020,-157534,-150725,-848,33421,-23824,139457,-164402,-11011,-113734,81458,-109879,-79425,26495,98414,-147049,-47481,58725,-68767,-142444,23649,-9615,-125716,18737,6199,-53268,28805,157241,-163708,100050,155472,140312,-103407,-127745,122576,25773,60206,-14369,7990,39331,20174,122136,33860,-117073,166436,-119408,115125,-130547,-37349,-155281,85592,-62188,-33196,-110550,-2491,70909,33951,135661,-155004,13738,-89059,-31372,3117,-90213,96750,6659,-141164,-95775,-82892,-81496,64642,113591,97605,-51580,-71817,-1969,155123,-56165,149427,-18944,136594,163132,-122745,-45144,-58450,62050,66277,-11956,-164814,-136604,28668,51598,73008,-47786,-163623,-58581,-67069,-168564,-64230,139203,111645,-146206,-150316,-145158,46143,116944,30063,-128624,-90432,-170211,109469,100213,-133907,32728,-97671,-29955,-123167,-9250,-110664,-98522,-67628,-150098,89080,167161,52357,-126454,-32640,2353,-113175,117305,-84126,97587,-77786,-111883,103641,77300,-58811,-29717,91677,-22308,3994,144270,-50840,-170376,-25834,18713,170255,170520,-136741,-106846,88631,76395,-63779,52972,2531,-54550,80218,74636,139051,105000,124719,49152,-104367,-79226,76978,102705,-2047,-146647,2689,-53698,120059,124978,28976,24046,153352,-112821,-46679,-9497,80977,172299,62455,119635,15481,55309,166578,30369,-77496,-173203,68711,-20940,-78432,-99719,138703,10281,44257,171479,-166163,-95470,-91451,29438,-117024,59981,-158076,111949,-153770,-98789,40652,-98133,112095,-19600,-84921,148263,-111536,145171,-57686,-67915,-172895,141554,41431,-10102,62610,-54508,-111008,-33820,-113779,-19194,20559,-103184,22750,-71738,-89793,162396,159141,24197,-19105,-88489,33888,70037,-59691,66082,143254,-23651,170775,-95115,-28308,-10884,-166057,26954,95690,84185,18848,28771,-140750,-77678,12824,99140,123417,39464,-153480,96115,167486,-154198,-100653,36012,-30160,76840,151326,78440,-24346,121550,-15708,-79511,114641,-37112,150854,-17848,127731,-59292,30107,75354,-119159,-87641,-16904,-8782,-24468,-64338,82418,-58460,152304,-7809,-146988,100324,-144166,-157126,86033,151142,-17543,-5181,-5150,-65911,57029,-72118,-70373,57397,172138,133222,79621,70132,-147008,68653,-72832,-142397,-37599,-51073,-86792,-120467,12504,83542,66200,-1267,150073,130458,157688,-30784,113609,-112699,91418,-159788,-124624,-50910,-10436,168300,-95821,-65718,95649,117229,-109662,-167868,-81354,-123523,-52679,-110355,-118626,-145753,31048,-44695,-147736,-104454,24518,-156743,-166007,81622,-95471,-50707,87332,-63178,-76123,79431,163690,131861,162316,21453,-139377,12020,-152982,104238,-147389,-162768,-81947,-44174,43855,-109684,171835,-167379,169065,-3522,-30373,-59080,-44587,-152756,38568,-154938,-110524,-148016,-119162,-27924,155946,57770,-130433,139989,-47409,-50797,89136,126137,-74921,-97239,-70656,-125245,-40190,-64668,-43888,-147741,99602,107116,-83699,112685,133742,55050,106142,152023,-55265,-159132,50282,-35474,-17149,48180,158191,47218,46948,-81052,-43009,-71879,84247,145969,-133875,60331,112316,58293,94054,127412,-161921,94389,128906,137020,-172222,-10335,38724,-167653,134769,-153850,-140269,-9458,-170248,65165,170708,-7668,13909,-33262,124261,-158409,40981,108804,169461,-23729,-60066,140089,-64319,-19319,136102,-38019,-113003,-55066,-58518,-120453,-83982,46226,159804,-172974,-38268,112016,-127099,-73285,-14667,-147466,-109089,74537,16773,-143553,-147122,-158748,-140078,-92261,-82631,38106,-117952,-104153,-116004,8556,56951,-157660,-94875,157050,80548,12594,76305,-156092,-164643,-47935,-12195,151548,-156267,89833,17494,59188,-63295,114726,114691,-45917,28573,-86801,-156878,-54643,-167742,-83710,141059,-92559,87510,-65291,117840,157045,-144916,117114,116093,-88497,-121442,165922,-39361,33889,-49454,-164339,123386,24872,-144773,71775,59913,-159601,160076,21309,133223,165928,-125523,-30136,137810,5426,-161080,-70664,-158781,69106,-113021,76805,144675,3213,21918,-42572,-121764,-44814,106547,120231,79261,-140609,95629,168457,159148,124994,94388,126010,-127810,-17932,-71042,-95689,54544,59166,-2643,-29851,15893,-85287,135017,-70274,-101882,78048,-165754,-41763,123035,-140893,-22451,-104081,125185,96627,142310,39904,-140608,-108432,-61084,101009,-145715,-86023,43626,90515,-112180,-11902,155339,4144,-101860,164391,-148614,-16262,-101233,-54469,-149237,-23360,-64753,26154,-74439,90056,-166082,120318,111366,-65639,-92548,-148094,68064,-45834,-96929,72086,-121795,73427,-100104,-80067,-78154,140628,-157531,-171395,-12464,104142,72842,-57368,-64748,-170013,11175,126366,-137770,80088,-112812,89704,98058,83146,21172,-102488,-62501,157043,-8261,126915,-103902,53203,-129032,114447,135934,168729,-11933,-114825,-96595,147944,-65589,-133664,-26683,-166700,-153263,-50173,-161033,53244,-102768,105377,22062,117768,109929,173093,1981,107988,-65250,-85030,-144313,145264,-137516,-35049,-157697,165873,33317,60446,75594,-156069,99857,-117049,-67597,-105190,-118396,147193,-18934,-58860,50358,90121,-73329,-9019,41821,-36604,49550,125823,-98035,-33027,42627,37679,-97693,49889,-23161,64983,133873,-22081,151527,7208,168419,-45103,-119262,104641,110555,-72920,-72762,60602,-153074,88791,-154932,152020,-22137,-44220,-143985,13020,138878,-100607,105602,-56354,22092,-31562,-144491,64663,46128,-113393,161697,24985,-57046,10584,70291,-41374,134660,73677,-149104,-986,-79260,-57671,-47216,-78171,150985,54287,-58622,160300,-156273,-101143,-135878,13515,38579,-38091,114816,-34811,153083,-105285,64801,-111409,20857,145349,-14441,-68100,160761,135978,-96328,-10425,72893,148419,20693,-10772,124035,-172786,-75065,171833,11620,-68743,26205,-92175,46353,-138153,-41742,-97090,-46765,118289,-101901,7085,-42255,-165187,-115654,15649,-165109,32589,151928,-128432,111490,30551,-12497,-23385,109703,139929,145157,5194,-151694,46785,113001,139064,-119629,-10427,92,-9358,-33800,-164559,56096,-74546,-3976,-11925,-12517,85768,-79773,-158836,-59906,133174,-55344,139197,-127736,59300,162692,130894,35700,24068,15052,2977,-133707,122016,-67219,-34738,-45924,5082,-37409,4839,69919,130006,-102954,-51920,-9008,-31728,131241,75995,-31013,92855,-28143,-98534,-87637,123896,54430,61513,-80624,2796,118443,-105770,-172269,172347,115775,76869,65276,121296,101471,-114689,-12635,-83670,-129698,147320,-25274,-16425,-156853,96663,150521,-76236,170619,-135750,-109337,-143146,-95011,128700,55607,94655,94075,-105449,-45571,20911,-105638,-164040,68709,-144832,-132801,117919,156643,20695,111505,100493,156081,-28622,25441,118285,-126286,-7623,122458,67533,-48457,155507,-167079,-156459,-53501,10738,-156243,136512,-148458,-98937,120498,868,-42401,-126200,131912,-95529,-73199,147839,20777,154649,46200,73744,66644,75647,-169107,70477,149833,-42982,-51513,-152038,-43438,103754,107671,-119402,-52621,-162138,-172090,17900,-74119,57629,51711,-51967,63652,140376,-84570,-151843,-129717,44548,35716,91024,-99883,-61754,-39906,27695,110605,139393,153930,19659,-50905,40780,-17276,105600,43996,161393,52941,-74231,91325,56144,80416,-172981,32503,-117500,-56387,-26160,-89212,52999,91359,72808,9925,18830,-148824,-75281,-168217,-60306,90110,51465,-58683,96890,65458,147474,146892,-60811,51137,-71494,-137420,157588,155837,-45831,126192,78797,-139932,108668,-167885,-172139,157363,44831,-152692,163610,-136270,95659,63076,-8268,-59636,117369,24662,-129988,52256,89557,-46975,-114827,153948,-4187,85485,111484,-95297,-61073,-4817,80025,-23999,107476,-44683,78215,-22152,-102598,-122106,-148391,51874,76131,123667,-79621,-19433,-75746,-96001,169735,109317,151693,-138036,-164649,-135335,-148852,25494,-1871,139343,153472,20983,14515,-122573,117767,-78648,-75859,-26523,-42426,6056,-21560,113396,31400,-4102,-87533,-99873,-73464,-47556,33024,-5427,-30377,142544,-79469,-63200,-172435,76434,-25981,-77345,-165239,129267,-136204,65978,-62859,-74528,-136795,75473,166705,-114845,103723,168356,99055,130891,-84683,-145736,-137425,109974,93323,69088,-140467,-55064,18084,-387,-121422,-169799,25017,637,-66998,-43700,144096,-94279,-67698,41100,-97845,-147977,36029,-25170,-75186,67065,-52502,85376,130972,11169,-4811,37145,-38325,8041,85260,4957,50211,-135149,-103360,82622,-12785,-172376,113607,-146322,-98861,129272,-7599,48291,168171,-170707,150665,17140,-2606,-119719,26095,134737,46720,-117303,103277,163012,-22375,167569,94240,45854,-769,51303,3440,-109817,-143989,-29815,-132683,-64360,128353,108422,-104706,-152952,143673,164417,-104466,-135545,-5842,101860,3742,53473,142833,-4717,79972,-23626,169552,165796,-118951,-30352,171503,-98687,75416,-123572,-60438,94112,-48580,134690,86614,-66119,97898,-59787,21429,-50997,-58825,149725,-107934,-47645,91243,94651,56418,-140540,-136394,-61967,-119919,-107427,41828,-28957,118697,164089,-119941,77840,18666,-13479,-80527,-168338,162878,-52428,14074,50567,-23664,-24918,-66835,-156959,29893,169209,-83811,-104068,-146921,124867,137305,37600,60584,25690,71942,-89755,166326,47471,139067,154945,-134822,168813,144738,-105214,122114,-119826,-159760,57092,-88143,56120,5005,-48576,-156687,100523,41211,-154057,91325,-72531,169116,47719,78320,161479,153743,44502,104370,-86090,160080,101368,94138,-2744,-60437,-130290,78798,68131,47651,125937,-123928,-3910,-34968,-26477,-60435,81720,63333,154733,-124803,-36048,-46056,-122545,-15192,-117529,61607,44228,115761,-83150,-132234,-28960,-171884,-172683,155307,-102848,-43915,-172775,149938,-28944,41854,145402,-161293,31442,32803,-18366,-51788,30440,90892,-100618,95785,-110604,38511,-93437,-50946,99685,-171627,-2180,7948,68134,145667,-40578,47542,95660,131453,13910,-52346,-122754,50739,-125559,-88586,60252,158076,51126,-61791,-102344,-104774,-167017,132522,-24896,116507,-124789,-32708,-35923,-149148,111788,18898,-13609,-144306,-73602,7041,-149234,110675,-76751,56679,24870,-133665,-78689,-150947,32627,127097,75878,-127411,49797,121317,39323,136928,-108572,-50246,-80340,-165275,-127190,-147589,93915,107389,18288,65072,-28341,-121962,35524,70313,147848,13103,-162779,45649,4324,-133871,-84388,47237,-95615,-75200,20429,-141211,69814,12876,-18073,43643,-121495,-141651,57822,151600,33243,90965,110245,-110552,30591,28394,-60544,-53578,-156319,-15318,-153690,171362,-115524,147224,78002,10449,-82811,77496,-154432,123787,-140047,109916,-58580,-157076,46736,-63763,116620,-54911,-72613,-76471,74299,-165114,-77651,-136456,-76433,-150228,-142709,-151905,-156846,111183,11795,40760,117286,118557,59666,67751,111770,-49108,152332,154528,136544,-170145,45581,117621,-121466,-95606,-67028,-146167,-50006,-152783,-23557,-117140,-56945,166643,-140908,130471,96627,121141,-75652,-39609,96599,162223,14376,130171,40802,-51075,113900,-79159,53257,125451,-169549,-109536,-116534,-2915,59883,-81227,160477,27241,-127404,55270,-128010,16503,56005,113333,118108,99327,55232,142374,-165408,17259,32192,-114652,-161461,-133997,-126274,66296,33885,-47072,72436,-107041,96095,-119308,-94181,4176,107180,142339,83170,-74378,79219,-35006,-104979,-2654,170637,-135763,-4891,-53164,50561,-87330,-132494,140086,-110987,87027,-20829,8216,30167,108662,-106952,-58584,155685,-161202,129909,126666,118758,135116,24830,133524,-122993,-11595,-91076,-39233,13806,-81979,3385,72163,134474,3580,-85986,-162971,150124,38635,89434,-102573,40465,64577,49852,-48423,-114674,66579,-170727,10195,-98597,-94467,5730,-38039,-114098,-34093,4972,-144722,167081,7203,-70504,143817,111666,-52387,-11122,172616,120725,23057,82494,40245,127386,4508,-32137,79553,-52036,-32121,123599,-2195,152037,-9638,-148432,75214,171974,41353,99704,118701,52408,-70779,-73618,73166,-118751,168561,54508,162186,-61279,-28574,65455,-8024,-153412,150046,-93536,-46491,21460,-157153,48273,77205,58186,-1577,-72994,-114038,-132053,144991,116292,-132310,-151454,-51780,-53246,61989,13728,127205,-35450,-160889,-104823,87526,-87175,-157271,-150583,-54876,45319,100608,70645,-67562,-37304,129242,-43014,139850,34582,37994,90959,98533,50263,103131,238,95047,-21152,165490,111759,-103219,8652,132978,37606,-51814,58269,-9156,154295,131750,-132569,-84464,100979,31887,21411,-99320,-24031,-160707,18419,-10354,12497,-75973,-123080,18054,50499,85001,-4952,37240,8333,52412,-115781,129951,81768,130045,37080,166354,-170489,-159910,126640,57490,-4271,-22952,12129,170905,130156,-121014,-157278,43419,164251,85387,-117275,145481,-118421,157494,119762,46484,104352,-79606,-142989,134322,-155156,-36114,15367,-58286,77780,62725,-10321,158256,72173,131261,-161659,-81518,74297,123498,104485,-161333,-72316,113698,143126,-1331,-157034,-83378,-139685,-84768,102321,-137204,151263,-137749,115537,-67682,93006,58586,46705,151501,-41369,1240,-62359,117979,-5627,-142527,-108104,75709,-13795,104477,-70226,30725,67354,58388,12685,-56006,29441,149487,-44599,-47031,-113780,-32941,83215,71403,150860,94957,53845,22404,-66192,-113508,-91292,-139701,-97394,71727,-121930,149134,-11943,-93790,54262,135082,-163741,154561,164126,-135723,90537,-80352,98338,61032,-55605,107889,141236,108153,-162448,-98936,57533,49892,89425,12676,-168478,122671,-8934,-13493,39837,-80337,-149573,17106,-138647,-125565,-67571,68121,95620,166612,144666,142913,-139225,-7946,73275,15377,172834,-55717,105324,46557,-15709,43130,141729,-10451,-169085,120572,-10977,-99933,-76323,-92188,-126656,-171935,-115518,121119,117663,-153033,-49570,-130795,-18369,-54169,-18540,-147144,-147039,32927,-141973,69877,128147,-115324,-126446,57013,-14754,106380,83332,-110658,93695,93021,162651,82123,-166548,-27104,90714,16918,-25965,-29025,114635,-5356,-24145,-171213,-114178,-105787,16218,-54341,49918,-5790,9836,168225,40691,-26819,-94594,-164891,-75295,26003,159828,-61836,120236,84488,-17731,-10615,-60046,-23032,-75910,-71782,-12355,-63651,149424,-132591,117223,-162947,-79174,-57548,-8253,133953,-140673,22375,-99816,-144476,111634,9357,-152627,-30993,-144349,-124262,-43757,-78228,-38682,-35788,93082,37227,117340,147164,143934,165484,-6092,-24789,-102681,-60975,40050,120113,-78944,-59583,86647,5735,35580,-123878,-82704,-65155,-153355,-58237,-31313,-126921,-68436,18268,-10736,-119720,94448,49925,17993,-73920,89688,76984,-121206,-172011,-123888,14929,-78276,-108052,102524,151684,14013,-150390,-104613,-168602,-106510,-24378,-49398,-116919,-128583,9061,18887,11097,-50696,80451,-6025,-138345,-148667,102230,145708,-50955,-88189,103270,-161060,141126,129378,8284,124049,171390,26434,-121426,147693,155994,152539,-134093,-82601,-149036,-126579,73296,130423,-119030,-1515,-33449,21665,79138,152846,102928,-78793,-32949,108388,91614,-141528,-137353,45623,152010,169260,40017,-93980,-154896,-74236,-94430,140284,97542,-61783,150565,-108958,7996,-173187,-29158,116777,51924,126481,-8170,-128416,-148937,-168005,-124021,-9560,89550,-107446,113015,117692,171168,-124000,165430,93470,-120570,46286,-127484,-156301,13781,-27295,-77657,-37407,167424,133174,101613,-48181,-19520,118488,-164982,104623,-129657,73250,-64984,41716,46357,139773,-79675,-70014,93872,-167392,-56485,-14909,-34983,-163229,56961,88231,-168446,-111658,-103326,-103895,88003,-112123,-172935,116472,-143474,-132747,166697,-158251,64050,-54224,-4482,-42142,73109,155115,-101931,-134687,47934,-62074,-5460,38758,169858,-14446,-55744,81633,-117222,-19670,40396,-152324,35150,-93814,-35694,-105003,107099,57725,-115310,-38285,77192,132567,-140537,-146458,-51307,58972,164595,-20249,-159576,-93438,-93839,-116108,-111148,-169246,-140335,17417,-134632,-114952,-30807,-117581,90797,95844,-172815,20557,139851,27670,-54894,-113388,-54572,113037,123777,-80960,135990,72190,149354,42245,158,-156063,68053,88314,160339,-39765,91368,-25961,112159,110833,45482,136415,-18910,-151252,47388,-148565,39654,-101104,-63230,67859,91197,-159809,-14122,16368,-67328,-40394,-82761,-105784,134490,-71875,-170219,56787,51080,160865,92875,30051,-24760,28292,-124043,-85853,161340,3774,-39304,-124315,-62348,1453,81689,136845,-29452,11397,156117,-83465,-135443,-124849,103189,118532,159247,-97856,-141873,-42064,-27714,-121493,-86212,1845,-5448,-141426,167892,-17590,28101,161233,171477,93321,-9845,30891,21752,-41808,162337,-156765,-94995,16544,1215,-151546,-126442,27405,132352,63008,-149051,163682,-41330,45176,-149671,12945,-93777,-28359,-128601,-120661,121136,-26921,148587,25273,-130423,99839,-20282,-115670,-111142,169795,-35151,57175,-146701,29327,33234,102193,78386,-1932,105808,-105939,82357,139866,-133804,-107501,162119,126291,148277,132410,-146994,108692,-21219,14957,-171063,147868,-168455,-172940,-23573,-110181,-62220,-109609,-83613,60506,115537,75692,-116115,16659,115401,-32792,169029,-3701,121937,98225,156661,-137943,-157155,-18709,108273,82900,107596,11639,117184,52877,-141346,78786,125837,88286,-123053,37924,-75911,-169477,-113052,33285,-119979,-155457,150011,9661,60449,-34675,-78112,127142,167824,110823,82969,-148436,94701,71315,92619,-125032,-108231,-142532,-42499,-160666,-92047,64662,-115151,58220,141488,-55297,-144257,-4594,149501,-2441,87986,-128893,72394,-152474,31624,71724,113550,145731,132899,-137400,-150888,-163367,59198,-40330,162861,-26294,-167185,-138766,87157,112185,166902,-82923,-163810,26479,-88731,-138340,-103783,-31043,-38308,-93939,134042,-6074,73049,76143,-142503,-96802,-100139,86403,-64604,96270,45480,143197,104477,167244,-56441,100487,-159888,95612,26958,-160574,162869,20111,-171450,-44228,10432,-28976,-83414,9328,-109391,86752,154674,-35109,51718,-64473,-164355,96606,-108840,-126223,116121,53329,107250,-7260,-133223,24416,119309,-102640,-76443,-6917,-161576,75065,-109441,-97611,3541,140554,-1635,163925,-128207,86523,74508,75211,-153111,15010,-61631,160588,-20904,101300,79553,98280,141777,-87962,61890,124854,6404,115819,-108471,147855,-51843,-165602,-97369,-34777,105727,139819,-103965,96339,86516,154341,-61438,-13022,1063,169639,46103,162211,-52431,-33751,78054,-149227,27103,99377,164581,-102454,-55162,121463,-123969,-41299,-144659,128188,-50526,60593,-148025,70336,-30032,-128067,97863,106890,135737,98473,-56712,48804,-1113,159448,-135483,-14838,-151264,-111196,3074,9160,-58940,-92242,5265,-64154,134607,152709,69185,41033,29799,143237,114695,-151884,-75514,-170973,-78827,88545,-111528,-117671,6772,105222,19972,-130227,147752,21807,-91462,72775,102365,-133366,-17854,-113246,-71467,-167488,-5132,-144756,58167,-4392,-99069,-148940,7235,-75236,170091,121972,161188,-115452,-23739,63047,-27765,80013,52885,-158780,18231,-4506,-66720,237,-24273,-109098,-112650,142848,46124,-160046,-171070,151376,29769,143359,105097,8563,-47009,105656,38868,56070,-18702,72666,-55068,91360,-64332,-45699,32980,152408,105759,6532,-67067,149863,-169815,15224,-63740,-39847,162635,-119748,-111045,-66984,20508,51934,111581,-58112,26859,-103809,-145664,70073,-168679,98634,169696,-143997,-132636,-2103,-100493,32723,-87759,-65176,-71738,73798,103033,-58716,141169,-151381,-105190,-78317,169713,44651,72932,-69937,9720,12090,107928,-65336,-101918,-45288,-122273,38203,82559,-109184,49210,-124914,-109890,-122880,96372,-22118,-5467,-27129,-30871,25600,-153968,-30231,97443,-118873,58738,-19236,-38642,-24850,3094,-27357,170181,11578,133329,124644,-34056,-122830,26024,27390,101011,-10179,129028,166085,40531,156552,96144,-66911,-131807,94042,-3640,-419,29874,-57105,-127874,-89840,-144294,40420,66348,153253,-40786,-66495,57559,-27885,108587,-146121,-81788,-74430,141449,-46335,-53523,-100341,-50548,130767,49239,-71860,102958,-87262,163236,133347,-3034,-103379,165354,41829,-61602,61049,-92252,32919,132550,138464,-31414,-54321,109808,34236,122755,-1597,67842,40479,32516,-78405,5351,156944,52685,124290,136003,-14636,-22969,-76926,56548,154483,-75939,-153179,151071,23969,162574,157247,39005,37513,39381,141760,136484,9079,15293,16478,35618,94874,71503,85461,-38879,86900,41435,13960,23533,-54088,-126788,-124964,19661,94084,-85024,-75538,-4493,113384,-40899,157375,150880,-88474,60208,44512,86632,12527,41711,-38981,-70553,16799,21216,110404,83930,152424,46927,8662,122177,73732,-33336,-77576,148150,-101090,-135172,-15605,-90280,-166983,-57904,148621,48819,57054,3341,-107772,-157701,164559,-929,92573,45272,-152690,130237,109866,-58936,100513,33250,-62903,-72072,-86847,-62901,45873,-138815,-41876,9139,97359,151577,59865,-137881,-106293,108820,94544,-87168,-58701,35539,169597,-101909,-28550,-133213,-135766,-75085,-89090,-73794,46082,-13012,120553,158474,1594,158025,-82694,30158,-65994,9938,117803,152108,22801,97155,-7694,172379,72964,138169,-150839,69261,41371,-157797,116952,-119489,8583,130265,128418,153628,-153042,79120,80142,-29762,-104557,-50097,44953,154435,-69392,70999,43589,-75923,61389,-116410,-52863,-33034,-148021,130495,-59869,-6029,108406,20261,104980,2180,68738,140469,-124865,18289,91947,13924,-30391,-112613,68237,74845,115807,-149556,8792,133017,44790,75489,-96140,-155204,7008,114130,35839,-15687,21211,93079,55325,-53184,146026,70340,134819,172723,4281,-111274,-57532,-137494,-108581,-19513,1033,83125,-123314,-157302,103084,-108510,-29085,107311,-28310,-80835,149827,120839,-91805,-55961,-156288,-86091,-26576,-103518,-138325,-88475,19028,-36099,-167123,-129296,-107499,22288,142711,150266,165554,93420,83468,-133105,-75901,-29302,-59823,48761,-83802,-97237,63044,-159174,17128,70208,63703,161315,77542,-133263,118652,148827,44726,11287,-16868,-103615,-129163,-87460,60336,-32990,46136,-92135,-60114,53534,113245,136837,-100802,-66780,-672,27966,-139881,-81276,-150445,135386,89067,21625,32999,81876,167839,-16311,-57262,160007,66672,94216,-151359,-22796,-93856,-40269,-97675,17145,-153554,59892,21602,94853,38923,-118069,-154627,-106901,114100,-11244,-47532,90402,141642,-78713,-67722,-95621,106714,-138472,27551,52351,139038,-144556,-9277,83911,-8608,76106,-124171,63564,-120828,166494,71257,-85597,-147524,-36941,41896,-28119,-119779,-13299,-16669,-112674,69733,-92759,29960,-38931,149978,-125536,149737,-48896,-76441,-51075,124192,-28267,-118602,-77195,62343,-725,-88336,138118,-85914,-47167,-29591,155668,-94150,-28658,92390,-91752,162382,168849,-123478,-21469,47753,33541,1989,-11326,-124513,67965,-19919,-489,-139814,90261,-157845,-133003,-27940,68300,-40966,45505,75560,-70348,-12171,-135034,153131,-26498,33741,-44736,-1503,166412,-57618,-28458,25127,-152142,21631,106980,168828,-74497,115830,-156710,-8333,-6293,-123853,42180,60673,88483,88424,96851,-106967,40837,28162,-57665,37293,29176,-96261,39124,106049,72868,152072,-1438,-115395,-145600,71290,-2296,4107,5235,120689,-149929,-34683,105810,-161056,-44730,132122,158596,-28268,28627,-25248,52377,-66554,-61212,54196,107631,-90263,-84659,-108769,-3087,-11886,-4293,-169376,169741,105747,140442,-53181,-112670,111978,2065,113664,34640,148865,127295,81853,-48842,12392,-87369,-102624,140933,80781,12442,118886,25388,2725,-30201,141212,50252,-37218,-33630,47346,76905,124292,-147044,-151303,-62090,46363,12798,-160217,-95167,-52046,-64233,546,147060,-71943,10648,-172333,152440,-170205,130776,-99440,80556,-143653,-25452,-172002,-62511,137395,-79122,36096,-120603,-75500,51459,127543,73104,24337,40083,120324,-147495,108665,-134537,-137131,-36949,-43876,-103654,-168990,-92625,-153588,-66814,-38735,-161096,-53855,-85787,64123,-101594,8827,-12117,-13189,-97480,86712,137811,-105591,318,139772,119917,-156877,-169853,-152083,167731,-145016,131972,-82189,-143797,-29749,-102127,-160059,98690,-75320,106921,-18314,-16200,-80102,160818,-63326,107550,-127694,131403,116694,84914,-17617,102820,156910,136474,-135868,-58376,131756,-24629,-156148,-33102,62054,34064,172872,26796,99142,75202,-23248,103177,-11570,-71422,-54903,95247,92550,35377,-56030,-64217,-87890,-46887,-79263,-42810,-37032,-13727,-16343,-15910,-72126,29261,142698,58189,70468,-107337,-136979,162566,-34560,14905,-114771,138241,-16261,23637,84963,-141558,106747,-116435,-28864,-47008,-146651,40155,132208,126292,-11482,-85627,-16976,62168,-116210,-154602,-74215,-152968,-258,-162302,-82869,-98242,170851,34309,-52419,-134179,133506,-115618,-10032,52872,-105041,40789,-69068,136983,127196,68395,45308,-86536,149642,67485,120785,-24646,-142964,-134202,133148,-76584,117824,-68750,-160471,-47565,-86149,25375,17956,-139316,18041,158910,129077,124101,-95622,-149030,-78079,140434,-86543,-55823,-159980,-120005,91819,49376,46747,-118611,140312,-46075,-138006,169166,-26306,-108578,-167919,-49758,-172611,-96050,51067,-57061,-139874,-67581,-35588,-42407,-57029,70013,77541,-170414,93437,29718,58540,-78989,117380,-107688,-59579,-143382,4110,13139,-54062,-128034,163142,112540,-39172,34772,-60053,-81900,127489,138060,108678,-79763,28954,36363,-109096,-88589,54335,-136237,-35991,77859,-157733,96603,-142201,107085,79878,-19844,-107354,-60525,-125662,-64073,-36619,-50875,-89496,-133283,-106102,128948,-68704,10623,153902,51404,-103461,28880,148570,-107010,-54392,114360,-162814,-70612,2614,37723,28894,-34145,119983,-47867,-133686,145457,20304,122346,-45781,42718,-50206,-104329,154244,142566,146356,-31607,-96796,89001,153488,-34496,-23577,-156642,-1977,123241,72016,57994,107524,-89454,-61856,-43776,-128525,165266,138341,26090,37663,-83176,95592,45647,-162590,166578,-109563,57221,-142611,-138465,144232,146919,58797,172307,-129346,20271,117737,-39993,148132,-160803,98998,-121335,-12388,103071,-108052,85383,-28893,169431,46666,36990,-92844,124948,48586,161832,117918,-151885,-155062,31200,-47355,20648,12282,-69334,42945,58697,41376,-164092,61118,-31855,-143010,-83671,69278,12334,139048,31044,24617,-160888,65379,48522,-65633,96717,122915,-161635,-53756,-86989,50679,113550,120398,104789,20350,67837,-167169,79564,45994,-124759,-124631,-28686,-129565,-108098,74449,144580,52552,-22333,-90649,172622,76545,99495,-81251,-5557,154224,77556,100667,92085,-16609,104521,-71393,96446,-114945,-80197,-111102,90383,134446,-108787,-131828,130260,2225,-147165,-16986,-99053,59477,-87391,2137,-88487,-107124,75390,-136285,-45579,-164006,-44544,-167445,170896,-32497,-36599,18211,-169583,89391,153658,-87641,4824,165942,-131868,128443,17839,146586,-15799,137553,26487,-120832,-54510,37657,123948,-111390,90968,-9259,-138149,165204,56414,-38100,97259,157724,81163,18525,125043,148687,-74328,25544,-147371,43448,46640,-85869,-85495,1076,137252,10663,-84162,-105612,55863,-62900,-76609,-30709,13400,-105670,-100448,-87227,-64714,-55753,74774,99253,133710,-152273,17817,-86847,-117537,118829,166983,98313,-165365,113969,-163808,-89955,58332,-49351,-52656,22862,150586,-92316,-39699,-67512,-104087,-130692,60360,80010,-100484,4823,152530,-55600,-11000,31504,-150177,108702,26370,12932,102779,45827,-31028,-19851,156569,-4169,29044,37279,-23278,40874,-86883,84230,-94305,-72393,-8219,69972,-19579,164420,71186,298,-89552,13137,-10821,125533,-87904,51886,-20163,148142,-146150,-93569,-84958,17376,-19025,-57329,-108439,-83947,-24679,171645,-3829,-112352,-151082,30011,49394,16789,83779,-50937,109658,-63318,62986,164929,-105140,82967,66241,-44959,70391,68356,93277,-167649,-107710,39321,34374,54519,-43510,-16103,-123423,-125057,-94620,-124338,-158607,-62385,-38600,-81211,132783,-158902,-62166,146900,-27312,-81326,-162170,124647,32406,-67983,-133796,-98444,70954,127582,19209,106401,115113,152739,-87119,139578,55989,121967,-30942,135438,58375,5766,105870,-11153,-159604,1478,-18357,128132,163821,148125,-58285,105012,-65476,81251,137896,-15208,-32979,11040,152674,-143890,-164566,151191,-156648,-127231,-64093,-15996,114889,111830,-45449,50622,142512,-171543,-115203,149632,-86273,138306,-92691,-139183,50515,-142611,93643,-48195,-7226,162852,-156703,97643,19398,13387,128393,-151839,-123609,137713,-68859,120109,-146673,131316,49764,162774,-158204,-35898,170809,157315,-112761,26560,45450,-20007,75952,-5512,162516,61326,44299,-2112,59979,-155649,21217,70923,43730,107934,80284,170293,-171045,105495,-125181,-40926,-92366,167152,-52688,-153770,-128462,121654,101832,-67906,-104365,139144,126938,-143652,-102354,-153351,-25303,-112337,-167335,101898,-116985,-127737,-54884,152573,-41127,-139225,132628,83687,-85834,85980,132425,-143237,53884,-123062,-30597,83720,-130255,-73915,-51537,-140176,3930,125371,83930,-133985,-131870,-4712,147272,-8476,-58400,-17357,-122689,12425,83998,-36023,-155521,436,-115791,16875,92955,54735,-99141,72821,75647,-330,-151665,-113984,168387,-148101,116766,-172723,-76162,73747,-76647,113047,-149963,-69499,-43024,97597,164004,-37475,101231,79768,3508,-41023,-153020,21484,77857,-150146,13086,81156,-138240,-65166,-152671,136165,-163694,-118652,103602,-110885,-43210,148835,546,99240,138192,10799,-9284,152748,91887,158874,-47045,98242,-89807,86388,26828,-153998,-51678,-127010,59009,147402,144579,-44000,-129683,48951,-148323,17042,-88790,-158197,124356,-61684,-41446,-113886,157356,-156452,45449,-111079,41743,-60043,98627,-103702,92704,-163226,-27142,48128,-146511,19235,13923,-162682,94224,23664,88735,-125004,-63002,-90004,-48978,84122,-59479,-123929,105143,-149372,120425,-162662,22069,-148424,-150597,737,-10864,-104821,-34480,-37002,-165348,76182,-70763,164745,-106786,-63105,-157754,-171117,139524,-170402,-109452,46809,95301,121994,-33890,-6478,-41637,72881,-136175,-72362,-137193,151948,64854,31432,9809,147355,-141875,-2466,230,-18691,117778,65681,52536,-69392,158893,-137642,74152,-89894,-43699,155258,-148726,83934,-26474,88746,-70249,15913,100179,-113913,146430,63949,13888,136552,152735,40146,57585,102112,68229,-30891,-88075,106779,-93607,-33276,56382,36340,-155471,41442,16910,16134,40107,-171899,-140037,17589,140372,-35457,-54234,-8103,-106864,125149,154855,27116,106859,-120939,-162901,-156840,-39803,112556,55796,126061,39825,109102,-42351,-62630,116344,-62275,-50448,-101894,114600,24619,-84402,-144282,51431,21180,26042,-4892,47549,140845,-125171,161968,-31688,-17964,12981,14183,170997,-44824,-134832,-76121,-146518,128523,-140851,152338,-37095,-117840,-116282,-102318,-148221,-89086,-31773,17272,29491,162137,-171227,135765,-100490,-38663,-171951,155231,-111355,53765,21152,172620,136604,-652,141674,-29864,-52543,-63384,-103967,-75081,68425,141151,-6193,4305,-114492,-19553,-75355,100163,135334,73371,95174,91775,97080,-27969,-152429,5075,57691,-16359,-11314,-19745,-148136,164606,87868,118306,60413,36453,-127887,-41064,-93919,18435,-116541,-113289,-149173,-171797,-142337,-57341,-61016,139846,-93134,109511,112126,73909,-83778,117181,-23491,-117117,168473,-154536,119905,-4445,32292,-17010,163100,-108374,-4391,30517,-42439,77610,-58434,-151753,-10906,163720,64448,-24275,34626,-36138,-4537,158571,-127383,-105748,168662,12898,-138715,-2676,164527,120611,31726,144746,98821,51327,-32082,-30949,-152079,101097,-107955,-21882,138909,-37942,-133200,119844,-43134,104121,138906,-141353,51125,26173,77330,-24223,128710,-77789,-124730,155504,88730,-136250,15410,-36739,-110780,44045,-81585,68472,-20280,71045,-148935,51480,115672,137094,96202,78392,-130560,-151922,81997,-93927,-152756,57656,-123971,-169522,143592,-116606,-154006,-171777,122879,30756,53748,-17864,161540,115218,43980,114493,-118150,-89828,92561,34893,126467,-123700,-166393,-12972,89446,22966,119261,50661,91553,83792,40559,15399,-95209,102433,-49640,112776,167890,24643,24422,109601,-27315,-16765,-50801,-115987,62790,128455,77738,-166378,-73334,66934,-129756,-8272,-15604,-20067,-125990,-127786,-23725,143061,-83578,-157972,163767,169538,-45867,109602,143501,139230,100124,102518,161648,122109,100836,60113,-150401,48280,78856,-3708,38959,143115,124185,138589,11599,109656,-25157,-21861,-92935,114665,127248,-16498,-116624,166091,-88269,74743,65693,-139376,56439,3432,20145,-129734,42854,49930,67001,-122765,-24845,80883,-93128,158369,-38250,152058,-40719,-64549,-125001,-166291,-121153,45264,-119019,-141209,-59015,4449,68782,-23467,30738,29770,87011,-161482,-104661,-147597,-8874,82937,103709,-95309,-84330,25090,83226,-158581,149740,-57701,-24364,-64628,-38101,-94785,73385,88132,29989,-142741,-83867,60244,83374,-149377,169030,23468,-171457,-170839,-86157,-140409,30664,112810,41144,126903,-141950,-166123,164181,124113,-154873,119375,154158,12033,69004,-28586,-70828,42641,145331,72530,93704,-35655,159033,150836,132169,-137927,107973,102287,130407,129561,153079,170262,25325,-69122,-164795,133433,30615,70151,-123144,62195,-20075,41078,-153675,122956,66953,-116072,133894,24701,89362,-158083,166420,137331,108935,114224,86493,-104801,37150,-143094,47567,-62505,-75019,-34967,59371,32805,160874,-12467,10560,89923,83156,145145,29400,-83399,-56143,46449,-81987,-149452,-143167,-52615,-54410,-39653,-127145,173046,-114395,34368,-159326,15957,46566,-122024,-55442,62848,100042,69512,9528,-25048,127423,88849,-104727,-156684,-3630,-56562,-90439,-34131,48423,-90173,100412,-52135,-40968,127555,-139529,-3974,50572,91374,151893,-112611,-93478,-99387,-68347,92749,-146859,-38884,31889,-56128,-1277,112302,-89334,170117,-146527,-170816,42342,65024,30912,-122437,-24541,147365,172662,153131,-163557,-116694,145487,-72012,128174,2028,85391,141275,-144364,-142366,62751,-35355,-506,-2792,-127309,65004,142887,122746,-2618,-8192,156707,-141498,-148385,128584,108324,45673,-41894,-119792,-14010,172637,172406,-50665,164646,138138,24229,25513,-24928,-113315,11879,-76860,-66705,74509,57496,-73920,-3297,130561,-35407,-36358,-72923,-139639,93876,14575,-21745,98664,37803,-110360,-59636,-139471,96361,-170986,45967,149772,29842,33015,-128091,102641,124685,135468,-86412,-132474,47088,-16750,116611,163976,168741,-81133,-70178,-120686,-146374,-73964,-34182,113788,165183,80955,-36602,-168405,-58159,-90135,-60692,145050,112171,14789,-138617,-77764,-82223,97599,-116790,50086,-16127,39202,41660,-106927,-106895,72926,33401,-52675,48646,62697,60912,61890,78729,-100451,69596,-169545,-62623,-71603,-136513,79946,-105198,82781,-99354,-51177,-34707,-167476,-61394,-3642,-51737,-13053,104365,-11518,-126216,80673,-55466,105126,-42988,-149826,-118007,140102,-140339,-91506,-172466,44789,-1801,2971,154829,31853,-44355,-106456,-32565,125005,-57804,153721,99308,166605,-31887,-63033,-136364,-21681,36937,36804,66122,-26398,143522,-22033,-25853,-41571,-67844,-32534,-103999,-89444,-24588,-8174,73566,-49067,155226,-6737,61264,-167159,-154852,109095,48353,148968,21202,35564,-144269,121913,-9500,-120017,165805,127310,-134367,53974,169394,-71916,162722,104638,-86474,-172377,-124436,-18143,82781,-64229,116762,-37902,-119947,115908,-54581,-40834,-118142,26656,-85931,-130946,-153806,-123037,-19249,-88657,-11610,86439,-80933,-169673,-136456,123828,-155568,140030,115441,-127025,3711,129953,-24220,-70903,-34833,153866,142639,87038,-143183,170718,20687,126135,60163,84161,-135909,-164671,58587,-41441,169207,-140678,-77210,3386,35101,139802,-92455,-157771,-158707,-54199,121590,13249,-78648,-20458,6698,-122117,-120506,-93926,-32146,-17423,64995,-148871,5867,-90712,-91537,158311,152513,123135,103716,-125580,-124585,-142853,-165876,141532,-92982,112702,167185,-55853,169065,113793,162391,40675,-68257,102082,-55761,-172875,83344,-13407,105631,-21695,-105105,168995,-88375,111550,-134433,-65074,-13185,-110581,10938,-151380,78175,147281,163708,107511,122862,-41031,-127638,-100186,70902,-162078,167368,130355,90570,162784,94823,92972,-126836,-57978,59440,66864,-68075,161004,97562,-49243,54713,-35139,157142,-141039,75514,-109168,-120822,-109516,144401,144230,10201,-25983,41019,-167074,51454,-96328,-160878,27728,138794,-100703,56487,-148519,99508,-110775,42271,108775,-138177,-106465,23148,-163753,94215,156642,-151606,80965,53489,-162513,60962,45035,-150656,-145385,94621,-6504,-125493,103763,-95850,156815,-88493,-131756,105176,63615,-141154,22522,42102,-97085,-115304,167256,101875,-141656,156412,-86213,-146575,78045,153071,-145501,41569,-164256,-106612,-125178,73846,-123708,-35258,-93125,150698,-54346,8848,139851,-168073,40459,-74570,143199,147081,-12027,-23706,62526,69537,94713,162271,-14869,61626,133797,-94555,-944,-84824,-131220,-72755,105456,71216,-124791,-31108,94909,-28469,-109352,-120872,-18465,18028,-19900,133991,-54845,85485,-22331,-144019,22941,-29832,-94822,171013,143486,-120207,-47205,146577,-68858,-85954,-88546,141520,-110460,92549,140974,111429,133430,-8644,40507,-71238,-137479,164999,-22062,145424,-143722,-94262,-119909,170948,2886,-138141,67917,-16752,171789,-77058,-147898,-157977,72834,139050,-127135,70232,-107689,72440,32270,-89164,-64679,-74760,-68118,-159107,-109607,104286,45765,98132,5263,-20829,-60375,12568,123655,-151564,69267,34118,43926,92854,53830,-166724,107093,36371,-64531,-157354,69766,73933,152457,50525,-39993,-143416,58855,97727,-22190,-3408,118411,106229,69421,12630,68829,-149138,107758,-161281,-120854,-144394,2294,58765,3208,-50102,-73886,144687,59431,98098,18219,54122,110763,48832,-141853,4077,17204,-157749,44794,23413,17747,-24659,78097,56910,57514,-60503,32833,-106093,127747,43654,23639,487,58270,54837,68385,-144273,118476,128711,133272,119476,-99804,-164909,-68393,156548,-113818,11108,-151462,160713,44771,5666,-170015,-100912,7490,139875,-160570,-25429,-64333,-72222,145637,-150248,-65425,-84764,86717,-41492,124421,130461,-126454,116510,-65402,-94628,-58314,97977,-50511,87405,-35578,152983,-6750,-53732,-169115,-93033,1510,-18054,-78035,58845,-138740,90735,-31398,-52750,-53678,-145533,-101758,-64481,103037,126654,-106402,-29790,148169,87805,-47026,151003,-102228,-111807,-56788,97587,154931,130049,39195,-160677,-99592,-135802,-94442,68037,-8870,139607,-102038,-74397,-54380,65892,-69292,84385,-124648,85739,109023,-1005,122929,52577,99241,107339,-155326,128130,-113110,8830,111009,10194,-12581,-168276,-1225,-60884,123006,-29598,-27383,-78558,170120,32712,-138308,-146766,60342,157164,168832,15030,144807,87799,104755,34580,-59640,-72971,-61609,-159766,135904,-102427,-69400,-128542,-107029,-114378,104166,-108985,140497,-168025,-35323,-137900,30301,-106505,160402,-24542,-43879,73917,-28913,3298,-136430,-94328,145309,10289,29547,-5940,-31616,166020,77343,162974,115285,12807,-20783,98802,-105769,-74058,46751,43723,-141212,1838,50252,62168,-127111,-42481,-40395,161897,-18380,8428,123890,-70457,112904,171814,-11209,-59460,89023,-2638,-138599,91434,69774,-144786,15435,11088,121887,-111167,165949,-113885,28627,-94765,107547,664,-92389,-106389,-103729,21979,-162126,79101,-33019,-47350,-53349,121237,160915,-172641,-102047,92648,164826,70094,57410,144008,160551,129782,-58300,-52712,-6467,-134118,130842,-20258,-170597,-123224,-145602,96502,-59815,51807,163542,97984,88983,34004,-94564,33422,-95854,135863,93947,80422,164855,-115050,-109827,-163409,138124,-1063,-30934,165497,8869,-157871,-72736,127220,34456,106712,946,171347,-132824,-32949,13062,9967,161835,53660,101882,-44790,103246,-86903,56479,84112,-136468,130295,-28423,-106338,-12298,-159167,-104037,75385,-171355,-161646,94442,-58577,-32322,90183,-81929,-141141,-33490,-16540,168419,-171889,66144,-5806,-75431,131181,-153278,-158798,-11986,-45978,106592,-9213,-56614,-72872,-134234,-6762,-67435,115945,-57972,80585,24609,96390,-136718,-7611,-21444,138960,152683,-18596,-155194,-68329,-138150,149628,-143147,-103566,125046,-57508,-8499,137210,31408,-155619,31528,-36612,133488,116265,114383,-21581,95254,-25080,-124339,-115964,47214,-88643,-62136,167411,90948,-162393,76035,-63038,-162046,-7241,-55442,-69932,98477,-28171,-103169,-62056,111398,64538,-128946,-39501,19307,-25604,101968,-56090,109644,-21624,-133735,154161,-153476,108855,-27240,-55959,-47205,47803,151346,-34341,89593,99301,140249,-117533,62081,-45474,161212,-56673,-144472,-47010,-128502,42741,70652,58049,-47583,-81403,42602,53963,160207,-106748,-64666,-47020,80903,13291,163712,86798,-8457,96559,-125935,-142656,109696,160716,156091,36054,-101364,-47031,-24294,-111768,-66631";
+ const SCR=(()=>{const a=STREAM33.split(",").map(Number),o=[];for(let t=0;t<3000;t++)o.push([a[t]/1e5,a[3000+t]/1e5]);return o})();
+ const T=3000;let seed=33,useScript=true;
+ const xerr=C=>{const a2=C.map(r=>r.map(v=>v*v));let s=0;for(let i=0;i<2;i++)s+=(a2[i][0]+a2[i][1])/Math.max(a2[i][0],a2[i][1])-1;for(let j=0;j<2;j++)s+=(a2[0][j]+a2[1][j])/Math.max(a2[0][j],a2[1][j])-1;return s};
+ const inv2=M=>{const d=M[0][0]*M[1][1]-M[0][1]*M[1][0];return [[M[1][1]/d,-M[0][1]/d],[-M[1][0]/d,M[0][0]/d]]};
+ function run(algo,A,stream,steps){
+  const C0=[[0.9,0.25],[-0.2,0.8]],Ai=inv2(A);let W=mm(C0,Ai);const eps=0.01,out=[];
+  for(let t=0;t<steps;t++){
+   const s=stream[t],x=[A[0][0]*s[0]+A[0][1]*s[1],A[1][0]*s[0]+A[1][1]*s[1]],y=[W[0][0]*x[0]+W[0][1]*x[1],W[1][0]*x[0]+W[1][1]*x[1]],p=[y[0]**3,y[1]**3];
+   let dW;
+   if(algo==="nat"){const F=[[1-p[0]*y[0],-p[0]*y[1]],[-p[1]*y[0],1-p[1]*y[1]]];dW=mm(F,W)}
+   else{const Wi=inv2(W);dW=[[Wi[0][0]-p[0]*x[0],Wi[1][0]-p[0]*x[1]],[Wi[0][1]-p[1]*x[0],Wi[1][1]-p[1]*x[1]]]}
+   // ordinary gradient: W^{-T} - phi(y) x^T ;  (W^{-T})_{ij} = (W^{-1})_{ji}
+   W=add(W,dW,eps);
+   const C=mm(W,A);out.push(C);
+   if(!W.every(r=>r.every(v=>isFinite(v)&&Math.abs(v)<=1e8)))break;
+  }
+  return out;
+ }
+ function draw(){
+  const a=+g("w4a").value;g("w4ao").textContent=f2(a);
+  let stream;
+  if(useScript)stream=SCR;else{const rd=mkRand(seed);stream=[];for(let t=0;t<T;t++)stream.push([SRC.uniform.samp(rd),SRC.uniform.samp(rd)])}
+  const A1=[[1,0.5],[0.3,1]],A2=[[a,-2],[0.5,0.4]];
+  const runs={n1:run("nat",A1,stream,T),n2:run("nat",A2,stream,T),o1:run("ord",A1,stream,T),o2:run("ord",A2,stream,T)};
+  let diff=0;for(let t=0;t<Math.min(runs.n1.length,runs.n2.length);t++)for(let i=0;i<2;i++)for(let j=0;j<2;j++)diff=Math.max(diff,Math.abs(runs.n1[t][i][j]-runs.n2[t][i][j]));
+  const S=g("w4v");clear(S);const P=axes(S,60,16,620,200,[0,600],[-3.2,1.6],"log10 cross-talk index","learning step (first 600 of 3000 shown)","");
+  ticks(P,[0,150,300,450,600],[-3,-2,-1,0,1],v=>v.toFixed(0),v=>v.toFixed(0));
+  const curve=(tr,col,dash,w)=>{const pts=[];for(let t=0;t<Math.min(tr.length,601);t+=3){const e=xerr(tr[t]);pts.push([P.X(t),P.Y(Math.log10(Math.max(e,1e-4)))])}path(P.G,pts,col,w||2,dash)};
+  curve(runs.o1,"var(--s3)");curve(runs.o2,"var(--s2)");curve(runs.n1,"var(--s1)",null,2.6);curve(runs.n2,"var(--ink)","5 3",1.4);
+  const lg=[["var(--s1)","natural, A₁"],["var(--ink)","natural, A₂ (same curve)"],["var(--s3)","ordinary, A₁"],["var(--s2)","ordinary, A₂"]];
+  lg.forEach(([c,t],i)=>{el("line",{x1:420,x2:442,y1:36+14*i,y2:36+14*i,stroke:c,"stroke-width":2.4},S);el("text",{x:448,y:40+14*i,fill:"var(--muted)","font-size":11},S).textContent=t});
+  const fin=r=>r.length?xerr(r[r.length-1]):NaN,first=r=>{if(r.length<T)return "never (diverged)";for(let t=0;t<r.length;t++)if(xerr(r[t])<0.05)return t;return "not within "+T};
+  const cn=cs=>`${f4(fin(cs))}${cs.length<T?" (diverged after "+cs.length+" steps)":""}`;
+  const cap=(useScript&&a===3)?"These are the script's own samples, so the readout equals the script's: natural 1.2e-15 apart, index 0.0017, 261 steps to 0.05; ordinary A₂ diverges after 23 steps.":"Script (its own samples, a = 3): natural 1.2e-15 apart, index 0.0017, 261 steps to 0.05; ordinary A₂ diverges after 23 steps. Here the samples or a differ, so the numbers differ.";
+  g("w4s").innerHTML=`<div>cond(A₂) = <b>${(()=>{const m=A2,s=m[0][0]**2+m[0][1]**2+m[1][0]**2+m[1][1]**2,d=Math.abs(m[0][0]*m[1][1]-m[0][1]*m[1][0]),q=Math.sqrt(s*s-4*d*d),smax=Math.sqrt((s+q)/2),smin=Math.sqrt((s-q)/2);return (smax/smin).toFixed(1)})()}</b></div><div>natural gradient: max |C₁(t) − C₂(t)| over ${T} steps <b>${fE(diff)}</b></div><div>natural: index at step ${T} <b>${cn(runs.n1)}</b> (A₁), <b>${cn(runs.n2)}</b> (A₂)</div><div>ordinary: <b>${cn(runs.o1)}</b> (A₁), <b>${cn(runs.o2)}</b> (A₂)</div><div>steps to index &lt; 0.05: natural <b>${first(runs.n1)}</b> (both), ordinary <b>${first(runs.o1)}</b> (A₁), <b>${first(runs.o2)}</b> (A₂)</div><div class="cap">${cap}</div>`;
+ }
+ g("w4a").addEventListener("input",draw);g("w4b").addEventListener("click",()=>{useScript=false;seed+=1;draw()});g("w4c").addEventListener("click",()=>{useScript=true;draw()});draw();
+})();
+
+// ---------- widget 5: Lee-Seung and exponential gradient
+(function(){
+ const X=NMF_X,A0=NMF_A0,S0=NMF_S0,n=6,r=3,T=40;
+ const loss=(A,S)=>{const AS=mm(A,S);let t=0;for(let i=0;i<n;i++)for(let j=0;j<T;j++)t+=(X[i][j]-AS[i][j])**2;return 0.5*t};
+ function runLS(iters){let A=A0.map(a=>a.slice()),S=S0.map(a=>a.slice());const Ls=[loss(A,S)];
+  for(let it=0;it<iters;it++){
+   const XSt=mm(X,tr_(S)),ASSt=mm(mm(A,S),tr_(S));A=A.map((row,i)=>row.map((v,j)=>v*XSt[i][j]/ASSt[i][j]));
+   const AtX=mm(tr_(A),X),AtAS=mm(mm(tr_(A),A),S);S=S.map((row,i)=>row.map((v,j)=>v*AtX[i][j]/AtAS[i][j]));
+   Ls.push(loss(A,S))}
+  return Ls}
+ function runEG(eta,iters){let A=A0.map(a=>a.slice()),S=S0.map(a=>a.slice());const Ls=[loss(A,S)];
+  for(let it=0;it<iters;it++){
+   const XSt=mm(X,tr_(S)),ASSt=mm(mm(A,S),tr_(S));A=A.map((row,i)=>row.map((v,j)=>v*Math.exp(-eta*(-XSt[i][j]+ASSt[i][j]))));
+   const AtX=mm(tr_(A),X),AtAS=mm(mm(tr_(A),A),S);S=S.map((row,i)=>row.map((v,j)=>v*Math.exp(-eta*(-AtX[i][j]+AtAS[i][j]))));
+   const l=loss(A,S);Ls.push(l);if(!isFinite(l)||l>1e12)break}
+  return Ls}
+ const LS=runLS(300);
+ function draw(){
+  const eta=+g("w5e").value,EG=runEG(eta,300);
+  const S=g("w5v");clear(S);const P=axes(S,60,16,620,200,[0,300],[-2,2.2],"log10 L = log10 (1/2)|X − A S|²","iteration","");
+  ticks(P,[0,100,200,300],[-2,-1,0,1,2],v=>v.toFixed(0),v=>v.toFixed(0));
+  const crv=(Ls,col,w)=>path(P.G,Ls.map((l,i)=>[P.X(i),P.Y(Math.max(-2,Math.min(2.2,Math.log10(Math.max(l,1e-12)))))]),col,w);
+  crv(EG,"var(--s2)",2);crv(LS,"var(--s1)",2.6);
+  const inc=EG.slice(1).filter((l,i)=>l-EG[i]>1e-12).length,diverged=EG.length<301;
+  const mx=Math.max(...LS.slice(1).map((l,i)=>l-LS[i]));
+  g("w5s").innerHTML=`<div>Lee–Seung: L = <b>${LS[0].toFixed(4)}</b> → <b>${LS[10].toFixed(4)}</b> (10) → <b>${LS[100].toFixed(4)}</b> (100) → <b>${LS[300].toFixed(6)}</b>; largest change per iteration <b>${mx.toExponential(1)}</b> (always a decrease)</div>`+
+   (diverged?`<div>EG η = ${eta}: <b>diverged after ${EG.length-1} iterations</b></div>`:`<div>EG η = ${eta}: iterations with an increase of L <b>${inc}</b>; L after 100: <b>${EG[100].toPrecision(5)}</b>; after 300: <b>${EG[300].toPrecision(5)}</b></div>`)+
+   `<div class="cap">Script: η = 0.003: 0 increases, 6.4399, 1.5547; 0.01: 0, 1.3701, 0.31546; 0.03: 0, 0.33216, 0.026539; 0.1: 6, 0.021119, 0.017668; 0.3: 83, 27.634, 72.881; 1.0: diverged after 3 iterations. Lee–Seung: 56.9554, 0.4166, 0.0192, 0.017661.</div>`;
+ }
+ g("w5e").addEventListener("change",draw);draw();
+})();
+
+// ---------- widget 6: the lasso path of three columns
+function lassoPath(cols,x){ // cols: array of columns (each of length m)
+ const n=cols.length,m=x.length,G=cols.map(a=>cols.map(b=>dotp(a,b))),b=cols.map(a=>dotp(a,x));
+ const solve=(M,v)=>{const k=v.length,A=M.map((r,i)=>r.concat([v[i]]));for(let i=0;i<k;i++){let p=i;for(let r=i+1;r<k;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;[A[i],A[p]]=[A[p],A[i]];for(let r=0;r<k;r++)if(r!==i){const f=A[r][i]/A[i][i];for(let c=i;c<=k;c++)A[r][c]-=f*A[i][c]}}return A.map((r,i)=>r[k]/r[i])};
+ let th=new Array(n).fill(0),lam=Math.max(...b.map(Math.abs)),j0=b.findIndex(v=>Math.abs(v)===lam);
+ let act=[j0];const sg={};sg[j0]=Math.sign(b[j0]);const lamInit=lam;
+ const knots=[{lam,theta:th.slice(),active:act.slice(),signs:Object.assign({},sg)}],segs=[];
+ for(let it=0;it<50;it++){
+  const GAA=act.map(i=>act.map(j=>G[i][j])),sA=act.map(i=>sg[i]),d=solve(GAA,sA);
+  const eta=G.map((r,i)=>dotp(r,th)-b[i]),gv=G.map((r,i)=>act.reduce((s,j,q)=>s+r[j]*d[q],0));
+  let best=lam,ev=["end"];
+  for(let j=0;j<n;j++){if(act.includes(j)||act.length>=Math.min(n,m))continue;
+   const den1=1+gv[j],den2=1-gv[j];
+   if(den1>1e-12){const c=(lam-eta[j])/den1;if(c>1e-12&&c<best-1e-14){best=c;ev=["enter",j,-1]}}
+   if(den2>1e-12){const c=(lam+eta[j])/den2;if(c>1e-12&&c<best-1e-14){best=c;ev=["enter",j,1]}}}
+  act.forEach((i,q)=>{if(th[i]*d[q]<0){const c=-th[i]/d[q];if(c>1e-12&&c<best-1e-14){best=c;ev=["leave",i]}}});
+  if(lam-best<1e-9*lamInit){best=lam;ev=["end"]}
+  const inact=[];for(let j=0;j<n;j++)if(!act.includes(j))inact.push(j);
+  segs.push({l0:lam,l1:lam-best,active:act.slice(),s:sA,d,g:inact.map(j=>gv[j]),inact});
+  act.forEach((i,q)=>th[i]+=best*d[q]);lam-=best;
+  if(ev[0]==="end"){knots.push({lam:0,theta:th.slice(),active:act.slice()});break}
+  if(ev[0]==="enter"){act.push(ev[1]);sg[ev[1]]=ev[2]}else{th[ev[1]]=0;act=act.filter(i=>i!==ev[1]);delete sg[ev[1]]}
+  knots.push({lam,theta:th.slice(),active:act.slice()});
+ }
+ return {knots,segs,G};
+}
+function threeCols(rho){const a=0.5*Math.acos(-rho),be=0.3;return [[Math.cos(a),Math.sin(a),0],[-Math.cos(a),Math.sin(a),0],[0,Math.cos(be),Math.sin(be)]]}
+(function(){
+ function draw(){
+  const rho=+g("w6r").value;g("w6ro").textContent=f2(rho);
+  const cols=threeCols(rho),P_=lassoPath(cols,LASSO_X),L=g("w6l");clear(L);
+  const l1=k=>k.theta.reduce((s,v)=>s+Math.abs(v),0),cmax=l1(P_.knots[P_.knots.length-1]);
+  const ym=1.1*Math.max(...P_.knots.map(k=>Math.max(...k.theta.map(Math.abs))),0.5);
+  const P=axes(L,44,14,280,230,[0,cmax],[-ym,ym],"coefficients θ against |θ|₁ (exact lasso path)","|θ|₁","");
+  ticks(P,[0,0.25,0.5,0.75,1].map(f=>cmax*f),[-ym*0.8,-ym*0.4,0,ym*0.4,ym*0.8],v=>v.toFixed(2),v=>v.toFixed(1));
+  P_.segs.forEach((sg,q)=>{const r=sg.g.length?Math.max(...sg.g.map(Math.abs)):0;if(r>1+1e-9){const x0=P.X(l1(P_.knots[q])),x1=P.X(l1(P_.knots[q+1]));el("rect",{x:Math.min(x0,x1),y:P.y0,width:Math.abs(x1-x0),height:P.h,fill:"var(--s2)",opacity:0.14},P.G)}});
+  const colr=["var(--s1)","var(--s2)","var(--s3)"];
+  for(let j=0;j<3;j++){path(P.G,P_.knots.map(k=>[P.X(l1(k)),P.Y(k.theta[j])]),colr[j],2.2);el("text",{x:P.x0+P.w-6,y:P.y0+16+14*j,"text-anchor":"end",fill:colr[j],"font-size":11},P.G.parentNode).textContent="θ"+(j+1)}
+  let rows="";let focus=null;
+  P_.segs.forEach((sg,q)=>{
+   const act=sg.active.map(i=>i+1).join(","),ratio=sg.g.length?Math.max(...sg.g.map(Math.abs)):0;
+   const nu=Math.sqrt(sg.s.reduce((s,v,i)=>s+v*sg.d[i],0));
+   if(sg.active.length===2&&sg.active.includes(0)&&sg.active.includes(1)&&sg.s[0]===sg.s[1])focus={sg,nu,ratio};
+   rows+=`<tr><td>${q+1}</td><td>[${sg.l1.toFixed(4)}, ${sg.l0.toFixed(4)}]</td><td>{${act}}</td><td>${sg.s.map(v=>v>0?"+":"−").join("")}</td><td><b>${ratio.toFixed(4)}</b></td><td>${ratio>1+1e-9?"violated":"ok"}</td></tr>`});
+  g("w6tab").innerHTML=`<table class="t"><tr><th>#</th><th>λ range</th><th>active</th><th>signs</th><th>max |g<sub>j</sub>|</th><th>(13.161)</th></tr>${rows}</table>`;
+  let html=`<div>G₁₂ = <b>${f2(rho)}</b>, G₁₃ = G₂₃ = <b>${f4(P_.G[0][2])}</b></div>`;
+  if(focus){const nu=focus.nu,r=focus.ratio;html+=`<div>segment with active set {1, 2}, equal signs: active inner products 1, inactive <b>${r.toFixed(4)}</b></div><div>angle of θ′ with the active axes <b>${(Math.acos(1/nu)*180/Math.PI).toFixed(1)}°</b>, with the inactive axis <b>${(Math.acos(Math.min(1,r/nu))*180/Math.PI).toFixed(1)}°</b></div>`}
+  else html+=`<div>no segment with active set {1, 2} and equal signs for this ρ: look at the table for other violations</div>`;
+  g("w6s").innerHTML=html+`<div class="cap">Script at ρ = −0.9: λ in [0.0093, 0.0149], |g₃| = 4.2724, angles 77.1° and 17.2°.</div>`;
+ }
+ g("w6r").addEventListener("input",draw);draw();
+})();
+
+// ---------- widget 7: central path of a hexagon LP
+const HA=[[1,0],[0,1],[-1,0],[0,-1],[-1,-1],[1,-2]],HB=[0,0,-4,-3,-5.5,-4],HC=[-1,-0.7];
+function barr(th){const s=HA.map((a,i)=>a[0]*th[0]+a[1]*th[1]-HB[i]);if(s.some(v=>v<=0))return null;
+ let f=0,e=[0,0],G=[[0,0],[0,0]];s.forEach((v,i)=>{f-=Math.log(v);const a=HA[i];e[0]-=a[0]/v;e[1]-=a[1]/v;for(let p=0;p<2;p++)for(let q=0;q<2;q++)G[p][q]+=a[p]*a[q]/(v*v)});return {f,e,G,s}}
+function solve2(G,v){const d=G[0][0]*G[1][1]-G[0][1]*G[1][0];return [(G[1][1]*v[0]-G[0][1]*v[1])/d,(-G[1][0]*v[0]+G[0][0]*v[1])/d]}
+function newtonBarrier(t,th0){let th=th0.slice();for(let it=0;it<100;it++){const B=barr(th),gr=[t*HC[0]+B.e[0],t*HC[1]+B.e[1]];if(Math.max(Math.abs(gr[0]),Math.abs(gr[1]))<1e-13*Math.max(1,t))return th;
+ const st=solve2(B.G,gr).map(v=>-v),dec=-(gr[0]*st[0]+gr[1]*st[1]);let al=1;while(!barr([th[0]+al*st[0],th[1]+al*st[1]]))al*=0.5;
+ const f0=t*(HC[0]*th[0]+HC[1]*th[1])+B.f;while(al>1e-12){const q=[th[0]+al*st[0],th[1]+al*st[1]],Bq=barr(q);if(t*(HC[0]*q[0]+HC[1]*q[1])+Bq.f>f0-0.25*al*dec)al*=0.5;else break}
+ th=[th[0]+al*st[0],th[1]+al*st[1]]}return th}
+(function(){
+ const centre=newtonBarrier(0,[1.7,1.2]),pstar=-5.05;
+ function euler(eps,tend){let th=centre.slice();const pts=[th.slice()],K=Math.round(tend/eps);for(let k=0;k<K;k++){const B=barr(th),d=solve2(B.G,HC);th=[th[0]-eps*d[0],th[1]-eps*d[1]];pts.push(th.slice())}return pts}
+ function draw(){
+  const lt=+g("w7t").value,t=Math.pow(10,lt),eps=+g("w7e").value;g("w7to").textContent=f2(lt)+" (t = "+t.toPrecision(3)+")";
+  const L=g("w7l");clear(L);const P=axes(L,36,14,290,250,[-0.4,4.4],[-0.4,3.4],"hexagon A θ ≥ b, central path, Euler steps","θ₁","θ₂");
+  ticks(P,[0,1,2,3,4],[0,1,2,3],v=>v.toFixed(0),v=>v.toFixed(0));
+  const poly=[[0,0],[4,0],[4,1.5],[2.5,3],[2,3],[0,2]];
+  el("polygon",{points:poly.map(q=>P.X(q[0]).toFixed(1)+","+P.Y(q[1]).toFixed(1)).join(" "),fill:"var(--s1)",opacity:0.08,stroke:"var(--ink)","stroke-width":2},P.G);
+  let th=centre.slice();const cp=[th.slice()],tg=[];for(let i=0;i<=60;i++)tg.push(2*i/60);for(let i=1;i<=150;i++)tg.push(2+398*i/150);
+  tg.forEach(tt=>{th=newtonBarrier(tt,th);cp.push(th.slice())});
+  path(P.G,cp.map(q=>[P.X(q[0]),P.Y(q[1])]),"var(--s1)",2.4);
+  const eu=euler(eps,2);path(P.G,eu.map(q=>[P.X(q[0]),P.Y(q[1])]),"var(--s2)",1.4);eu.forEach(q=>el("circle",{cx:P.X(q[0]),cy:P.Y(q[1]),r:3,fill:"var(--s2)"},P.G));
+  const tc=newtonBarrier(t,newtonBarrier(Math.min(t,1),centre));
+  el("circle",{cx:P.X(centre[0]),cy:P.Y(centre[1]),r:4.5,fill:"var(--faint)"},P.G);el("circle",{cx:P.X(4),cy:P.Y(1.5),r:5,fill:"var(--s4)"},P.G);el("circle",{cx:P.X(tc[0]),cy:P.Y(tc[1]),r:5,fill:"var(--s3)",stroke:"var(--surface)"},P.G);
+  const B=barr(tc),y=B.s.map(s=>1/(t*s)),ct=HC[0]*tc[0]+HC[1]*tc[1],by=y.reduce((s,v,i)=>s+v*HB[i],0);
+  const ref=newtonBarrier(2,centre),errE=Math.hypot(eu[eu.length-1][0]-ref[0],eu[eu.length-1][1]-ref[1]);
+  const res=Math.max(Math.abs(B.e[0]+t*HC[0]),Math.abs(B.e[1]+t*HC[1]));
+  let rows="";[0.4,0.2,0.1,0.05,0.025].forEach(e=>{const pts=euler(e,2),q=pts[pts.length-1];const er=Math.hypot(q[0]-ref[0],q[1]-ref[1]);rows+=`<tr><td>${e}</td><td>${Math.round(2/e)}</td><td>${er.toExponential(3)}</td><td>${(er/e).toFixed(4)}</td></tr>`});
+  g("w7tab").innerHTML=`<table class="t"><tr><th>ε</th><th>steps</th><th>|θ<sub>k</sub> − θ*(2)|</th><th>error/ε</th></tr>${rows}</table>`;
+  g("w7s").innerHTML=`<div>θ*(t) = <b>(${tc[0].toFixed(4)}, ${tc[1].toFixed(4)})</b> (green)</div><div>|η + t c| <b>${fE(res)}</b></div><div>c·θ* − p* <b>${(ct-pstar).toExponential(3)}</b>, c·θ* − b·y <b>${(ct-by).toExponential(3)}</b> = m/t = <b>${(6/t).toExponential(3)}</b></div><div>Euler error at t = 2, ε = ${eps} <b>${errE.toExponential(3)}</b></div><div class="cap">Script: t = 2: θ* = (3.2838, 1.3267), c·θ* − p* = 0.8375, m/t = 3; Euler errors at t = 2: 0.105, 0.05095, 0.02513, 0.01248, 0.006222.</div>`;
+ }
+ ["w7t","w7e"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ---------- widget 8: Hyvarinen estimator against the MLE
+function hypEff(k){const mk=j=>Math.exp(lgamma((j+1)/k)-lgamma(1/k)),K=k*k*mk(2*k-2),V=k*k*(k-1)*(k-1)*mk(2*k-4)-2*k**3*(k-1)*mk(3*k-4)+k**4*mk(4*k-4);return k*K*K/V}
+(function(){
+ let seed=71;
+ function draw(){
+  const k=+g("w8k").value,N=+g("w8n").value;g("w8ko").textContent=k.toFixed(1);g("w8no").textContent=N;
+  const L=g("w8l");clear(L);const P=axes(L,44,14,280,230,[2,8],[0.3,1.04],"efficiency of the Hyvärinen estimator","exponent k","");
+  ticks(P,[2,3,4,5,6,7,8],[0.4,0.6,0.8,1],v=>v.toFixed(0),f2);
+  const pts=[];for(let i=0;i<=120;i++){const kk=2+6*i/120;pts.push([P.X(kk),P.Y(hypEff(kk))])}path(P.G,pts,"var(--s1)",2.4);
+  el("circle",{cx:P.X(k),cy:P.Y(hypEff(k)),r:5.5,fill:"var(--s2)",stroke:"var(--surface)"},P.G);
+  // simulation
+  const th=1.7,R=4000,rd=mkRand(seed),mle=new Float64Array(R),hv=new Float64Array(R);
+  for(let r=0;r<R;r++){let sy=0,s1=0,s2=0;for(let i=0;i<N;i++){const y=rd.gam(1/k),x=Math.pow(y/th,1/k);sy+=y;s1+=Math.pow(x,k-2);s2+=Math.pow(x,2*k-2)}
+   mle[r]=N*th/(k*sy);hv[r]=((k-1)/k)*s1/s2}
+  const mv=a=>{let m=0;for(const x of a)m+=x;m/=R;let q=0;for(const x of a)q+=(x-m)**2;return [m,q/R]};
+  const [m1,v1]=mv(mle),[m2,v2]=mv(hv),sd=Math.sqrt(v1),lo=th-4.5*sd,hi=th+4.5*sd;
+  const Rg=g("w8r");clear(Rg);const nb=50,H1=new Array(nb).fill(0),H2=new Array(nb).fill(0);
+  for(let r=0;r<R;r++){let j=Math.floor((mle[r]-lo)/(hi-lo)*nb);if(j>=0&&j<nb)H1[j]++;j=Math.floor((hv[r]-lo)/(hi-lo)*nb);if(j>=0&&j<nb)H2[j]++}
+  const dens=H=>H.map(c=>c/(R*(hi-lo)/nb)),d1=dens(H1),d2=dens(H2),ym=Math.max(...d1,...d2)*1.15;
+  const Q=axes(Rg,30,14,290,230,[lo,hi],[0,ym],"estimates of θ = 1.7","","");
+  const stepPts=d=>{const o=[];d.forEach((v,j)=>{o.push([Q.X(lo+(hi-lo)*j/nb),Q.Y(v)]);o.push([Q.X(lo+(hi-lo)*(j+1)/nb),Q.Y(v)])});return o};
+  path(Q.G,stepPts(d1),"var(--s1)",1.8);path(Q.G,stepPts(d2),"var(--s2)",1.8);
+  el("line",{x1:Q.X(th),x2:Q.X(th),y1:Q.y0,y2:Q.y0+Q.h,stroke:"var(--ink)","stroke-dasharray":"3 3"},Q.G);
+  const eff=hypEff(k),se=Math.sqrt(2/R)*Math.sqrt(2);
+  g("w8s").innerHTML=`<div>efficiency (Gamma-function moments) <b>${f4(eff)}</b></div><div>MLE: N·var <b>${(N*v1).toFixed(3)}</b> (bound k·θ² = ${(k*th*th).toFixed(3)})</div><div>Hyvärinen: N·var <b>${(N*v2).toFixed(3)}</b></div><div>variance ratio MLE / Hyvärinen <b>${(v1/v2).toFixed(4)}</b> (± ${(v1/v2*se).toFixed(3)} from ${R} replications)</div><div>means <b>${m1.toFixed(4)}</b>, <b>${m2.toFixed(4)}</b></div><div class="cap">Script, k = 3, N = 400, θ = 1.7: efficiency 0.821356; with 30000 replications N·var = 8.9079 (MLE) and 10.8507 (Hyvärinen), ratio 0.8209; bound 3θ² = 8.670. Here fewer replications, so the ratio agrees within its stated error.</div>`;
+ }
+ ["w8k","w8n"].forEach(i=>g(i).addEventListener("input",draw));g("w8b").addEventListener("click",()=>{seed+=1;draw()});draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
