@@ -162,7 +162,24 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>8. The Pythagorean theorem</h2>
+<h2>8. Pythagoras on the Gaussians: the 3-4-5 triangle's cousin</h2>
+<p>In the plane, $P=(0,0)$, $Q=(3,0)$, $R=(3,4)$ with $D=\tfrac12\|\cdot\|^2$ gives $4.5+8=12.5$. Here $P=N(0,1)$ is fixed and $Q$ is yours. The orange curve is the m-geodesic $P\to Q$ (straight in $\eta=(\mu,\mu^2+\sigma^2)$); the blue curve is the e-geodesic through $Q$ (straight in $\theta=(\mu/\sigma^2,-1/(2\sigma^2))$), leaving $Q$ in the direction whose pairing with $\eta_Q-\eta_P$ is zero. Move $R$ along it with $t$. The bars stack $\mathrm{KL}[P{:}Q]+\mathrm{KL}[Q{:}R]$ against the direct $\mathrm{KL}[P{:}R]$: they have the same length at zero tilt, for any $t$. Tilt the second leg and the gap is exactly the pairing $(\theta_Q-\theta_R)\cdot(\eta_Q-\eta_P)$.</p>
+<div class="widget" id="wq">
+  <div class="controls">
+    <label>$\mu_Q$ <input type="range" id="wqm" min="0.5" max="3" step="0.05" value="1.5"><output id="wqmo"></output></label>
+    <label>$\sigma_Q$ <input type="range" id="wqs" min="0.5" max="3" step="0.05" value="1.5"><output id="wqso"></output></label>
+    <label>distance $t$ <input type="range" id="wqt" min="-3" max="3" step="0.05" value="-1"><output id="wqto"></output></label>
+    <label>tilt <input type="range" id="wqp" min="-60" max="60" step="1" value="0"><output id="wqpo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="wqa" viewBox="0 0 340 330" width="100%" role="img" aria-label="The Gaussians P, Q and R in the mu sigma plane with the m-geodesic and the e-geodesic"></svg></div>
+    <div><svg id="wqb" viewBox="0 0 340 330" width="100%" role="img" aria-label="Bars comparing KL P to Q plus KL Q to R against KL P to R"></svg></div>
+  </div>
+  <div class="stats" id="wqr"></div>
+  <div class="cap" id="wqn"></div>
+</div>
+
+<h2>9. The Pythagorean theorem on the probability triangle</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -175,7 +192,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>9. Projecting onto a submanifold</h2>
+<h2>10. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -645,6 +662,52 @@ function draw(){
  g("wfn").textContent="Shrink the step and the ratio goes to 1: the metric is the quadratic part of the divergence. Move σ down and the ellipses shrink, so the same Euclidean arrow becomes a longer Riemannian step.";
 }
 ["wfm","wfs","wfp","wfl"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",A=document.getElementById("wqa"),B=document.getElementById("wqb"),g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const klG=(m1,s1,m2,s2)=>Math.log(s2/s1)+(s1*s1+(m1-m2)*(m1-m2))/(2*s2*s2)-0.5;
+const th=(m,s)=>[m/(s*s),-1/(2*s*s)],et=(m,s)=>[m,m*m+s*s];
+const fromTh=t=>{const v=-1/(2*t[1]);return[t[0]*v,Math.sqrt(v)]};
+const P=[0,1];
+function draw(){
+ while(A.firstChild)A.removeChild(A.firstChild);while(B.firstChild)B.removeChild(B.firstChild);
+ const mq=+g("wqm").value,sq=+g("wqs").value,ph=+g("wqp").value*Math.PI/180;let t=+g("wqt").value;
+ g("wqmo").textContent=mq.toFixed(2);g("wqso").textContent=sq.toFixed(2);g("wqpo").textContent=g("wqp").value+"°";
+ const tP=th(P[0],P[1]),eP=et(P[0],P[1]),tQ=th(mq,sq),eQ=et(mq,sq);
+ const dE=[eQ[0]-eP[0],eQ[1]-eP[1]],nE=Math.hypot(dE[0],dE[1])||1e-9,u=[dE[0]/nE,dE[1]/nE],vp=[-u[1],u[0]];
+ const v=[Math.cos(ph)*vp[0]+Math.sin(ph)*u[0],Math.cos(ph)*vp[1]+Math.sin(ph)*u[1]];
+ let tmax=(-0.012-tQ[1])/v[1];if(v[1]<=1e-9)tmax=3;const hi=Math.min(3,tmax);
+ if(t>hi)t=hi;g("wqt").value=t;g("wqto").textContent=t.toFixed(2);
+ const tR=[tQ[0]+t*v[0],tQ[1]+t*v[1]],R=fromTh(tR);
+ const x0=36,y0=18,W=296,H=250,xr=[-2,4],yr=[0,4],X=a=>x0+(a-xr[0])/(xr[1]-xr[0])*W,Y=a=>y0+H-(a-yr[0])/(yr[1]-yr[0])*H;
+ el("rect",{x:x0,y:y0,width:W,height:H,fill:"var(--soft)",stroke:"var(--line)"},A);
+ el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},A).textContent="(μ, σ) plane: P, Q, R and the two geodesics";
+ el("text",{x:x0+W/2,y:y0+H+28,"text-anchor":"middle",fill:"var(--muted)","font-size":11},A).textContent="μ (σ upward)";
+ const cp=el("clipPath",{id:"wqc"},el("defs",{},A));el("rect",{x:x0,y:y0,width:W,height:H},cp);const G=el("g",{"clip-path":"url(#wqc)"},A);
+ const path=(pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+X(q[0])+" "+Y(q[1])).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||""},G);
+ const mg=[];for(let i=0;i<=60;i++){const s=i/60,e=[eP[0]+s*dE[0],eP[1]+s*dE[1]];mg.push([e[0],Math.sqrt(Math.max(e[1]-e[0]*e[0],1e-6))])}
+ path(mg,"var(--s2)",2.6);
+ const eg=[];for(let i=0;i<=200;i++){const s=-4+(hi+4)*i/200,tt=[tQ[0]+s*v[0],tQ[1]+s*v[1]];if(tt[1]<-0.012){const q=fromTh(tt);eg.push([q[0],q[1]])}}
+ path(eg,"var(--s1)",2.2);
+ for(const [q,nm,c] of [[P,"P","var(--ink)"],[[mq,sq],"Q","var(--ink)"],[R,"R","var(--s4)"]]){el("circle",{cx:X(q[0]),cy:Y(q[1]),r:5,fill:c},G);el("text",{x:X(q[0])+8,y:Y(q[1])-7,fill:"var(--ink)","font-size":12},G).textContent=nm}
+ const kPQ=klG(P[0],P[1],mq,sq),kQR=klG(mq,sq,R[0],R[1]),kPR=klG(P[0],P[1],R[0],R[1]),sum=kPQ+kQR,resid=sum-kPR;
+ const pairing=(tQ[0]-tR[0])*dE[0]+(tQ[1]-tR[1])*dE[1];
+ const mx=Math.max(sum,kPR,0.5)*1.12,bx=36,bw=296,sx=v2=>v2/mx*bw;
+ el("rect",{x:bx,y:18,width:bw,height:250,fill:"var(--soft)",stroke:"var(--line)"},B);
+ el("text",{x:bx+6,y:32,fill:"var(--muted)","font-size":11},B).textContent="stacked: KL[P:Q] + KL[Q:R]   against   KL[P:R]";
+ el("rect",{x:bx,y:70,width:sx(kPQ),height:34,fill:"var(--s2)",opacity:.85},B);el("rect",{x:bx+sx(kPQ),y:70,width:Math.max(sx(kQR),0),height:34,fill:"var(--s1)",opacity:.85},B);
+ el("text",{x:bx+4,y:62,fill:"var(--muted)","font-size":11},B).textContent="KL[P:Q] (orange) + KL[Q:R] (blue) = "+sum.toFixed(4);
+ el("rect",{x:bx,y:150,width:sx(kPR),height:34,fill:"var(--s3)",opacity:.85},B);el("text",{x:bx+4,y:142,fill:"var(--muted)","font-size":11},B).textContent="KL[P:R] (green) = "+kPR.toFixed(4);
+ el("line",{x1:bx+sx(sum),x2:bx+sx(sum),y1:60,y2:195,stroke:"var(--ink)","stroke-dasharray":"4 3"},B);
+ el("text",{x:bx+6,y:228,fill:"var(--ink)","font-size":12},B).textContent="gap (sum − direct) = "+resid.toFixed(4);
+ const f=x=>x.toFixed(4);
+ g("wqr").innerHTML=`<div>R <b>N(${R[0].toFixed(3)}, ${R[1].toFixed(3)}²)</b></div><div>sum <b>${f(sum)}</b></div><div>KL[P:R] <b>${f(kPR)}</b></div><div>gap <b>${f(resid)}</b></div><div>pairing (θ_Q−θ_R)·(η_Q−η_P) <b>${f(pairing)}</b></div>`;
+ g("wqn").textContent=Math.abs(ph)<1e-9?"Right angle: the stacked bar and the direct bar have the same length, for every distance t, on either side of Q.":"Tilted: the gap equals the pairing that the right angle sets to zero. The theorem is the law of cosines with the cosine term switched off.";
+}
+["wqm","wqs","wqt","wqp"].forEach(i=>g(i).addEventListener("input",draw));draw();
 })();
 </script>
 </body>

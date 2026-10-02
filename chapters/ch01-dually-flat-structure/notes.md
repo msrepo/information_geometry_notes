@@ -11,11 +11,15 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: nine widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) Tangent vectors and the Fisher metric on the Gaussians: Fisher ellipses over the half-plane, a tangent step, its Riemannian length and the KL it costs. (4) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. (6) The Legendre transform: slope as a coordinate and the tangent's intercept as the dual function. Then three on the three-outcome probability triangle. (6) Drag
-  two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (8) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (9) Project a point onto a straight line or
-  a curved arc, for either order of the KL divergence, and count the critical points.
+- **[Interactive companion](figures/interactive.html)**: ten widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels.
+  (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) Tangent vectors and the Fisher metric on the Gaussians:
+  Fisher ellipses over the half-plane, a tangent step, its Riemannian length and the KL it costs. (4) What a positive-definite Hessian looks like: drag a 2×2 matrix
+  and watch the ellipse, eigen-directions and curvature by direction. (5) The Bregman divergence as the gap above a tangent, for five choices of the convex function.
+  (6) The Legendre transform: slope as a coordinate and the tangent's intercept as the dual function. (7) Two kinds of straight line on the three-outcome probability
+  triangle: drag two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities) and the Fisher–Rao geodesic part ways.
+  (8) Pythagoras on the Gaussians: the 3-4-5 triangle's cousin, stacking two KL divergences against the direct one, with a tilt away from the right angle.
+  (9) Build a right-angled triangle on the probability triangle and tilt it to see the Pythagorean theorem fail by exactly the amount the proof predicts.
+  (10) Project a point onto a straight line or a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
   `python3 code/dually_flat.py --figures`. `make verify` runs it, in about a second.
@@ -530,6 +534,42 @@ $D(R{:}P)=1.24594757=D(Q{:}P)+D(R{:}Q)$.
 at a right angle, then $\mathrm{KL}[P\Vert R]=\mathrm{KL}[P\Vert Q]+\mathrm{KL}[Q\Vert R]$: here $1.245948=1.101868+0.144079$.
 Theorem 1.3 is the mirror statement for $D_{\psi^*}$, with the roles of the two flat structures exchanged; it holds
 numerically in the same way ($1.01763228$ on both sides at one test, $1.09640857$ at another).
+
+### Pythagoras, a picture to hold on to
+
+*Start from the one you know.* Put $P=(0,0)$, $Q=(3,0)$, $R=(3,4)$ in the plane and take $\psi=\tfrac12\|x\|^2$, so that $D=\tfrac12\times$ squared distance. Then $D(Q{:}P)=4.5$, $D(R{:}Q)=8.0$, their sum is $12.5=D(R{:}P)$: the 3-4-5 triangle with every
+side squared and halved. The right angle is the statement $(Q-P)\cdot(R-Q)=0$. Two things played a role, and both get generalised.
+
+| In the plane | In a dually flat manifold |
+|---|---|
+| squared length $\tfrac12\|x-y\|^2$ | the divergence $D_\psi$ |
+| the right angle $(Q-P)\cdot(R-Q)=0$ | the pairing $(\eta_Q-\eta_P)\cdot(\theta_R-\theta_Q)=0$ |
+| a straight line (one kind) | an $\eta$-straight line for one leg, a $\theta$-straight line for the other |
+| $\theta=\eta$ | $\theta\ne\eta$: the two charts differ, so "perpendicular" must pair a difference of one with a difference of the other |
+
+The pairing is the whole trick. When $\psi=\tfrac12\|x\|^2$ the charts coincide ($\eta=\theta$) and the pairing is the ordinary dot product; in general the leg $P\to Q$ is naturally described by the *difference of $\eta$*, the leg $Q\to R$ by the *difference of $\theta$*, and orthogonality
+is the vanishing of their pairing.
+
+*The same statement for Gaussians.* Take $P=N(0,1^2)$ and $Q=N(1.5,1.5^2)$. Their dual coordinates are $\eta=(\mu,\mu^2+\sigma^2)$, giving $\eta_P=(0,1)$ and $\eta_Q=(1.5,4.5)$, and the natural parameters $\theta=(\mu/\sigma^2,-1/(2\sigma^2))$, giving $\theta_P=(0,-0.5)$ and
+$\theta_Q=(0.6667,-0.2222)$. The m-geodesic from $P$ to $Q$ is the line $\eta(s)=(1-s)\eta_P+s\eta_Q$ (a path of mixtures of moments, drawn as a curve in the $(\mu,\sigma)$ plane). Leave $Q$ along the $\theta$-straight line in the direction orthogonal to it,
+$\theta(t)=\theta_Q+t\,v_\perp$ with $v_\perp\perp(\eta_Q-\eta_P)$, and stop at $R$. Since $D_\psi[\theta_X{:}\theta_Y]=\mathrm{KL}[Y{:}X]$, the theorem reads $\mathrm{KL}[P{:}R]=\mathrm{KL}[P{:}Q]+\mathrm{KL}[Q{:}R]$. Numbers:
+
+| stop | $R$ | $\mathrm{KL}[P{:}Q]$ | $\mathrm{KL}[Q{:}R]$ | sum | $\mathrm{KL}[P{:}R]$ |
+|---|---|---|---|---|---|
+| $t=-1$ | $N(1.2869,\,0.9008^2)$ | 0.6277 | 0.4044 | 1.0321 | 1.0321 |
+| $t=+0.3$ | $N(1.8786,\,2.1922^2)$ | 0.6277 | 0.1284 | 0.7561 | 0.7561 |
+
+The two sides agree exactly, for a $R$ narrower than $Q$ and one wider than $Q$: the leg $Q\to R$ may go either way along the $\theta$-line.
+
+*Tilting away from the right angle.* Rotate the direction of the second leg by $20^\circ$ toward the first leg's own direction (at $t=-1$): now $R=N(0.7696,\,0.7426^2)$, $\mathrm{KL}[P{:}Q]+\mathrm{KL}[Q{:}R]=1.9485$ but
+$\mathrm{KL}[P{:}R]=0.6462$, a leftover of $+1.3024$. It is not an approximation error: it equals $(\theta_Q-\theta_R)\cdot(\eta_Q-\eta_P)=+1.3024$, the pairing that the right angle sets to zero. In the Euclidean case this is the law of cosines:
+the leftover is $-(Q-P)\cdot(R-Q)$ (twice the $-\|a\|\|b\|\cos$ term, halved). So the theorem is the law of cosines with the cosine term switched off; moving away from a right angle switches it on, by exactly the pairing.
+
+*Why you cannot see the right angle in a picture.* Neither chart is orthonormal: in the $\theta$ chart the $\theta$-leg is straight and the $\eta$-leg curved, in the $\eta$ chart the opposite, and the metric $G$ that defines "perpendicular" varies from point to point. What you can check is the pairing, which is chart-free. The next
+widget on the interactive page draws both legs on the Gaussians, stacks the two divergences against the direct one, and lets you tilt.
+
+*What it buys.* Information from $P$ to $R$ *splits*: $\mathrm{KL}[P{:}R]=\mathrm{KL}[P{:}Q]+\mathrm{KL}[Q{:}R]$ says the cost of describing $R$ through $P$ is the cost of reaching $Q$ plus the cost of going on to $R$, with no cross term, exactly when
+$Q$ is the foot of the perpendicular. That is why the foot is the closest point (the next subsection) and why maximum-likelihood fitting decomposes into a fit term and an error term.
 
 ### A slip in the printed proof
 

@@ -528,6 +528,31 @@ def check_pythagoras():
         print(f"   t = {t:+.2f}: D*(R:P) = {lhs:.8f}; D*(Q:P) + D*(R:Q) = {rhs:.8f}; difference {lhs - rhs:+.1e}")
 
 
+def mu_sigma_of_theta(t):
+    sg2 = -1 / (2 * t[1]); return t[0] * sg2, math.sqrt(sg2)
+
+
+def check_pythagoras_gaussian():
+    head("6b. Pythagoras made concrete: the 3-4-5 triangle, then the same statement for Gaussians (the widget in section 8 of the interactive page)")
+    Pe, Qe, Re = np.array([0.0, 0.0]), np.array([3.0, 0.0]), np.array([3.0, 4.0])
+    dE = lambda x, y: 0.5 * float(np.sum((x - y) ** 2))
+    print(f"   Euclid, psi = (1/2)|x|^2, so D = (1/2) squared distance: P = (0, 0), Q = (3, 0), R = (3, 4): D(Q:P) = {dE(Qe, Pe):.1f}, D(R:Q) = {dE(Re, Qe):.1f}, "
+          f"sum = {dE(Qe, Pe) + dE(Re, Qe):.1f}, D(R:P) = {dE(Re, Pe):.1f}; the right angle is (Q - P).(R - Q) = {float((Qe - Pe) @ (Re - Qe)):.1f}")
+    Pm, Qm = (0.0, 1.0), (1.5, 1.5)
+    thP, thQ = gauss_theta(*Pm), gauss_theta(*Qm); etP, etQ = gauss_eta(thP), gauss_eta(thQ)
+    dEta = etQ - etP; u = dEta / np.linalg.norm(dEta); vperp = np.array([-u[1], u[0]])
+    print(f"   Gaussians: P = N{Pm}, Q = N{Qm} (sigma given as std dev); eta_P = {np.round(etP, 4).tolist()}, eta_Q = {np.round(etQ, 4).tolist()}, theta_P = {np.round(thP, 4).tolist()}, theta_Q = {np.round(thQ, 4).tolist()}")
+    Dpsi = lambda a, b: gauss_psi(a) - gauss_psi(b) - gauss_eta(b) @ (a - b)
+    for t, phi in ((-1.0, 0.0), (0.3, 0.0), (-1.0, math.radians(20))):
+        v = math.cos(phi) * vperp + math.sin(phi) * u
+        thR = thQ + t * v; muR, sgR = mu_sigma_of_theta(thR)
+        kPQ, kQR, kPR = klg(Pm[0], Pm[1], Qm[0], Qm[1]), klg(Qm[0], Qm[1], muR, sgR), klg(Pm[0], Pm[1], muR, sgR)
+        resid = kPQ + kQR - kPR
+        pred = (thQ - thR) @ (etQ - etP)
+        print(f"      t = {t:+.1f}, tilt {math.degrees(phi):.0f} deg: R = N({muR:.4f}, {sgR:.4f}^2); KL[P:Q] = {kPQ:.4f}, KL[Q:R] = {kQR:.4f}, sum = {kPQ + kQR:.4f}, KL[P:R] = {kPR:.4f}; "
+              f"sum - KL[P:R] = {resid:+.4f}; predicted (theta_Q - theta_R).(eta_Q - eta_P) = {pred:+.4f}; check D_psi(R:P) = {Dpsi(thR, thP):.4f}")
+    print("   with D_psi[theta_X : theta_Y] = KL[Y : X] the statement D(R:P) = D(Q:P) + D(R:Q) reads KL[P:R] = KL[P:Q] + KL[Q:R]: the m-geodesic P->Q (straight in eta = (mu, mu^2 + sigma^2)) meets the e-geodesic Q->R (straight in theta) at a right angle")
+
 # ------------------------------------------------------------------ 7. projections and alternating minimisation
 
 def golden(f, lo, hi, iters=200):
@@ -1038,6 +1063,6 @@ def make_figures():
 
 if __name__ == "__main__":
     check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_legendre_1d()
-    check_pythagoras(); check_projection(); check_em(); check_coordinates()
+    check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
