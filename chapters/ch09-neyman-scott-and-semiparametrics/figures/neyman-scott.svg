@@ -1,0 +1,124 @@
+<svg viewBox="0 0 800 405" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>The Neyman-Scott MLE settles on the wrong value</title>
+<desc>Left: with N boxes of two Gaussian measurements and one unknown mean per box, the maximum likelihood estimate of the variance converges to half the true variance, while the within-box estimator of the book converges to the truth. Right: for matched pairs of binary outcomes with a free log-odds per pair, the unconditional maximum likelihood estimate of the odds ratio converges to its square, 4 instead of 2, while the ratio of discordant pair counts converges to 2.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .lab{font-size:11px;fill:#57564f} .hd{font-size:13px;font-weight:500;fill:#1a1a19}
+  .sm{font-size:10.5px;fill:#57564f} .v{font-size:11px;fill:#1a1a19}
+  .ax{stroke:#8a8880;stroke-width:0.9;fill:none} .gd{stroke:#e2e1da;stroke-width:0.6;fill:none}
+  .s1{stroke:#2a78d6} .s2{stroke:#eb6834} .s3{stroke:#1baf7a} .s4{stroke:#eda100} .s0{stroke:#8a8880}
+  .f1{fill:#2a78d6} .f2{fill:#eb6834} .f3{fill:#1baf7a} .f4{fill:#eda100} .f0{fill:#8a8880}
+  .ln{stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .thin{stroke-width:1;fill:none}
+  .dash{stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .con{stroke-width:0.9;fill:none;opacity:.75}
+  .fillS{fill:#2a78d6;opacity:.08}
+  .ring{stroke:#fdfdfc;stroke-width:1.5}
+  .fillB{fill:#2a78d6;opacity:.85} .fillG{fill:#1baf7a;opacity:.85} .fillO{fill:#eb6834;opacity:.85}
+  .sk{stroke:#1a1a19} .fk{fill:#1a1a19}
+  .dot{stroke-width:1.2;fill:none;stroke-dasharray:1.5 3.5;stroke-linecap:round}
+  @media (prefers-color-scheme: dark){
+    .lab,.sm{fill:#b6b4ab} .hd,.v{fill:#eceae3} .ax{stroke:#85837b} .gd{stroke:#33312e}
+    .s1{stroke:#3987e5} .s2{stroke:#d95926} .s3{stroke:#199e70} .s4{stroke:#c98500} .s0{stroke:#85837b}
+    .f1{fill:#3987e5} .f2{fill:#d95926} .f3{fill:#199e70} .f4{fill:#c98500} .f0{fill:#85837b}
+    .fillS{fill:#3987e5}
+    .ring{stroke:#161615}
+    .fillB{fill:#3987e5} .fillG{fill:#199e70} .fillO{fill:#d95926}
+    .sk{stroke:#eceae3} .fk{fill:#eceae3}
+  }
+</style>
+<line class="gd" x1="70" y1="306.0" x2="390" y2="306.0"/>
+<text class="sm" x="64" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="70" y1="232.5" x2="390" y2="232.5"/>
+<text class="sm" x="64" y="236.0" text-anchor="end">0.5</text>
+<line class="gd" x1="70" y1="158.9" x2="390" y2="158.9"/>
+<text class="sm" x="64" y="162.4" text-anchor="end">1</text>
+<line class="gd" x1="70" y1="85.4" x2="390" y2="85.4"/>
+<text class="sm" x="64" y="88.9" text-anchor="end">1.5</text>
+<line class="gd" x1="90.9" y1="56" x2="90.9" y2="306"/>
+<text class="sm" x="90.9" y="321" text-anchor="middle">10</text>
+<line class="gd" x1="160.4" y1="56" x2="160.4" y2="306"/>
+<text class="sm" x="160.4" y="321" text-anchor="middle">100</text>
+<line class="gd" x1="230.0" y1="56" x2="230.0" y2="306"/>
+<text class="sm" x="230.0" y="321" text-anchor="middle">1000</text>
+<line class="gd" x1="299.6" y1="56" x2="299.6" y2="306"/>
+<text class="sm" x="299.6" y="321" text-anchor="middle">10⁴</text>
+<line class="gd" x1="369.1" y1="56" x2="369.1" y2="306"/>
+<text class="sm" x="369.1" y="321" text-anchor="middle">10⁵</text>
+<line class="ax" x1="70" y1="306" x2="390" y2="306"/>
+<line class="ax" x1="70" y1="56" x2="70" y2="306"/>
+<text class="lab" x="230.0" y="338" text-anchor="middle">N, number of boxes (m = 2)</text>
+<text class="lab" transform="translate(30,181.0) rotate(-90)" text-anchor="middle">estimate of σ² / σ²</text>
+<text class="hd" x="70" y="44">Gaussian variance with one mean per box</text>
+<polyline class="dash s2" points="70.0,232.5 390.0,232.5"/>
+<polyline class="dash s0" points="70.0,158.9 390.0,158.9"/>
+<line class="thin s0" x1="90.9" y1="265.6" x2="90.9" y2="201.5"/>
+<circle class="f2 ring" cx="90.9" cy="233.6" r="4"/>
+<line class="thin s0" x1="90.9" y1="225.3" x2="90.9" y2="97.1"/>
+<circle class="f1 ring" cx="90.9" cy="161.2" r="4"/>
+<line class="thin s0" x1="160.4" y1="242.9" x2="160.4" y2="222.3"/>
+<circle class="f2 ring" cx="160.4" cy="232.6" r="4"/>
+<line class="thin s0" x1="160.4" y1="179.9" x2="160.4" y2="138.6"/>
+<circle class="f1 ring" cx="160.4" cy="159.2" r="4"/>
+<line class="thin s0" x1="230.0" y1="235.7" x2="230.0" y2="229.2"/>
+<circle class="f2 ring" cx="230.0" cy="232.4" r="4"/>
+<line class="thin s0" x1="230.0" y1="165.4" x2="230.0" y2="152.3"/>
+<circle class="f1 ring" cx="230.0" cy="158.8" r="4"/>
+<line class="thin s0" x1="299.6" y1="233.5" x2="299.6" y2="231.4"/>
+<circle class="f2 ring" cx="299.6" cy="232.5" r="4"/>
+<line class="thin s0" x1="299.6" y1="161.0" x2="299.6" y2="156.8"/>
+<circle class="f1 ring" cx="299.6" cy="158.9" r="4"/>
+<line class="thin s0" x1="369.1" y1="232.8" x2="369.1" y2="232.1"/>
+<circle class="f2 ring" cx="369.1" cy="232.5" r="4"/>
+<line class="thin s0" x1="369.1" y1="159.6" x2="369.1" y2="158.3"/>
+<circle class="f1 ring" cx="369.1" cy="158.9" r="4"/>
+<polyline class="thin s2" points="90.9,233.6 160.4,232.6 230.0,232.4 299.6,232.5 369.1,232.5"/>
+<polyline class="thin s1" points="90.9,161.2 160.4,159.2 230.0,158.8 299.6,158.9 369.1,158.9"/>
+<text class="sm" x="386.5" y="149.9" text-anchor="end">within-box estimator (9.114) → σ²</text>
+<text class="sm" x="386.5" y="223.5" text-anchor="end">joint MLE → σ²/2</text>
+<line class="gd" x1="470" y1="306.0" x2="770" y2="306.0"/>
+<text class="sm" x="464" y="309.5" text-anchor="end">0</text>
+<line class="gd" x1="470" y1="256.0" x2="770" y2="256.0"/>
+<text class="sm" x="464" y="259.5" text-anchor="end">1</text>
+<line class="gd" x1="470" y1="206.0" x2="770" y2="206.0"/>
+<text class="sm" x="464" y="209.5" text-anchor="end">2</text>
+<line class="gd" x1="470" y1="156.0" x2="770" y2="156.0"/>
+<text class="sm" x="464" y="159.5" text-anchor="end">3</text>
+<line class="gd" x1="470" y1="106.0" x2="770" y2="106.0"/>
+<text class="sm" x="464" y="109.5" text-anchor="end">4</text>
+<line class="gd" x1="470" y1="56.0" x2="770" y2="56.0"/>
+<text class="sm" x="464" y="59.5" text-anchor="end">5</text>
+<line class="gd" x1="489.6" y1="56" x2="489.6" y2="306"/>
+<text class="sm" x="489.6" y="321" text-anchor="middle">1000</text>
+<line class="gd" x1="554.8" y1="56" x2="554.8" y2="306"/>
+<text class="sm" x="554.8" y="321" text-anchor="middle">10⁴</text>
+<line class="gd" x1="620.0" y1="56" x2="620.0" y2="306"/>
+<text class="sm" x="620.0" y="321" text-anchor="middle">10⁵</text>
+<line class="gd" x1="685.2" y1="56" x2="685.2" y2="306"/>
+<text class="sm" x="685.2" y="321" text-anchor="middle">10⁶</text>
+<line class="gd" x1="750.4" y1="56" x2="750.4" y2="306"/>
+<text class="sm" x="750.4" y="321" text-anchor="middle">10⁷</text>
+<line class="ax" x1="470" y1="306" x2="770" y2="306"/>
+<line class="ax" x1="470" y1="56" x2="470" y2="306"/>
+<text class="lab" x="620.0" y="338" text-anchor="middle">N, number of pairs</text>
+<text class="lab" transform="translate(430,181.0) rotate(-90)" text-anchor="middle">estimate of the odds ratio u</text>
+<text class="hd" x="470" y="44">Matched pairs, u = 2</text>
+<polyline class="dash s2" points="470.0,106.0 770.0,106.0"/>
+<polyline class="dash s0" points="470.0,206.0 770.0,206.0"/>
+<polyline class="thin s2" points="489.6,110.2 554.8,91.7 620.0,114.9 685.2,106.9 750.4,106.4"/>
+<polyline class="thin s1" points="489.6,207.0 554.8,202.5 620.0,208.2 685.2,206.2 750.4,206.1"/>
+<circle class="f2 ring" cx="489.6" cy="110.2" r="4"/>
+<circle class="f1 ring" cx="489.6" cy="207.0" r="4"/>
+<circle class="f2 ring" cx="554.8" cy="91.7" r="4"/>
+<circle class="f1 ring" cx="554.8" cy="202.5" r="4"/>
+<circle class="f2 ring" cx="620.0" cy="114.9" r="4"/>
+<circle class="f1 ring" cx="620.0" cy="208.2" r="4"/>
+<circle class="f2 ring" cx="685.2" cy="106.9" r="4"/>
+<circle class="f1 ring" cx="685.2" cy="206.2" r="4"/>
+<circle class="f2 ring" cx="750.4" cy="106.4" r="4"/>
+<circle class="f1 ring" cx="750.4" cy="206.1" r="4"/>
+<text class="sm" x="766.7" y="99.0" text-anchor="end">u² = 4: limit of the MLE</text>
+<text class="sm" x="766.7" y="199.0" text-anchor="end">u = 2: conditional estimator</text>
+<text class="sm" x="70" y="372">Left: 4000 simulated data sets per N (exact sampling of the sum of squares); dots are means, bars ± 1 standard deviation of one data set.</text>
+<text class="sm" x="70" y="387">Right: one data set per N. In both problems the joint MLE converges, to the wrong value; the estimating-function solution to the right one.</text>
+</svg>

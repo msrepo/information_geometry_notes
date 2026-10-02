@@ -116,7 +116,7 @@ Amari, S. *Information Geometry and Its Applications*. Applied Mathematical Scie
 | 6 | Dual Affine Connections and Dually Flat Manifold | to come |
 | 7 | Asymptotic Theory of Statistical Inference | [read online](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch07-asymptotic-theory-of-inference/figures/interactive.html) · [source](chapters/ch07-asymptotic-theory-of-inference/notes.md) · [code](chapters/ch07-asymptotic-theory-of-inference/code/) |
 | 8 | Estimation in the Presence of Hidden Variables | to come |
-| 9 | Neyman–Scott Problem: Estimating Function and Semiparametric Statistical Model | to come |
+| 9 | Neyman–Scott Problem: Estimating Function and Semiparametric Statistical Model | [read online](https://msrepo.github.io/information_geometry_notes/ch09-neyman-scott-and-semiparametrics/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch09-neyman-scott-and-semiparametrics/figures/interactive.html) · [source](chapters/ch09-neyman-scott-and-semiparametrics/notes.md) · [code](chapters/ch09-neyman-scott-and-semiparametrics/code/) |
 | 10 | Linear Systems and Time Series | [read online](https://msrepo.github.io/information_geometry_notes/ch10-linear-systems-and-time-series/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch10-linear-systems-and-time-series/figures/interactive.html) · [source](chapters/ch10-linear-systems-and-time-series/notes.md) · [code](chapters/ch10-linear-systems-and-time-series/code/) |
 | 11 | Machine Learning | to come |
 | 12 | Natural Gradient Learning and Its Dynamics in Singular Regions | to come |
