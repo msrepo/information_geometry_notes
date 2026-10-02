@@ -99,7 +99,23 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="whn"></div>
 </div>
 
-<h2>4. Two kinds of straight line</h2>
+<h2>4. The Bregman divergence as a gap above a tangent</h2>
+<p>Choose a convex $\psi$. Draw its tangent at the base point $x_0$ (solid orange); the vertical gap at the probe $x$ is $D_\psi[x{:}x_0]$. Draw the tangent at $x$ instead (dashed blue) and measure at $x_0$ and you get the other order, $D_\psi[x_0{:}x]$. The right plot shows both as $x$ moves, with the parabola $\tfrac12\psi''(x_0)(x-x_0)^2$ that they both hug near $x_0$.</p>
+<div class="widget" id="wb">
+  <div class="controls">
+    <label>$\psi$ <select id="wbf"><option value="0">½x²</option><option value="1" selected>log(1 + eˣ)</option><option value="2">−log x</option><option value="3">x log x</option><option value="4">x⁴</option></select></label>
+    <label>base $x_0$ <input type="range" id="wb0" min="0" max="1" step="0.005" value="0.35"><output id="wb0o"></output></label>
+    <label>probe $x$ <input type="range" id="wb1" min="0" max="1" step="0.005" value="0.85"><output id="wb1o"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="wbl" viewBox="0 0 340 320" width="100%" role="img" aria-label="The convex function, the tangent at the base point and the gap at the probe point"></svg></div>
+    <div><svg id="wbr" viewBox="0 0 340 320" width="100%" role="img" aria-label="Both Bregman divergences as the probe moves, and the local parabola"></svg></div>
+  </div>
+  <div class="stats" id="wbs"></div>
+  <div class="cap" id="wbn"></div>
+</div>
+
+<h2>5. Two kinds of straight line</h2>
 <p>A path that is straight in $\theta$ is an <b>e-geodesic</b> (blue); one that is straight in $\eta$ is an <b>m-geodesic</b> (orange). Both join $P$ to $Q$. The green curve is the shortest path in the Fisher metric, the usual Riemannian geodesic, which is neither.</p>
 <div class="widget" id="w1">
   <div class="controls">
@@ -114,7 +130,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="stats" id="w1s"></div>
 </div>
 
-<h2>5. The Pythagorean theorem</h2>
+<h2>6. The Pythagorean theorem</h2>
 <p>Take the m-geodesic from $P$ to $Q$. Leave $Q$ along an e-geodesic whose direction is orthogonal to it (in the Fisher metric) and stop at $R$. Then $D(R{:}P)=D(Q{:}P)+D(R{:}Q)$ exactly, with $D$ the Bregman divergence of $\psi$, which on these coordinates is a KL divergence with its arguments reversed. Tilt the direction away from orthogonal and the sum stops matching, by exactly the amount the proof of Theorem 1.2 predicts.</p>
 <div class="widget" id="w2">
   <div class="controls">
@@ -127,7 +143,7 @@ After the first widget, everything lives on the simplest non-trivial manifold: t
   <div class="cap" id="w2n"></div>
 </div>
 
-<h2>6. Projecting onto a submanifold</h2>
+<h2>7. Projecting onto a submanifold</h2>
 <p>Given $P$ and a curve $S$, which point of $S$ is closest in divergence? Pick the divergence, pick $S$, and drag $P$. For an e-flat $S$ (straight in $\theta$) and $\mathrm{KL}[P{:}R]$ there is always exactly one critical point on $S$, and it is the minimum. For a curved $S$ there can be several, and the orthogonality condition does not tell them apart.</p>
 <div class="widget" id="w3">
   <div class="controls">
@@ -461,6 +477,57 @@ function draw(){
  g("whn").textContent=l2>tol?"Every direction curves up, so |d|_H = √(dᵀHd) is a genuine length and the unit ball is the ellipse, with half-axes 1/√λ along the dashed eigen-directions.":(l2>=-tol?"One direction has curvature 0: steps along it have length 0, so H cannot be a metric and the unit 'ellipse' stretches to infinity (two lines).":"Some directions curve down: dᵀHd is negative there, so it cannot be a squared length, and the unit set dᵀHd = 1 is a pair of hyperbola branches.");
 }
 ["wha","whb","whc","whp"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",L=document.getElementById("wbl"),R=document.getElementById("wbr"),g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const F=[
+ {n:"½x²",f:x=>x*x/2,d:x=>x,d2:x=>1,lo:-3,hi:3,x0:0.5,x1:2},
+ {n:"log(1+eˣ)",f:x=>Math.log(1+Math.exp(x)),d:x=>1/(1+Math.exp(-x)),d2:x=>{const s=1/(1+Math.exp(-x));return s*(1-s)},lo:-4,hi:4,x0:-0.4,x1:2},
+ {n:"−log x",f:x=>-Math.log(x),d:x=>-1/x,d2:x=>1/(x*x),lo:0.25,hi:4,x0:1,x1:3},
+ {n:"x log x",f:x=>x*Math.log(x),d:x=>Math.log(x)+1,d2:x=>1/x,lo:0.05,hi:4,x0:1,x1:3},
+ {n:"x⁴",f:x=>x*x*x*x,d:x=>4*x*x*x,d2:x=>12*x*x,lo:-2,hi:2,x0:0,x1:1}];
+let cur=1;
+function setRange(){const p=F[cur];for(const id of ["wb0","wb1"]){g(id).min=p.lo;g(id).max=p.hi;g(id).step=0.005}g("wb0").value=p.x0;g("wb1").value=p.x1}
+function draw(){
+ while(L.firstChild)L.removeChild(L.firstChild);while(R.firstChild)R.removeChild(R.firstChild);
+ const p=F[cur],x0=+g("wb0").value,x=+g("wb1").value;g("wb0o").textContent=x0.toFixed(2);g("wb1o").textContent=x.toFixed(2);
+ const D=(a,b)=>p.f(a)-p.f(b)-p.d(b)*(a-b);
+ const n=240,xs=[],ys=[];for(let i=0;i<=n;i++){const t=p.lo+(p.hi-p.lo)*i/n;xs.push(t);ys.push(p.f(t))}
+ let ymin=Math.min(...ys),ymax=Math.max(...ys);const pad=(ymax-ymin)*0.08;ymin-=pad;ymax+=pad;
+ const W=300,H=250,o=[36,20];
+ const X=t=>o[0]+(t-p.lo)/(p.hi-p.lo)*W,Y=v=>o[1]+H-(v-ymin)/(ymax-ymin)*H;
+ el("rect",{x:o[0],y:o[1],width:W,height:H,fill:"var(--soft)",stroke:"var(--line)"},L);
+ const cp=el("clipPath",{id:"wbcl"},el("defs",{},L));el("rect",{x:o[0],y:o[1],width:W,height:H},cp);const G=el("g",{"clip-path":"url(#wbcl)"},L);
+ const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||""},P);
+ path(G,xs.map((t,i)=>[X(t),Y(ys[i])]),"var(--ink)",2.4);
+ const tg=(b)=>[[X(p.lo),Y(p.f(b)+p.d(b)*(p.lo-b))],[X(p.hi),Y(p.f(b)+p.d(b)*(p.hi-b))]];
+ path(G,tg(x0),"var(--s2)",1.6);path(G,tg(x),"var(--s1)",1.4,"5 4");
+ const lt=(b,t)=>p.f(b)+p.d(b)*(t-b);
+ el("line",{x1:X(x),x2:X(x),y1:Y(p.f(x)),y2:Y(lt(x0,x)),stroke:"var(--s2)","stroke-width":5,opacity:.9},G);
+ el("line",{x1:X(x0),x2:X(x0),y1:Y(p.f(x0)),y2:Y(lt(x,x0)),stroke:"var(--s1)","stroke-width":5,opacity:.9},G);
+ el("circle",{cx:X(x0),cy:Y(p.f(x0)),r:5,fill:"var(--s2)"},G);el("circle",{cx:X(x),cy:Y(p.f(x)),r:5,fill:"var(--s1)"},G);
+ el("text",{x:o[0]+6,y:o[1]+14,fill:"var(--muted)","font-size":11},L).textContent="ψ(x) = "+p.n;
+ el("text",{x:o[0]+W/2,y:o[1]+H+30,"text-anchor":"middle",fill:"var(--muted)","font-size":11},L).textContent="orange: ψ, tangent at x₀ · blue dashed: tangent at x";
+ const fwd=D(x,x0),rev=D(x0,x);
+ const ds=[],a1=[],a2=[],pr=[];let dmax=0;for(let i=0;i<=n;i++){const t=xs[i];const u=D(t,x0),v=D(x0,t);a1.push(u);a2.push(v);pr.push(0.5*p.d2(x0)*(t-x0)*(t-x0));dmax=Math.max(dmax,Math.min(u,1e9),Math.min(v,1e9))}
+ dmax=Math.min(Math.max(dmax,0.5),Math.max(4*Math.max(fwd,rev),0.5));
+ const PY=v=>o[1]+H-Math.min(v,dmax*1.05)/(dmax*1.05)*H;
+ el("rect",{x:o[0],y:o[1],width:W,height:H,fill:"var(--soft)",stroke:"var(--line)"},R);
+ const cp2=el("clipPath",{id:"wbcr"},el("defs",{},R));el("rect",{x:o[0],y:o[1],width:W,height:H},cp2);const G2=el("g",{"clip-path":"url(#wbcr)"},R);
+ path(G2,xs.map((t,i)=>[X(t),PY(pr[i])]),"var(--faint)",1.5,"4 4");path(G2,xs.map((t,i)=>[X(t),PY(a1[i])]),"var(--s2)",2.4);path(G2,xs.map((t,i)=>[X(t),PY(a2[i])]),"var(--s1)",2.4,"5 4");
+ el("line",{x1:X(x),x2:X(x),y1:o[1],y2:o[1]+H,stroke:"var(--faint)","stroke-width":.8},G2);el("line",{x1:X(x0),x2:X(x0),y1:o[1],y2:o[1]+H,stroke:"var(--s2)","stroke-width":.8,opacity:.6},G2);
+ el("circle",{cx:X(x),cy:PY(fwd),r:5,fill:"var(--s2)"},G2);el("circle",{cx:X(x),cy:PY(rev),r:5,fill:"var(--s1)"},G2);
+ el("text",{x:o[0]+6,y:o[1]+14,fill:"var(--muted)","font-size":11},R).textContent="as the probe x moves";
+ el("text",{x:o[0]+W/2,y:o[1]+H+30,"text-anchor":"middle",fill:"var(--muted)","font-size":11},R).textContent="orange D[x:x₀] · blue D[x₀:x] · grey parabola";
+ const f4=v=>v.toFixed(4);
+ g("wbs").innerHTML=`<div>D[x:x₀] <b>${f4(fwd)}</b></div><div>D[x₀:x] <b>${f4(rev)}</b></div><div>ψ″(x₀) <b>${p.d2(x0).toFixed(4)}</b></div><div>parabola ½ψ″(x₀)(x−x₀)² <b>${f4(0.5*p.d2(x0)*(x-x0)*(x-x0))}</b></div>`;
+ g("wbn").textContent=cur===0?"For a parabola the two gaps are equal and equal to half the squared distance: the Euclidean case.":(cur===4&&Math.abs(x0)<0.05?"ψ″(x₀) is about 0 here, so there is no parabola to hug: the gap grows like x⁴ and the divergence is not a squared length.":"The two gaps agree near x₀ (they share the parabola) and split apart as the probe moves away, by an amount set by the higher derivatives of ψ.");
+}
+g("wbf").addEventListener("change",()=>{cur=+g("wbf").value;setRange();draw()});
+["wb0","wb1"].forEach(i=>g(i).addEventListener("input",draw));setRange();draw();
 })();
 </script>
 </body>

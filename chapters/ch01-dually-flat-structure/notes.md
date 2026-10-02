@@ -11,10 +11,10 @@ status: read
 
 ## Links
 
-- **[Interactive companion](figures/interactive.html)**: six widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. Then three on the three-outcome probability triangle. (4) Drag
+- **[Interactive companion](figures/interactive.html)**: seven widgets. (1) One Gaussian in three coordinate charts, with the grid bent by the change of labels. (2) The KL divergence between two Gaussians, both orders, with the integrand that adds up to it. (3) What a positive-definite Hessian looks like: drag a 2×2 matrix and watch the ellipse, eigen-directions and curvature by direction. (4) The Bregman divergence as the gap above a tangent, for five choices of the convex function. Then three on the three-outcome probability triangle. (5) Drag
   two distributions and watch the e-geodesic (straight in the logits), the m-geodesic (straight in the probabilities)
-  and the Fisher–Rao geodesic part ways. (5) Build a right-angled triangle and tilt it away from the right angle to see
-  the Pythagorean theorem fail by exactly the amount the proof predicts. (6) Project a point onto a straight line or
+  and the Fisher–Rao geodesic part ways. (6) Build a right-angled triangle and tilt it away from the right angle to see
+  the Pythagorean theorem fail by exactly the amount the proof predicts. (7) Project a point onto a straight line or
   a curved arc, for either order of the KL divergence, and count the critical points.
 - **[Runnable checks](https://github.com/msrepo/information_geometry_notes/tree/main/chapters/ch01-dually-flat-structure/code)**:
   `code/dually_flat.py` prints every number on this page and regenerates the figures with
@@ -206,6 +206,28 @@ $\theta_0$ shows $D_\psi[\theta_0+d\theta:\theta_0]=\tfrac12d\theta^\top\nabla^2
 the **Hessian**, $g_{ij}=\partial_i\partial_j\psi$ (1.86).
 
 <img src="figures/legendre.svg" alt="Left: the convex function log(1 + e^theta) for one coin with its tangent at theta0 = -0.4 and the gap 0.6508 above the tangent at theta1 = 2. Right: the negative entropy of a coin with its tangent at eta1 = 0.881 and the gap 0.6508 above that tangent at eta0 = 0.401. The two gaps are equal because the Legendre transform swaps the two points.">
+
+**Bregman divergence, step by step, in one dimension.** Pick a convex $\psi$ and two points $x_0$ (the base) and $x$ (the probe).
+
+1. Draw the tangent line of $\psi$ at $x_0$: $\ell_{x_0}(x)=\psi(x_0)+\psi'(x_0)(x-x_0)$.
+2. Because $\psi$ is convex it lies on or above its tangent everywhere.
+3. The vertical gap at the probe is $D_\psi[x{:}x_0]=\psi(x)-\ell_{x_0}(x)$, "how far above the tangent drawn at $x_0$ is the function at $x$".
+
+Swap the roles (draw the tangent at $x$, measure at $x_0$) and you get $D_\psi[x_0{:}x]$, a different gap unless $\psi$ is a parabola. Numbers
+from `code/dually_flat.py`, base $x_0$ and probe $x$:
+
+| $\psi$ | $x_0$ | $x$ | $D_\psi[x{:}x_0]$ | $D_\psi[x_0{:}x]$ | what it is |
+|---|---|---|---|---|---|
+| $\tfrac12x^2$ | 0.5 | 2 | 1.1250 | 1.1250 | half the squared distance, symmetric |
+| $\log(1+e^x)$ | −0.4 | 2 | 0.6508 | 0.5000 | KL between two coins, reversed |
+| $-\log x$ | 1 | 3 | 0.9014 | 0.4319 | Itakura–Saito |
+| $x\log x$ | 1 | 3 | 1.2958 | 0.9014 | generalised KL |
+
+Near the base the gap is a parabola with curvature $\psi''(x_0)$: at $e=0.1$ the true gap $D_\psi[x_0{+}e{:}x_0]$ against $\tfrac12\psi''(x_0)e^2$ is $0.005000$
+vs $0.005000$ for $\tfrac12x^2$, $0.001209$ vs $0.001201$ for $\log(1+e^x)$, $0.004690$ vs $0.005000$ for $-\log x$ and $0.004841$ vs $0.005000$ for $x\log x$
+(the last two have a $\psi''$ that changes quickly, so the match is looser at this step). Away from the base the shape is set by the third and higher derivatives, which is where the
+asymmetry lives. And if $\psi''(x_0)=0$ there is no parabola at all: for $\psi=x^4$ at $0$, $D=0.0625$ at $x=0.5$ and the gap grows like $x^4$, so it is not a squared length.
+The interactive page's fourth widget draws the tangent, both gaps and the parabola for five choices of $\psi$.
 
 **Strict convexity caveat.** The book states that a smooth function is convex exactly when its Hessian is positive-definite.
 Strictly, positive *semi*-definite is the criterion for convex, and positive-definite is *sufficient* for strictly convex but not

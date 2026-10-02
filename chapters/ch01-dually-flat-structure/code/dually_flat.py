@@ -190,6 +190,25 @@ def check_hessian():
         print(f"   psi = x^4 + y^2, step e = {e} along x: true gap D = {psi4(np.array([e, 0.0])):.6f}; quadratic term (1/2) e^2 H_xx = {0.5 * e ** 2 * 0.0:.6f}  (the Hessian sees nothing along x)")
 
 
+def check_bregman_1d():
+    head("   Bregman divergence in one dimension, for several potentials (the widget in section 4 of the interactive page)")
+    cases = {
+        "psi = x^2/2": (lambda x: x * x / 2, lambda x: x, lambda x: 1.0, 0.5, 2.0),
+        "psi = log(1 + e^x)": (lambda x: math.log1p(math.exp(x)), lambda x: 1 / (1 + math.exp(-x)), lambda x: (1 / (1 + math.exp(-x))) * (1 - 1 / (1 + math.exp(-x))), -0.4, 2.0),
+        "psi = -log x": (lambda x: -math.log(x), lambda x: -1 / x, lambda x: 1 / x ** 2, 1.0, 3.0),
+        "psi = x log x": (lambda x: x * math.log(x), lambda x: math.log(x) + 1, lambda x: 1 / x, 1.0, 3.0),
+    }
+    for name, (f, df, d2f, x0, x) in cases.items():
+        fwd = f(x) - f(x0) - df(x0) * (x - x0)           # D[x : x0]: gap above the tangent at x0, measured at x
+        rev = f(x0) - f(x) - df(x) * (x0 - x)            # D[x0 : x]
+        e = 0.1
+        loc = f(x0 + e) - f(x0) - df(x0) * e
+        print(f"   {name}: base x0 = {x0}, probe x = {x}: D[x:x0] = {fwd:.4f}, D[x0:x] = {rev:.4f}; "
+              f"local check at e = {e}: D[x0+e:x0] = {loc:.6f} against (1/2) psi''(x0) e^2 = {0.5 * d2f(x0) * e * e:.6f}")
+    f4 = lambda x: x ** 4
+    print(f"   psi = x^4: D[x:0] = {f4(0.5):.4f} at x = 0.5 but psi''(0) = 0, so near 0 the divergence is not quadratic (the gap grows like x^4)")
+
+
 # ------------------------------------------------------------------ 2. Bregman divergences
 
 def bregman(f, grad, x, y):
@@ -930,7 +949,7 @@ def make_figures():
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures()
+    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures()
     check_pythagoras(); check_projection(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
