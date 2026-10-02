@@ -150,6 +150,22 @@ def check_fisher_gaussian():
           f"the same {length2(mu, sg, d):.4f} (the tensor law)")
     print(f"   Euclidean length of the step (0.12, -0.16) is {math.hypot(0.12, -0.16):.4f}; its Riemannian length at sigma = 2 is {math.sqrt(length2(1.0, 2.0, (0.12, -0.16))):.4f}, at sigma = 0.5 it is {math.sqrt(length2(1.0, 0.5, (0.12, -0.16))):.4f}")
 
+    head("   Derivation checks for g = diag(1/sigma^2, 2/sigma^2): second-order expansion, score moments, ellipse sizes")
+    mu0, sg0 = 1.0, 2.0
+    for (a, b) in ((0.01, 0.0), (0.0, 0.01)):
+        k = klg(mu0, sg0, mu0 + a, sg0 + b); pred = a * a / (2 * sg0 ** 2) + b * b / sg0 ** 2
+        print(f"      step (a, b) = ({a}, {b}) at (1, 2): KL = {k:.3e}; second-order prediction a^2/(2 sigma^2) + b^2/sigma^2 = {pred:.3e}")
+    xs = np.linspace(-30, 30, 600001); dx = xs[1] - xs[0]
+    pdf = np.exp(-(xs - mu0) ** 2 / (2 * sg0 ** 2)) / (math.sqrt(2 * math.pi) * sg0)
+    s_mu = (xs - mu0) / sg0 ** 2; s_sg = ((xs - mu0) ** 2 - sg0 ** 2) / sg0 ** 3
+    print(f"      Fisher information by quadrature at (1, 2): E[s_mu^2] = {np.sum(pdf * s_mu ** 2) * dx:.4f} (1/sigma^2 = {1 / sg0 ** 2:.4f}), "
+          f"E[s_sigma^2] = {np.sum(pdf * s_sg ** 2) * dx:.4f} (2/sigma^2 = {2 / sg0 ** 2:.4f}), E[s_mu s_sigma] = {np.sum(pdf * s_mu * s_sg) * dx:.1e}")
+    eps = 0.15
+    print(f"      Fisher ellipse of radius eps = {eps}: absolute half-axes (eps sigma, eps sigma / sqrt 2) = "
+          + "; ".join(f"sigma = {sg}: ({eps * sg:.4f}, {eps * sg / math.sqrt(2):.4f})" for sg in (0.5, 1.0, 2.0)))
+    print(f"      in relative units (d mu / sigma, d sigma / sigma) the half-axes are ({eps:.4f}, {eps / math.sqrt(2):.4f}) at every sigma")
+    print(f"      the mean of N = 100 samples from N(mu, sigma^2) is known to sigma / sqrt(N): {0.5 / 10:.3f} at sigma = 0.5, {2.0 / 10:.3f} at sigma = 2")
+
 
 # ------------------------------------------------------------------ 1. divergence = local squared distance
 
