@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Learning Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Machine learning, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 11 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Eight small experiments, one or two for each section of the chapter: the centre of a cluster and the shape of a decision boundary for a Bregman divergence, the Chernoff exponent of a classifier, the volume element of a kernel, the margin of a linear machine, belief propagation and two flavours of CCCP on a loop, AdaBoost round by round, and a Gaussian restricted Boltzmann machine. Every number is computed in your browser by the same formulas as in <code>code/machine_learning.py</code>, and the default readouts equal what that script prints.</p>
+
+<h2>1. The centre of a cluster is the mean, in one slot only</h2>
+<p>Six patterns in the positive quadrant and a Bregman divergence $D_\varphi$. The cost of putting the representative of the cluster at $c$ is the average divergence from the members. Theorem 11.1 says that with $c$ in the <b>second</b> slot, $\tfrac1k\sum_iD_\varphi[x_i:c]$, the cost is smallest at the arithmetic mean for every $\varphi$ (the orange cross). Switch to the first slot, $\tfrac1k\sum_iD_\varphi[c:x_i]$, and the minimum moves to the mean in the dual coordinates, $\theta=\nabla\varphi(c)$ (the green diamond); for the squared Euclidean distance the two coincide. Drag the trial centre and compare: in the table the smaller entry of each column is in bold.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>divergence <select id="w1d"><option value="euclid">squared Euclidean</option><option value="kl" selected>generalised KL</option><option value="is">Itakura–Saito</option></select></label>
+    <label>colours show <select id="w1s"><option value="2" selected>c in the second slot</option><option value="1">c in the first slot</option></select></label>
+    <label>$c_1$ <input type="range" id="w1x" min="0.9" max="5.3" step="0.01" value="2.73"><output id="w1xo"></output></label>
+    <label>$c_2$ <input type="range" id="w1y" min="0.7" max="3.9" step="0.01" value="2.19"><output id="w1yo"></output></label>
+    <button id="w1m" type="button">trial centre to the mean</button>
+  </div>
+  <svg id="w1v" viewBox="0 0 700 330" role="img" aria-label="Average divergence of a trial centre from six patterns"></svg>
+  <div id="w1tab"></div>
+</div>
+
+<h2>2. Which curve is the boundary? Theorem 11.2, corrected</h2>
+<p>For two centres $\eta_1,\eta_2$ the boundary of their cells is $\{x:D_\varphi[x:\eta_1]=D_\varphi[x:\eta_2]\}$. Because $D_\varphi[x:\eta_1]-D_\varphi[x:\eta_2]=(\theta_2-\theta_1)\cdot x+\text{const}$, it is a <b>straight line in the pattern coordinates</b> (black, left) and meets orthogonally the geodesic that is straight in $\theta$ (blue, dashed) at the equidistant point $\eta_{12}$. The book draws it the other way round: a hyperplane in $\theta$ through the midpoint of the $\eta$-straight line (orange); that is the right statement for the <i>exchanged</i> divergence $D_\varphi[\eta_h:x]$, for which the cluster centre is no longer the mean. On the right, in $\theta=\log x$, the printed construction is a straight line, and the true boundary is the curve. Move the centres; the readout gives the divergence difference $D_1-D_2$ at four points of the printed hyperplane (it should be $0$ and is not) and at points of the corrected one.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$\eta_1$: $x_1$ <input type="range" id="w2a" min="0.5" max="5.5" step="0.05" value="1"><output id="w2ao"></output></label>
+    <label>$x_2$ <input type="range" id="w2b" min="0.5" max="5.5" step="0.05" value="3"><output id="w2bo"></output></label>
+    <label>$\eta_2$: $x_1$ <input type="range" id="w2c" min="0.5" max="5.5" step="0.05" value="4"><output id="w2co"></output></label>
+    <label>$x_2$ <input type="range" id="w2d" min="0.5" max="5.5" step="0.05" value="1.5"><output id="w2do"></output></label>
+  </div>
+  <svg id="w2v" viewBox="0 0 700 392" role="img" aria-label="Bisector of two Bregman cells in the pattern plane and in the dual plane"></svg>
+  <div class="stats" id="w2t"></div>
+</div>
+
+<h2>3. The error exponent of a classifier is a divergence</h2>
+<p>Two Poisson laws with rates $\lambda_1,\lambda_2$ and $N$ observations. With the e-geodesic $\theta_t=(1-t)\theta_1+t\theta_2$ the divergences $\mathrm{KL}[\theta_t:\theta_1]$ and $\mathrm{KL}[\theta_t:\theta_2]$ cross at $t^*$, and the Chernoff information $C=-\min_t\log\sum p_1^{1-t}p_2^{t}$ equals both there (right panel). The exact Bayes error, computed by summing over the sufficient statistic, has $-\tfrac1N\log P_{\rm err}\to C$ for any prior (left panel), but only like $P_{\rm err}\approx0.49\,N^{-1/2}e^{-NC}$: (11.54) is an equality of exponents, not of probabilities. The printed (11.55) forgets the $-\log$, and the symbol $\lambda$ means $1-t$ in (11.52) and $t$ in (11.50); the readout shows both values.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\lambda_1$ <input type="range" id="w3a" min="0.5" max="8" step="0.1" value="2"><output id="w3ao"></output></label>
+    <label>$\lambda_2$ <input type="range" id="w3b" min="0.5" max="8" step="0.1" value="5"><output id="w3bo"></output></label>
+    <label>$N$ <input type="range" id="w3n" min="5" max="2000" step="1" value="100"><output id="w3no"></output></label>
+    <label>prior of class 1 <select id="w3p"><option value="0.5" selected>0.5 (equal)</option><option value="0.9">0.9</option></select></label>
+  </div>
+  <svg id="w3v" viewBox="0 0 700 345" role="img" aria-label="Exact Bayes error exponent against N and the two KL divergences along the e-geodesic"></svg>
+  <div class="stats" id="w3t"></div>
+</div>
+
+<h2>4. A kernel's volume element, before and after the conformal change</h2>
+<p>The Gaussian kernel $K=e^{-|x-x'|^2/\sigma_w^2}$ induces the metric $g_{ij}=\partial_i\partial'_jK|_{x'=x}=\tfrac{2}{\sigma_w^2}\delta_{ij}$ (11.90): the same at every point. The modified kernel $\tilde K=\sigma(x)\sigma(x')K$ has $\tilde g=\sigma^2g+\nabla\sigma\nabla\sigma^{\mathsf T}$ (11.98), so with $\sigma$ large near the support vectors (11.93) the volume element (11.91) is enlarged there (orange) and shrunk far away (blue). The readout gives $\sigma$, $|\nabla\sigma|$ and the ratio $\sqrt{\det\tilde g}/\sqrt{\det g}$ at the yellow point. At a support vector the cone-shaped $\sigma$ has no gradient, which is a small gap in the construction; the page uses the symmetric value $0$ there.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>$\kappa$ scale <input type="range" id="w4k" min="0.2" max="3" step="0.05" value="1"><output id="w4ko"></output></label>
+    <label>$\sigma_w^2$ <input type="range" id="w4s" min="0.3" max="2" step="0.05" value="0.8"><output id="w4so"></output></label>
+    <label>$x_1$ <input type="range" id="w4x" min="-1.5" max="2" step="0.05" value="0.2"><output id="w4xo"></output></label>
+    <label>$x_2$ <input type="range" id="w4y" min="-1.5" max="3" step="0.05" value="0.5"><output id="w4yo"></output></label>
+    <button id="w4p1" type="button">at a support vector</button><button id="w4p2" type="button">far from them</button>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 330" role="img" aria-label="Volume ratio of the conformally modified kernel over the plane"></svg>
+  <div class="stats" id="w4t"></div>
+</div>
+
+<h2>5. The maximal margin is the best direction</h2>
+<p>Fourteen separable points. For a given direction of the normal, the best separating hyperplane with that direction sits halfway between the two projected classes, and its margin is half the gap between them; the support vectors are the points at exactly that distance. As you turn the normal the margin traces the curve on the right, which has one peak: the direction of $w=\sum_i\alpha_iy_ix_i$ from the dual problem (11.70)–(11.73), with margin $1/|w|$ (11.65). The scan finds the same number as the quadratic program, which is an independent route to (11.63)–(11.66).</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>direction of $w$ <input type="range" id="w5a" min="0" max="180" step="any" value="35.914" style="width:260px"><output id="w5ao" style="min-width:5.5em"></output></label>
+    <button id="w5b" type="button">go to the best direction</button>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 345" role="img" aria-label="Separating hyperplane with the chosen normal direction and its margin band"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 345" role="img" aria-label="Margin against the direction of the normal"></svg></div>
+  </div>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>6. Belief propagation, mean field and two CCCPs on a loop</h2>
+<p>Four $\pm1$ spins on a cycle, fields $h=(0.3,-0.2,0.1,0.25)$ and a common coupling $w$. The exact marginals need 16 terms; belief propagation (the e/m-projection algorithm (11.133)–(11.136), identical to message passing to $10^{-16}$) and the mean-field equation (11.125) approximate them, BP much better. The simplified CCCP (11.144)–(11.145) is claimed to converge; on this loop it does so only for weak coupling and otherwise flips sign at every step (left) while the Bethe free energy of its iterates goes up and down (right). Yuille's CCCP (11.148)–(11.149), with the inner equation solved exactly, lowers the free energy at every step. Change the coupling and the number of steps shown.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>coupling $w$ <input type="range" id="w6w" min="0.05" max="1.5" step="0.05" value="0.8"><output id="w6wo"></output></label>
+    <label>steps shown <input type="range" id="w6t" min="10" max="200" step="5" value="40"><output id="w6to"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w6l" viewBox="0 0 350 400" role="img" aria-label="Belief of spin 0 against the iteration for BP and the two CCCPs"></svg></div>
+    <div><svg id="w6r" viewBox="0 0 350 400" role="img" aria-label="Bethe free energy of the iterates of the two CCCPs"></svg></div>
+  </div>
+  <div id="w6tab"></div>
+</div>
+
+<h2>7. AdaBoost, one round at a time</h2>
+<p>Twenty points in the unit square, labelled by $\operatorname{sign}(x_1+x_2-1+\text{noise})$, and 76 decision stumps. At each round the stump with the smallest weighted error under the current weights $W_t$ is added with the weight $\alpha_t=\tfrac12\log\frac{1-\varepsilon_t}{\varepsilon_t}$ (11.174); the points it gets wrong are outlined and their weights grow in (11.175) until the same stump has error exactly $\tfrac12$ under the new weights. The product $\prod Z_s$ equals the mean exponential loss and bounds the training error. The orange curve is the weight that exact maximum likelihood of the normalised model (11.164) would give: twice AdaBoost's at round 1, because (11.169) is the projection onto an <i>unnormalised</i> family.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>round $t$ <input type="range" id="w7t" min="1" max="10" step="1" value="1"><output id="w7to"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w7l" viewBox="0 0 340 345" role="img" aria-label="The training points sized by their weight and the stump chosen at this round"></svg></div>
+    <div><svg id="w7r" viewBox="0 0 350 345" role="img" aria-label="AdaBoost weights and exact maximum likelihood weights over the rounds"></svg></div>
+  </div>
+  <div class="stats" id="w7s"></div>
+</div>
+
+<h2>8. A Gaussian RBM learns the leading principal components</h2>
+<p>For a Gaussian restricted Boltzmann machine whose input has covariance with eigenvalues $\lambda_i$, the learning equation (11.229) (with the factor $W$ that the printed formula loses) drives the singular values of the weight matrix to $\sqrt{1-\sigma_v^2/\lambda_i}$ for the directions with $\lambda_i>\sigma_v^2$, as many as there are hidden units; the model covariance $\sigma_v^2(I-W^{\mathsf T}W)^{-1}$ then has the data variance in those directions and the floor $\sigma_v^2$ in all others (11.234). The book prints $1-1/\lambda_i$, which is right only for $\sigma_v=1$. Contrastive divergence $\mathrm{CD}_k$ (11.230) has the same equilibrium; its relaxation is slower. Change $\sigma_v^2$, the number of hidden units and the learning rule.</p>
+<div class="widget" id="w8">
+  <div class="controls">
+    <label>$\sigma_v^2$ <input type="range" id="w8s" min="0.5" max="2" step="0.05" value="0.8"><output id="w8so"></output></label>
+    <label>hidden units $m$ <input type="range" id="w8m" min="1" max="4" step="1" value="2"><output id="w8mo"></output></label>
+    <label>rule <select id="w8k"><option value="0" selected>maximum likelihood</option><option value="1">CD₁</option><option value="2">CD₂</option><option value="3">CD₃</option><option value="5">CD₅</option></select></label>
+  </div>
+  <svg id="w8v" viewBox="0 0 700 345" role="img" aria-label="Singular values of the weight matrix during learning of a Gaussian RBM"></svg>
+  <div class="stats" id="w8s2"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-30,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-30} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5),f6=v=>v.toFixed(6);
+const ticks=(P,xs,ys,fx,fy,ng)=>{(xs||[]).forEach(v=>{const x=P.X(v);if(!ng)el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);if(!ng)el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fy||f2)(v)})};
+
+/* CORE: plain numerical functions, no DOM */
+const sum=a=>{let s=0;for(const v of a)s+=v;return s};
+function bisect(f,a,b){let fa=f(a);for(let i=0;i<200;i++){const m=0.5*(a+b),fm=f(m);if((fm>0)===(fa>0)){a=m;fa=fm}else b=m;if(Math.abs(b-a)<1e-14)break}return 0.5*(a+b)}
+function solve(A,b){const n=b.length,M=A.map((r,i)=>r.slice().concat([b[i]]));
+ for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;const tmp=M[c];M[c]=M[p];M[p]=tmp;
+  for(let r=c+1;r<n;r++){const f=M[r][c]/M[c][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k]}}
+ const x=new Array(n).fill(0);for(let i=n-1;i>=0;i--){let s=M[i][n];for(let j=i+1;j<n;j++)s-=M[i][j]*x[j];x[i]=s/M[i][i]}return x}
+function inverse(A){const n=A.length,cols=[];for(let j=0;j<n;j++){const e=new Array(n).fill(0);e[j]=1;cols.push(solve(A,e))}return Array.from({length:n},(_,i)=>cols.map(c=>c[i]))}
+const mm=(A,B)=>A.map(r=>B[0].map((_,j)=>{let s=0;for(let k=0;k<B.length;k++)s+=r[k]*B[k][j];return s}));
+const tr=A=>A[0].map((_,j)=>A.map(r=>r[j]));
+const madd=(A,B,s)=>A.map((r,i)=>r.map((v,j)=>v+s*B[i][j]));
+const msc=(A,s)=>A.map(r=>r.map(v=>v*s));
+const eyeM=n=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0));
+function jacobiEig(A){const n=A.length,a=A.map(r=>r.slice());
+ for(let sweep=0;sweep<100;sweep++){let off=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)off+=a[i][j]*a[i][j];if(off<1e-28)break;
+  for(let p=0;p<n-1;p++)for(let q=p+1;q<n;q++){if(Math.abs(a[p][q])<1e-300)continue;
+   const theta=(a[q][q]-a[p][p])/(2*a[p][q]),t=(theta>=0?1:-1)/(Math.abs(theta)+Math.sqrt(theta*theta+1)),c=1/Math.sqrt(t*t+1),s=t*c;
+   for(let k=0;k<n;k++){const akp=a[k][p],akq=a[k][q];a[k][p]=c*akp-s*akq;a[k][q]=s*akp+c*akq}
+   for(let k=0;k<n;k++){const apk=a[p][k],aqk=a[q][k];a[p][k]=c*apk-s*aqk;a[q][k]=s*apk+c*aqk}}}
+ return a.map((r,i)=>r[i]).sort((x,y)=>y-x)}
+
+// ---- Bregman divergences on the positive quadrant, centre in the second slot
+const BR={
+ euclid:{name:"squared Euclidean",phi:x=>0.5*(x[0]*x[0]+x[1]*x[1]),grad:x=>[x[0],x[1]],ginv:t=>[t[0],t[1]]},
+ kl:{name:"generalised KL",phi:x=>x[0]*Math.log(x[0])-x[0]+x[1]*Math.log(x[1])-x[1],grad:x=>[Math.log(x[0]),Math.log(x[1])],ginv:t=>[Math.exp(t[0]),Math.exp(t[1])]},
+ is:{name:"Itakura–Saito",phi:x=>-Math.log(x[0])-Math.log(x[1]),grad:x=>[-1/x[0],-1/x[1]],ginv:t=>[-1/t[0],-1/t[1]]}
+};
+const Dbr=(g,x,y)=>{const gy=g.grad(y);return g.phi(x)-g.phi(y)-(gy[0]*(x[0]-y[0])+gy[1]*(x[1]-y[1]))};
+const PATTERNS=[[2.7471,1.5275],[4.8097,1.6161],[2.7331,3.3635],[1.7614,3.1782],[2.4728,1.094],[1.8616,2.3606]];
+function centres(g,X){const k=X.length,mean=[sum(X.map(x=>x[0]))/k,sum(X.map(x=>x[1]))/k];
+ const gs=X.map(x=>g.grad(x)),tm=g.ginv([sum(gs.map(v=>v[0]))/k,sum(gs.map(v=>v[1]))/k]);return {mean,tmean:tm}}
+const costSecond=(g,X,c)=>sum(X.map(x=>Dbr(g,x,c)))/X.length;   // average D[x_i : c]
+const costFirst=(g,X,c)=>sum(X.map(x=>Dbr(g,c,x)))/X.length;    // average D[c : x_i]
+
+// ---- Voronoi (Theorem 11.2)
+function eqPoint(g,A,B,kind){let pt;if(kind==="eta")pt=t=>[(1-t)*A[0]+t*B[0],(1-t)*A[1]+t*B[1]];
+ else{const tA=g.grad(A),tB=g.grad(B);pt=t=>g.ginv([(1-t)*tA[0]+t*tB[0],(1-t)*tA[1]+t*tB[1]])}
+ const t=bisect(t=>{const P=pt(t);return Dbr(g,P,A)-Dbr(g,P,B)},1e-9,1-1e-9);return {P:pt(t),t,pt}}
+function voronoiCheck(e1,e2){const g=BR.kl,th1=g.grad(e1),th2=g.grad(e2);
+ const geo=eqPoint(g,e1,e2,"theta"),lin=eqPoint(g,e1,e2,"eta");
+ // printed: theta-hyperplane through the eta-line midpoint, orthogonal to (e2 - e1)
+ const n2=[e2[0]-e1[0],e2[1]-e1[1]],ln2=Math.hypot(n2[0],n2[1]),v2=[-n2[1]/ln2,n2[0]/ln2],thQ=g.grad(lin.P);
+ const bad=[-0.5,-0.25,0.25,0.5].map(tau=>{const x=g.ginv([thQ[0]+tau*v2[0],thQ[1]+tau*v2[1]]);return Dbr(g,x,e1)-Dbr(g,x,e2)});
+ // corrected: eta-hyperplane through the theta-line midpoint with normal theta2 - theta1
+ const nrm=[th2[0]-th1[0],th2[1]-th1[1]],ln=Math.hypot(nrm[0],nrm[1]),v=[-nrm[1]/ln,nrm[0]/ln];
+ const good=[];for(const tau of [-0.9,-0.3,0.4,1.1]){const x=[geo.P[0]+tau*v[0],geo.P[1]+tau*v[1]];if(x[0]>0&&x[1]>0)good.push(Dbr(g,x,e1)-Dbr(g,x,e2))}
+ return {geo,lin,bad,good,th1,th2,v2,thQ}}
+
+// ---- Poisson Chernoff
+function logPerr(l1,l2,N,pi1){const pi2=1-pi1,smax=Math.floor(5*N*l2+50);let lf=0,mx=-Infinity;const m=new Float64Array(smax+1);
+ for(let s=0;s<=smax;s++){if(s>0)lf+=Math.log(s);const a=Math.log(pi1)+s*Math.log(N*l1)-N*l1-lf,b=Math.log(pi2)+s*Math.log(N*l2)-N*l2-lf;m[s]=Math.min(a,b);if(m[s]>mx)mx=m[s]}
+ let t=0;for(let s=0;s<=smax;s++)t+=Math.exp(m[s]-mx);return mx+Math.log(t)}
+function chernoff(l1,l2){const th1=Math.log(l1),th2=Math.log(l2),logI=t=>Math.exp((1-t)*th1+t*th2)-(1-t)*l1-t*l2;
+ const tstar=(Math.log((l2-l1)/(th2-th1))-th1)/(th2-th1),C=-logI(tstar);
+ const kl=(ta,tb)=>Math.exp(ta)*(ta-tb)-Math.exp(ta)+Math.exp(tb);return {th1,th2,logI,tstar,C,kl,alpha:2*tstar-1}}
+
+// ---- kernel metric and conformal factor
+const SVS=[[0.2,0.5],[-0.6,-0.3],[1.0,0.1]],KAPS=[1.0,1.5,0.7];
+function sigmaAt(p,ks){let s=0;for(let i=0;i<SVS.length;i++){const d=Math.hypot(p[0]-SVS[i][0],p[1]-SVS[i][1]);s+=Math.exp(-ks*KAPS[i]*d)}return s}
+function sigmaGrad(p,ks){const g=[0,0];for(let i=0;i<SVS.length;i++){const dx=p[0]-SVS[i][0],dy=p[1]-SVS[i][1],d=Math.hypot(dx,dy);if(d>0){const f=-ks*KAPS[i]*Math.exp(-ks*KAPS[i]*d)/d;g[0]+=f*dx;g[1]+=f*dy}}return g}
+function volumeRatio(p,ks,s2){const s=sigmaAt(p,ks),gr=sigmaGrad(p,ks),a=2*s*s/s2,det=a*(a+gr[0]*gr[0]+gr[1]*gr[1]);return {s,gnorm:Math.hypot(gr[0],gr[1]),vt:Math.sqrt(det),v0:2/s2,ratio:Math.sqrt(det)/(2/s2)}}
+
+// ---- linear SVM margin by scanning the direction
+const SVM_PTS=[[1.91584,1.06536,1],[0.58924,1.81421,1],[1.6362,0.78911,1],[1.43496,1.1561,1],[2.11287,2.28357,1],[0.54803,1.46481,1],[1.81043,-0.27821,1],[-1.34698,-1.83801,-1],[0.01678,-0.95859,-1],[-1.99633,-1.86211,-1],[-1.9414,-2.07575,-1],[-1.16528,0.36346,-1],[-2.21104,-0.78171,-1],[-1.38313,0.81647,-1]];
+function marginAt(deg){const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);let mp=Infinity,mm_=-Infinity;for(const [x,y,l] of SVM_PTS){const p=x*c+y*s;if(l>0){if(p<mp)mp=p}else if(p>mm_)mm_=p}return {gap:mp-mm_,margin:(mp-mm_)/2,mp,mm:mm_}}
+function bestMargin(){let best=-Infinity,arg=0;const n=200001;for(let i=0;i<n;i++){const d=180*i/(n-1),m=marginAt(d).margin;if(m>best){best=m;arg=d}}return {margin:best,deg:arg}}
+
+// ---- Ising model, belief propagation, mean field, CCCP
+function spinStates(n){const S=[];for(let k=0;k<(1<<n);k++){const s=[];for(let i=0;i<n;i++)s.push(((k>>(n-1-i))&1)?1:-1);S.push(s)}return S}
+function makeCycle(w){const n=4,h=[0.3,-0.2,0.1,0.25],edges=[[0,1],[1,2],[2,3],[3,0]],ws=[w,w,w,w];return makeIsing(n,h,edges,ws)}
+function makeIsing(n,h,edges,w){const X=spinStates(n),L=edges.length,q=[];let mx=-Infinity;
+ for(const x of X){let e=0;for(let i=0;i<n;i++)e+=h[i]*x[i];for(let r=0;r<L;r++)e+=w[r]*x[edges[r][0]]*x[edges[r][1]];q.push(e);if(e>mx)mx=e}
+ let Z=0;for(let i=0;i<q.length;i++){q[i]=Math.exp(q[i]-mx);Z+=q[i]}for(let i=0;i<q.length;i++)q[i]/=Z;
+ const eta=new Array(n).fill(0);X.forEach((x,k)=>{for(let i=0;i<n;i++)eta[i]+=q[k]*x[i]});
+ const deg=new Array(n).fill(0),nb=Array.from({length:n},()=>[]);edges.forEach(([i,j],r)=>{deg[i]++;deg[j]++;nb[i].push([j,r]);nb[j].push([i,r])});
+ return {n,h,edges,w,L,X,q,eta,deg,nb}}
+function bpMessages(M,iters,damp){damp=damp||0;let u={};const key=(a,b)=>a+","+b;for(const [i,j] of M.edges){u[key(i,j)]=0;u[key(j,i)]=0}
+ const hist=[];for(let t=0;t<iters;t++){const nw={};M.edges.forEach(([i,j],r)=>{for(const [a,b] of [[i,j],[j,i]]){let f=M.h[a];for(const [k] of M.nb[a])if(k!==b)f+=u[key(k,a)];nw[key(a,b)]=Math.atanh(Math.tanh(M.w[r])*Math.tanh(f))}});
+  for(const k in u)u[k]=damp*u[k]+(1-damp)*nw[k];
+  hist.push(M.h.map((hi,i)=>{let b=hi;for(const [k] of M.nb[i])b+=u[key(k,i)];return Math.tanh(b)}))}
+ return hist}
+function meanField(M,iters){iters=iters||4000;const n=M.n,W=Array.from({length:n},()=>new Array(n).fill(0));M.edges.forEach(([i,j],r)=>{W[i][j]+=M.w[r];W[j][i]+=M.w[r]});
+ let eta=M.h.map(Math.tanh);for(let t=0;t<iters;t++){const nw=eta.map((_,i)=>{let s=M.h[i];for(let j=0;j<n;j++)s+=W[i][j]*eta[j];return Math.tanh(s)});let d=0;for(let i=0;i<n;i++)d=Math.max(d,Math.abs(nw[i]-eta[i]));
+  if(d<1e-14){eta=nw;break}eta=eta.map((v,i)=>0.5*v+0.5*nw[i])}return eta}
+function invTwoSpin(mi,mj,w){const E=Math.exp(4*w),A=1-E,B=2*(1+E),Cc=(1-E)-(mi+mj)**2+E*(mi-mj)**2;let c;
+ if(Math.abs(A)<1e-14)c=-Cc/B;else{const disc=B*B-4*A*Cc,cands=[1,-1].map(sg=>(-B+sg*Math.sqrt(disc))/(2*A));
+  c=cands.find(x=>Math.abs(x)<=1+1e-12&&Math.min(1+mi+mj+x,1-mi-mj+x,1+mi-mj-x,1-mi+mj-x)>=-1e-12)}
+ const P=[(1+mi+mj+c)/4,(1-mi-mj+c)/4,(1+mi-mj-c)/4,(1-mi+mj-c)/4];
+ return [0.25*Math.log(P[0]*P[2]/(P[3]*P[1])),0.25*Math.log(P[0]*P[3]/(P[2]*P[1])),c]}
+const S1=m=>{let s=0;for(const b of [(1+m)/2,(1-m)/2])if(b>0)s-=b*Math.log(b);return s};
+const S2=(mi,mj,c)=>{let s=0;for(const P of [(1+mi+mj+c)/4,(1+mi-mj-c)/4,(1-mi+mj-c)/4,(1-mi-mj+c)/4])if(P>1e-300)s-=P*Math.log(P);return s};
+function bethe(M,m,c){let F=0;for(let i=0;i<M.n;i++)F-=M.h[i]*m[i];M.edges.forEach(([i,j],r)=>{F-=M.w[r]*c[r];F-=S2(m[i],m[j],c[r])});for(let i=0;i<M.n;i++)F+=(M.deg[i]-1)*S1(m[i]);return F}
+function nodeFields(M,Theta){const m=Theta.map(Math.tanh),s=new Array(M.n).fill(0),cs=new Array(M.L).fill(0);
+ M.edges.forEach(([i,j],r)=>{const [ai,aj,c]=invTwoSpin(m[i],m[j],M.w[r]);s[i]+=ai;s[j]+=aj;cs[r]=c});return {s,cs}}
+function cccpSimplified(M,iters){let Th=M.h.slice();const out=[];for(let t=0;t<iters;t++){const {s,cs}=nodeFields(M,Th),m=Th.map(Math.tanh);out.push({m,F:bethe(M,m,cs)});Th=M.h.map((hi,i)=>hi+M.deg[i]*Th[i]-s[i])}return out}
+function cccpYuille(M,iters){let Th=M.h.slice();const n=M.n,out=[];
+ for(let t=0;t<iters;t++){const {cs}=nodeFields(M,Th),m=Th.map(Math.tanh);out.push({m,F:bethe(M,m,cs)});
+  const rhs=M.h.map((hi,i)=>hi+M.deg[i]*Th[i]),R=Z=>{const f=nodeFields(M,Z).s;return Z.map((z,i)=>z+f[i]-rhs[i])},nrm=v=>Math.max(...v.map(Math.abs));
+  let X=Th.slice();
+  for(let it=0;it<100;it++){const r0=R(X);if(nrm(r0)<1e-13)break;const J=Array.from({length:n},()=>new Array(n).fill(0));
+   for(let k=0;k<n;k++){const Xp=X.slice(),Xm=X.slice();Xp[k]+=1e-6;Xm[k]-=1e-6;const rp=R(Xp),rm=R(Xm);for(let i=0;i<n;i++)J[i][k]=(rp[i]-rm[i])/2e-6}
+   const dX=solve(J,r0.map(v=>-v));let lam=1,Xn=X;while(lam>1e-6){Xn=X.map((v,i)=>v+lam*dX[i]);let ok=false;try{ok=nrm(R(Xn))<nrm(r0)*(1-1e-4*lam)}catch(e){}if(ok)break;lam/=2}X=Xn}
+  Th=X}
+ return out}
+
+// ---- AdaBoost on the toy data
+const BOOST_PTS=[[0.1623,0.7946,-1],[0.5013,0.7808,1],[0.7902,0.7151,1],[0.2003,0.322,-1],[0.3801,0.4078,-1],[0.4308,0.5135,-1],[0.8567,0.2245,-1],[0.2817,0.843,1],[0.2558,0.2882,-1],[0.6598,0.6302,1],[0.8387,0.662,1],[0.016,0.8647,-1],[0.9638,0.1298,-1],[0.514,0.138,-1],[0.0326,0.0165,-1],[0.7997,0.1391,-1],[0.0389,0.1883,-1],[0.7775,0.9839,1],[0.9368,0.9496,1],[0.4139,0.1146,-1]];
+function stumpPool(P){const H=[],desc=[];for(let k=0;k<2;k++){const v=P.map(p=>p[k]).sort((a,b)=>a-b);for(let i=0;i<v.length-1;i++){const th=0.5*(v[i]+v[i+1]);for(const s of [1,-1]){H.push(P.map(p=>s*(p[k]>th?1:-1)));desc.push([k,th,s])}}}return {H,desc}}
+function logisticAlpha(yF,yh){let a=0;for(let it=0;it<50;it++){let g=0,H=0;for(let i=0;i<yF.length;i++){const z=yF[i]+a*yh[i],s=1/(1+Math.exp(z));g-=yh[i]*s;H+=yh[i]*yh[i]*s*(1-s)}const step=g/Math.max(H,1e-12);a-=step;if(Math.abs(step)<1e-13)break}return a}
+function adaboost(T){const P=BOOST_PTS,N=P.length,y=P.map(p=>p[2]),{H,desc}=stumpPool(P);let W=new Array(N).fill(1/N),F=new Array(N).fill(0),prod=1;const rounds=[];
+ for(let t=1;t<=T;t++){const werr=H.map(h=>{let e=0;for(let i=0;i<N;i++)if(h[i]!==y[i])e+=W[i];return e});const mn=Math.min(...werr);const k=werr.findIndex(e=>e<=mn+1e-12);const eps=werr[k],h=H[k],alpha=0.5*Math.log((1-eps)/eps);
+  let Wn=W.map((w,i)=>w*Math.exp(-alpha*y[i]*h[i]));const Z=sum(Wn);Wn=Wn.map(w=>w/Z);const aml=logisticAlpha(F.map((f,i)=>y[i]*f),h.map((v,i)=>y[i]*v));
+  const edge=sum(Wn.map((w,i)=>w*y[i]*h[i]));F=F.map((f,i)=>f+alpha*h[i]);prod*=Z;const err=F.filter((f,i)=>Math.sign(f)!==y[i]).length/N;
+  rounds.push({t,desc:desc[k],eps,alpha,Z,edge,aml,W:W.slice(),Wn:Wn.slice(),h,err,prodZ:prod,expl:sum(F.map((f,i)=>Math.exp(-y[i]*f)))/N});W=Wn}
+ return rounds}
+
+// ---- Gaussian RBM learning equation (with the factor W restored)
+function rbmRhs(W,C,sv2,k){const n=C.length,A=mm(tr(W),W);
+ if(k===0||k==null){return madd(msc(mm(W,C),1/sv2),mm(W,inverse(madd(eyeM(n),A,-1))),-1)}
+ let Ak=eyeM(n);for(let i=0;i<k;i++)Ak=mm(Ak,A);let S=msc(eyeM(n),0),P=eyeM(n);for(let i=0;i<2*k;i++){S=madd(S,P,1);P=mm(P,A)}
+ const inner=madd(msc(mm(mm(Ak,C),Ak),1/sv2),S,1);return madd(msc(mm(W,C),1/sv2),mm(W,inner),-1)}
+function rbmFlow(W0,C,sv2,k,T,dt,stride){let W=W0.map(r=>r.slice());const f=X=>rbmRhs(X,C,sv2,k);const sv=X=>jacobiEig(mm(X,tr(X))).map(v=>Math.sqrt(Math.max(v,0)));const traj=[sv(W)];
+ const steps=Math.round(T/dt);for(let s=0;s<steps;s++){const k1=f(W),k2=f(madd(W,k1,0.5*dt)),k3=f(madd(W,k2,0.5*dt)),k4=f(madd(W,k3,dt));
+  W=madd(W,madd(madd(madd(k1,k2,2),k3,2),k4,1),dt/6);if((s+1)%stride===0)traj.push(sv(W))}
+ return {W,traj,sv:sv(W)}}
+
+
+const e2s=v=>v.toExponential(2).replace(/e([+-])(\d)$/,"e$10$2"),e1s=v=>v.toExponential(1).replace(/e([+-])(\d)$/,"e$10$2");
+const lerp=(a,b,t)=>a+(b-a)*t,clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const rect=(P,x,y,w,h,fill,op)=>el("rect",{x,y,width:w,height:h,fill,opacity:op,"shape-rendering":"crispEdges"},P.G);
+const niceTicks=(lo,hi,n)=>{const raw=(hi-lo)/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p,step=(f<1.5?1:f<3?2:f<7?5:10)*p,t=[];for(let v=Math.ceil(lo/step-1e-9)*step;v<=hi+1e-9;v+=step)t.push(Math.abs(v)<1e-12?0:+v.toFixed(10));return t};
+const line=(P,x1,y1,x2,y2,col,w,dash)=>el("line",{x1,y1,x2,y2,stroke:col,"stroke-width":w||1,"stroke-dasharray":dash||""},P.G);
+const dotAt=(P,x,y,r,fill,stroke)=>el("circle",{cx:P.X(x),cy:P.Y(y),r,fill,stroke:stroke||"var(--surface)","stroke-width":1.2},P.G);
+const label=(S,x,y,t,anchor,col,size)=>{const e=el("text",{x,y,"text-anchor":anchor||"start",fill:col||"var(--muted)","font-size":size||11},S);e.textContent=t;return e};
+const legendRow=(S,x,y,col,txt,dash)=>{el("line",{x1:x,x2:x+22,y1:y,y2:y,stroke:col,"stroke-width":2.4,"stroke-dasharray":dash||""},S);label(S,x+28,y+4,txt,"start","var(--muted)",11)};
+const thin=(P,pts,col,w,dash)=>path(P.G,pts.map(q=>[P.X(q[0]),P.Y(q[1])]),col,w,dash);
+
+// ===== widget 1: the centre of a cluster
+(function(){
+ const X=PATTERNS;
+ function draw(){
+  const dk=g("w1d").value,slot=g("w1s").value,cx=+g("w1x").value,cy=+g("w1y").value;g("w1xo").textContent=f2(cx);g("w1yo").textContent=f2(cy);
+  const gen=BR[dk],c=centres(gen,X),cost=slot==="2"?costSecond:costFirst,S=g("w1v");clear(S);
+  const xr=[0.8,5.4],yr=[0.6,4.0],P=axes(S,50,14,450,300,xr,yr,"","c₁","c₂");
+  ticks(P,[1,2,3,4,5],[1,2,3,4],f2,f2,true);
+  const nx=50,ny=34,vals=[];let vmin=Infinity;
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const v=cost(gen,X,[lerp(xr[0],xr[1],(i+0.5)/nx),lerp(yr[0],yr[1],(j+0.5)/ny)]);vals.push(v);if(v<vmin)vmin=v}
+  const srt=vals.slice().sort((a,b)=>a-b),vmax=srt[Math.floor(0.8*srt.length)];
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const v=vals[j*nx+i],t=clamp((v-vmin)/(vmax-vmin),0,1);
+   rect(P,P.X(lerp(xr[0],xr[1],i/nx)),P.Y(lerp(yr[0],yr[1],(j+1)/ny)),P.w/nx,P.h/ny,"var(--s1)",0.55*Math.pow(1-t,1.5))}
+  X.forEach(x=>dotAt(P,x[0],x[1],4,"var(--ink)"));
+  const mk=(p,col,shape)=>{if(shape==="x"){const a=P.X(p[0]),b=P.Y(p[1]);line(P,a-7,b-7,a+7,b+7,col,2.6);line(P,a-7,b+7,a+7,b-7,col,2.6)}else if(shape==="d"){const a=P.X(p[0]),b=P.Y(p[1]);el("path",{d:`M${a} ${b-8}L${a+8} ${b}L${a} ${b+8}L${a-8} ${b}Z`,fill:col,stroke:"var(--surface)","stroke-width":1.2},P.G)}else dotAt(P,p[0],p[1],6,col)};
+  mk(c.mean,"var(--s2)","x");mk(c.tmean,"var(--s3)","d");mk([cx,cy],"var(--s4)","o");
+  label(S,P.x0+8,P.y0+16,"average divergence of a centre c from the six patterns","start","var(--ink)",11);
+  legendRow(S,520,40,"var(--s2)","mean (11.9)");legendRow(S,520,62,"var(--s3)","mean in θ = ∇φ(c)");legendRow(S,520,84,"var(--s4)","trial centre (sliders)");
+  label(S,520,112,"darker = smaller average","start","var(--muted)",10.5);label(S,520,126,"divergence, chosen slot","start","var(--muted)",10.5);
+  const row=(nm,p)=>[costSecond(gen,X,p),costFirst(gen,X,p),nm,p];
+  const rows=[row("mean (11.9)",c.mean),row("mean in θ",c.tmean),row("trial centre",[cx,cy])];
+  const m1=Math.min(...rows.map(r=>r[0])),m2=Math.min(...rows.map(r=>r[1]));
+  g("w1tab").innerHTML=`<table class="t"><tr><th>candidate centre</th><th>position</th><th>avg D[x<sub>i</sub> : c] (c second)</th><th>avg D[c : x<sub>i</sub>] (c first)</th></tr>`+
+   rows.map(r=>`<tr><td>${r[2]}</td><td>(${f3(r[3][0])}, ${f3(r[3][1])})</td><td>${r[0]===m1?"<b>"+f5(r[0])+"</b>":f5(r[0])}</td><td>${r[1]===m2?"<b>"+f5(r[1])+"</b>":f5(r[1])}</td></tr>`).join("")+`</table>
+   <div class="cap">${gen.name}: largest coordinate difference between the mean and the mean in θ: <b>${f4(Math.max(Math.abs(c.tmean[0]-c.mean[0]),Math.abs(c.tmean[1]-c.mean[1])))}</b> (zero for the squared Euclidean distance).</div>`;
+ }
+ ["w1d","w1s","w1x","w1y"].forEach(i=>g(i).addEventListener("input",draw));
+ g("w1m").addEventListener("click",()=>{const c=centres(BR[g("w1d").value],X);g("w1x").value=c.mean[0].toFixed(2);g("w1y").value=c.mean[1].toFixed(2);draw()});
+ g("w1x").value=(sum(X.map(x=>x[0]))/6).toFixed(2);g("w1y").value=(sum(X.map(x=>x[1]))/6).toFixed(2);draw();
+})();
+
+// ===== widget 2: the boundary between two cells (Theorem 11.2)
+(function(){
+ const gk=BR.kl,LO=Math.log(0.25),HI=Math.log(6.25);
+ function draw(){
+  const e1=[+g("w2a").value,+g("w2b").value],e2=[+g("w2c").value,+g("w2d").value];["w2a","w2b","w2c","w2d"].forEach(i=>g(i+"o").textContent=f2(+g(i).value));
+  const S=g("w2v");clear(S);
+  const PA=axes(S,44,14,300,290,[0.25,6.25],[0.25,6.25],"pattern plane (η = x)","x₁","x₂"),PB=axes(S,380,14,300,290,[LO,HI],[LO,HI],"dual plane (θ = log x)","θ₁","θ₂");
+  ticks(PA,[1,2,3,4,5,6],[1,2,3,4,5,6],f2,f2);ticks(PB,[-1,0,1],[-1,0,1],f2,f2);
+  if(Math.hypot(e1[0]-e2[0],e1[1]-e2[1])<0.15){g("w2t").innerHTML="<div>move the centres apart</div>";return}
+  const v=voronoiCheck(e1,e2),th1=v.th1,th2=v.th2;
+  const cst=gk.phi(e1)-gk.phi(e2)-(th1[0]*e1[0]+th1[1]*e1[1])+(th2[0]*e2[0]+th2[1]*e2[1]),dth=[th2[0]-th1[0],th2[1]-th1[1]];
+  const bis=[];for(let i=0;i<=300;i++){const x1=lerp(0.25,6.25,i/300),x2=(cst-dth[0]*x1)/dth[1];if(x2>0.25&&x2<6.25)bis.push([x1,x2])}
+  const ts=[];for(let i=0;i<=100;i++)ts.push(i/100);
+  const egeo=ts.map(t=>gk.ginv([lerp(th1[0],th2[0],t),lerp(th1[1],th2[1],t)])),mline=ts.map(t=>[lerp(e1[0],e2[0],t),lerp(e1[1],e2[1],t)]);
+  const printed=[];for(let i=0;i<=100;i++){const tau=lerp(-1.1,1.1,i/100);printed.push(gk.ginv([v.thQ[0]+tau*v.v2[0],v.thQ[1]+tau*v.v2[1]]))}
+  const lg=a=>a.map(p=>[Math.log(p[0]),Math.log(p[1])]);
+  thin(PA,bis,"var(--ink)",2.6);thin(PB,lg(bis),"var(--ink)",2.6);
+  thin(PA,egeo,"var(--s1)",1.8,"6 4");thin(PB,lg(egeo),"var(--s1)",1.8,"6 4");
+  thin(PA,mline,"var(--faint)",1.4,"2 3");thin(PB,lg(mline),"var(--faint)",1.4,"2 3");
+  thin(PA,printed,"var(--s2)",1.8,"6 4");thin(PB,lg(printed),"var(--s2)",1.8,"6 4");
+  [[e1,"var(--s3)"],[e2,"var(--s4)"]].forEach(([e,c])=>{dotAt(PA,e[0],e[1],5.5,c);dotAt(PB,Math.log(e[0]),Math.log(e[1]),5.5,c)});
+  dotAt(PA,v.geo.P[0],v.geo.P[1],4,"var(--s1)");dotAt(PB,Math.log(v.geo.P[0]),Math.log(v.geo.P[1]),4,"var(--s1)");
+  dotAt(PA,v.lin.P[0],v.lin.P[1],4,"var(--faint)");dotAt(PB,Math.log(v.lin.P[0]),Math.log(v.lin.P[1]),4,"var(--faint)");
+  legendRow(S,60,352,"var(--ink)","D[x:η₁] = D[x:η₂]: straight in η");legendRow(S,60,372,"var(--s1)","e-geodesic (straight in θ), equidistant point",  "6 4");
+  legendRow(S,392,352,"var(--faint)","η-straight line and its 'midpoint'","2 3");legendRow(S,392,372,"var(--s2)","θ-hyperplane through it, as printed","6 4");
+  const fixedBox=v.good.length;
+  g("w2t").innerHTML=`<div>equidistant point on the θ-line: t* = <b>${f4(v.geo.t)}</b>, η₁₂ = <b>(${f4(v.geo.P[0])}, ${f4(v.geo.P[1])})</b></div>
+   <div>the printed 'midpoint' on the η-line: <b>(${f4(v.lin.P[0])}, ${f4(v.lin.P[1])})</b></div>
+   <div>D₁ − D₂ at four points on the printed θ-hyperplane: <b>${v.bad.map(x=>f3(x)).join(", ")}</b> (should be 0)</div>
+   <div>D₁ − D₂ at ${fixedBox} points of the η-hyperplane with normal θ₂ − θ₁ through η₁₂: <b>below 1e-12</b> (${Math.max(...v.good.map(Math.abs))<1e-12?"checked":"CHECK"})</div>`;
+ }
+ ["w2a","w2b","w2c","w2d"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: Chernoff information, Poisson laws
+(function(){
+ function draw(){
+  let l1=+g("w3a").value,l2=+g("w3b").value,N=+g("w3n").value,pi1=+g("w3p").value;g("w3ao").textContent=f2(l1);g("w3bo").textContent=f2(l2);g("w3no").textContent=N;
+  if(Math.abs(l1-l2)<0.05){g("w3t").innerHTML="<div>choose two different rates</div>";return}
+  if(l1>l2){const t=l1;l1=l2;l2=t}
+  const Ch=chernoff(l1,l2),S=g("w3v");clear(S);
+  const P1=axes(S,52,14,300,250,[Math.log10(4),Math.log10(2600)],[Math.max(0,Ch.C-0.12),Ch.C+0.55],"−log P_err / N against N","N","");
+  const Ns=[5,7,10,15,20,30,50,70,100,150,200,300,500,700,1000,1500,2000];
+  const yv=(pi)=>Ns.map(n=>[Math.log10(n),-logPerr(l1,l2,n,pi)/n]);
+  const y1=yv(pi1),y2=yv(0.5);
+  ticks(P1,[5,10,20,50,100,200,500,1000,2000].map(Math.log10),[],v=>Math.round(Math.pow(10,v)),f2);
+  const ylo=Ch.C-0.12,ytk=[];for(let v=Math.ceil(ylo*10)/10;v<Ch.C+0.55;v+=0.1)ytk.push(v);ticks(P1,[],ytk,f2,f2);
+  line(P1,P1.X(Math.log10(4)),P1.Y(Ch.C),P1.X(Math.log10(2600)),P1.Y(Ch.C),"var(--faint)",1.2,"5 3");
+  path(P1.G,y2.map(q=>[P1.X(q[0]),P1.Y(q[1])]),"var(--s1)",2);if(pi1!==0.5)path(P1.G,y1.map(q=>[P1.X(q[0]),P1.Y(q[1])]),"var(--s2)",2);
+  const cur=-logPerr(l1,l2,N,pi1)/N;dotAt(P1,Math.log10(N),cur,5,"var(--s4)");
+  label(S,P1.X(Math.log10(2300)),P1.Y(Ch.C)-7,"dashed: Chernoff information C","end","var(--muted)",10.5);
+  const P2=axes(S,392,14,290,250,[0,1],[0,Math.max(1.8,Ch.kl(Ch.th2,Ch.th1)*1.05)],"divergences along the e-geodesic","t","");
+  ticks(P2,[0,0.25,0.5,0.75,1],[0,0.5,1,1.5],f2,f2);
+  const tt=[];for(let i=0;i<=100;i++)tt.push(i/100);
+  const thT=t=>(1-t)*Ch.th1+t*Ch.th2,k1=tt.map(t=>[t,Ch.kl(thT(t),Ch.th1)]),k2=tt.map(t=>[t,Ch.kl(thT(t),Ch.th2)]),cc=tt.map(t=>[t,-Ch.logI(t)]);
+  thin(P2,k1,"var(--s1)",2);thin(P2,k2,"var(--s2)",2);thin(P2,cc,"var(--s3)",2);
+  line(P2,P2.X(Ch.tstar),P2.y0,P2.X(Ch.tstar),P2.y0+P2.h,"var(--faint)",1,"4 3");dotAt(P2,Ch.tstar,Ch.C,5,"var(--s4)");
+  legendRow(S,410,300,"var(--s1)","KL[θₜ : θ₁]");legendRow(S,410,318,"var(--s2)","KL[θₜ : θ₂]");legendRow(S,540,300,"var(--s3)","−log Σ p₁^(1−t) p₂^t");
+  const pe=logPerr(l1,l2,N,pi1);
+  g("w3t").innerHTML=`<div>Chernoff information C = −min<sub>t</sub> log Σ p₁<sup>1−t</sup>p₂<sup>t</sup> = <b>${f6(Ch.C)}</b> at t* = <b>${f5(Ch.tstar)}</b>; KL[θ*:θ₁] = KL[θ*:θ₂] = <b>${f6(Ch.kl(thT(Ch.tstar),Ch.th1))}</b></div>
+   <div>exact Bayes error at N = ${N}, priors ${pi1}/${(1-pi1).toFixed(1)}: −log P_err / N = <b>${f6(-pe/N)}</b>; √N e<sup>NC</sup> P_err = <b>${f5(Math.sqrt(N)*Math.exp(pe+N*Ch.C))}</b>; 2 e<sup>NC</sup> P_err (≤ 1 for equal priors) = <b>${f5(2*Math.exp(pe+N*Ch.C))}</b></div>
+   <div>α* = 2t* − 1 = <b>${f5(Ch.alpha)}</b>: the minimiser of (11.52) is (1 − α*)/2 = ${f5((1-Ch.alpha)/2)} = 1 − t*, the geodesic midpoint (11.57) is (1 + α*)/2 = ${f5((1+Ch.alpha)/2)}</div>`;
+ }
+ ["w3a","w3b","w3n","w3p"].forEach(i=>g(i).addEventListener("input",draw));g("w3p").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 4: the volume element of a conformally modified kernel
+(function(){
+ function draw(){
+  const ks=+g("w4k").value,s2=+g("w4s").value,px=+g("w4x").value,py=+g("w4y").value;g("w4ko").textContent=f2(ks);g("w4so").textContent=f2(s2);g("w4xo").textContent=f2(px);g("w4yo").textContent=f2(py);
+  const S=g("w4v");clear(S);const xr=[-1.8,2.2],yr=[-1.6,3.2],P=axes(S,50,14,420,300,xr,yr,"","x₁","x₂");
+  ticks(P,[-1,0,1,2],[-1,0,1,2,3],f2,f2,true);
+  const nx=56,ny=42;
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const p=[lerp(xr[0],xr[1],(i+0.5)/nx),lerp(yr[0],yr[1],(j+0.5)/ny)],r=volumeRatio(p,ks,s2).ratio,l=Math.log10(r),t=clamp(l/1.2,-1,1);
+   rect(P,P.X(lerp(xr[0],xr[1],i/nx)),P.Y(lerp(yr[0],yr[1],(j+1)/ny)),P.w/nx,P.h/ny,t>=0?"var(--s2)":"var(--s1)",0.7*Math.abs(t))}
+  label(S,P.x0+8,P.y0+16,"log₁₀ of the volume ratio √det g̃ / √det g","start","var(--ink)",11);
+  SVS.forEach((s,i)=>{const a=P.X(s[0]),b=P.Y(s[1]);line(P,a-6,b-6,a+6,b+6,"var(--ink)",2.4);line(P,a-6,b+6,a+6,b-6,"var(--ink)",2.4)});
+  dotAt(P,px,py,6,"var(--s4)");
+  legendRow(S,500,40,"var(--ink)","support vectors x_i*");legendRow(S,500,62,"var(--s4)","the point below");label(S,500,92,"orange: enlarged","start","var(--s2)",11);label(S,500,108,"blue: shrunk","start","var(--s1)",11);label(S,500,130,"σ(x) = Σ exp(−κ_i |x − x_i*|)","start","var(--muted)",10.5);
+  const r=volumeRatio([px,py],ks,s2);
+  g("w4t").innerHTML=`<div>at (${f2(px)}, ${f2(py)}): σ = <b>${f3(r.s)}</b>, |∇σ| = <b>${f3(r.gnorm)}</b>; √det g̃ = <b>${f4(r.vt)}</b> against √det g = 2/σ<sub>w</sub>² = <b>${f4(r.v0)}</b>; ratio <b>${f3(r.ratio)}</b></div>
+   <div class="cap">g = (2/σ<sub>w</sub>²) I is the same at every point (flat); g̃ = σ² g + ∇σ ∇σᵀ (11.98). κ<sub>i</sub> = (1, 1.5, 0.7) × the scale. At a support vector σ has a conical peak and ∇σ has no limit; the symmetric value 0 is used there.</div>`;
+ }
+ ["w4k","w4s","w4x","w4y"].forEach(i=>g(i).addEventListener("input",draw));
+ g("w4p1").addEventListener("click",()=>{g("w4x").value=0.2;g("w4y").value=0.5;draw()});g("w4p2").addEventListener("click",()=>{g("w4x").value=0.2;g("w4y").value=2.5;draw()});draw();
+})();
+
+// ===== widget 5: the margin as a function of direction
+(function(){
+ const best=bestMargin();
+ function draw(){
+  const deg=+g("w5a").value;g("w5ao").textContent=deg.toFixed(3)+"°";
+  const m=marginAt(deg),t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),S=g("w5l");clear(S);
+  const P=axes(S,40,14,290,290,[-3,3],[-3,3],"hyperplane with normal at this angle","x₁","x₂");ticks(P,[-2,0,2],[-2,0,2],f2,f2);
+  const mid=(m.mp+m.mm)/2;
+  const L=(off,col,w,dash)=>{const d=[-s,c],base=[c*off,s*off];const a=[base[0]-6*d[0],base[1]-6*d[1]],b=[base[0]+6*d[0],base[1]+6*d[1]];line(P,P.X(a[0]),P.Y(a[1]),P.X(b[0]),P.Y(b[1]),col,w,dash)};
+  L(m.mp,"var(--s1)",1.2,"5 3");L(m.mm,"var(--s2)",1.2,"5 3");L(mid,"var(--ink)",2.2);
+  SVM_PTS.forEach(([x,y,l])=>{const p=x*c+y*s,issv=Math.abs(p-(l>0?m.mp:m.mm))<5e-4;el("circle",{cx:P.X(x),cy:P.Y(y),r:issv?6:3.6,fill:l>0?"var(--s1)":"var(--s2)",stroke:issv?"var(--ink)":"var(--surface)","stroke-width":issv?1.8:1},P.G)});
+  const R=g("w5r");clear(R);const Q=axes(R,50,14,280,290,[0,180],[0,1.3],"margin against the direction","angle (degrees)","margin");ticks(Q,[0,45,90,135,180],[0,0.5,1],v=>v.toFixed(0),f2);
+  const pts=[];for(let d=0;d<=180;d+=0.25)pts.push([Q.X(d),Q.Y(Math.max(0,marginAt(d).margin))]);path(Q.G,pts,"var(--s1)",2.2);
+  line(Q,Q.X(best.deg),Q.y0,Q.X(best.deg),Q.y0+Q.h,"var(--faint)",1,"4 3");dotAt(Q,deg,Math.max(0,m.margin),5,"var(--s4)");
+  g("w5s").innerHTML=`<div>direction ${deg.toFixed(3)}°: gap between the projected classes <b>${f6(m.gap)}</b>, margin (half the gap) <b>${f6(Math.max(m.margin,0))}</b>${m.margin<0?" (the classes overlap in this direction)":""}</div>
+   <div>best direction found by scanning 200001 angles: <b>${best.deg.toFixed(3)}°</b>, margin <b>${f6(best.margin)}</b> (the dual solution gives 1/|w| = 0.925881)</div>`;
+ }
+ g("w5a").addEventListener("input",draw);g("w5b").addEventListener("click",()=>{g("w5a").value=best.deg;draw()});
+ g("w5a").value=best.deg;draw();
+})();
+
+// ===== widget 6: belief propagation, mean field and the two CCCPs on a four-cycle
+(function(){
+ let cache={};
+ function compute(w){
+  const M=makeCycle(w),hb=bpMessages(M,3000,0),dd=hb.slice(1).map((h,i)=>Math.max(...h.map((x,j)=>Math.abs(x-hb[i][j]))));
+  const nit=dd.findIndex(x=>x<1e-12)+1,bp=hb[2999],mf=meanField(M);
+  const o1=cccpSimplified(M,400),o2=cccpYuille(M,60);
+  const F1=o1.map(o=>o.F),F2=o2.map(o=>o.F);let up1=0,up2=0;for(let i=1;i<F1.length;i++)if(F1[i]-F1[i-1]>1e-12)up1++;for(let i=1;i<F2.length;i++)if(F2[i]-F2[i-1]>1e-12)up2++;
+  const mx=(a,b)=>Math.max(...a.map((x,i)=>Math.abs(x-b[i])));
+  return {M,hb,nit,bp,mf,o1,o2,F1,F2,up1,up2,eb:mx(bp,M.eta),em:mx(mf,M.eta),d1:mx(o1[399].m,bp),d2:mx(o2[59].m,bp)};
+ }
+ function draw(){
+  const w=+g("w6w").value,T=+g("w6t").value;g("w6wo").textContent=f2(w);g("w6to").textContent=T;
+  const key=w.toFixed(3);if(!cache[key]){cache={};cache[key]=compute(w)}const c=cache[key],S=g("w6l");clear(S);
+  const P=axes(S,50,14,290,270,[0,T],[-1.05,1.05],"belief E[x₀]","iteration","");ticks(P,[],[-1,-0.5,0,0.5,1],f2,f2);
+  const xt=[];const step=T<=20?5:T<=60?10:50;for(let v=0;v<=T;v+=step)xt.push(v);ticks(P,xt,[],v=>v.toFixed(0),f2);
+  const ser=(arr)=>arr.slice(0,T).map((m,i)=>[P.X(i),P.Y(Array.isArray(m)?m[0]:m.m[0])]);
+  line(P,P.X(0),P.Y(c.M.eta[0]),P.X(T),P.Y(c.M.eta[0]),"var(--faint)",1.2,"5 3");
+  path(P.G,ser(c.o1),"var(--s2)",2);path(P.G,ser(c.o2),"var(--s3)",2.2);path(P.G,ser(c.hb),"var(--s1)",2.2);
+  const R=g("w6r");clear(R);const F1=c.F1.slice(0,T),F2=c.F2.slice(0,Math.min(T,60)),all=F1.concat(F2),lo=Math.min(...all),hi=Math.max(...all),pad=0.08*(hi-lo+1e-9);
+  const Q=axes(R,50,14,290,270,[0,T],[lo-pad,hi+pad],"Bethe free energy of the iterates","iteration","");ticks(Q,xt,[],v=>v.toFixed(0),f2);
+  ticks(Q,[],niceTicks(lo-pad,hi+pad,4),f2,v=>v.toFixed(1));
+  path(Q.G,F1.map((v,i)=>[Q.X(i),Q.Y(v)]),"var(--s2)",2);path(Q.G,F2.map((v,i)=>[Q.X(i),Q.Y(v)]),"var(--s3)",2.2);
+  legendRow(S,60,336,"var(--s2)","simplified CCCP (11.144)–(11.145)");legendRow(S,60,354,"var(--s3)","Yuille's CCCP (11.148)–(11.149)");legendRow(S,60,372,"var(--s1)","belief propagation (11.133)–(11.136)");legendRow(S,60,390,"var(--faint)","exact marginal","5 3");
+  g("w6tab").innerHTML=`<table class="t"><tr><th>coupling ${f2(w)}</th><th>BP</th><th>mean field (11.125)</th><th>simplified CCCP</th><th>Yuille's CCCP</th></tr>
+   <tr><td>largest error in E[x<sub>i</sub>] / distance to BP</td><td><b>${f4(c.eb)}</b></td><td><b>${f4(c.em)}</b></td><td>${e2s(c.d1)} (after 400 steps)</td><td>${e1s(c.d2)} (after 60 steps)</td></tr>
+   <tr><td>steps to converge to 1e-12 / steps with F going up</td><td><b>${c.nit}</b></td><td>–</td><td><b>${c.up1}</b></td><td><b>${c.up2}</b></td></tr>
+   <tr><td>Bethe free energy at the end</td><td>–</td><td>–</td><td><b>${f4(c.F1[399])}</b></td><td><b>${f4(c.F2[59])}</b></td></tr></table>
+   <div class="cap">exact marginals E[x] = (${c.M.eta.map(f4).join(", ")}); BP fixed point (${c.bp.map(f4).join(", ")}). The simplified CCCP loses linear stability at tanh w = 1/3, w = atanh(1/3) = 0.34657.</div>`;
+ }
+ ["w6w","w6t"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 7: AdaBoost round by round
+(function(){
+ const R=adaboost(10);
+ function draw(){
+  const t=+g("w7t").value;g("w7to").textContent=t;const r=R[t-1],S=g("w7l");clear(S);
+  const P=axes(S,36,14,300,290,[-0.05,1.05],[-0.05,1.05],`weights at the start of round ${t}, and the stump chosen`,"x₁","x₂");ticks(P,[0,0.5,1],[0,0.5,1],f2,f2);
+  const [k,th,s]=r.desc;if(k===0)line(P,P.X(th),P.y0,P.X(th),P.y0+P.h,"var(--ink)",2.2);else line(P,P.x0,P.Y(th),P.x0+P.w,P.Y(th),"var(--ink)",2.2);
+  BOOST_PTS.forEach(([x,y,l],i)=>{const wrong=r.h[i]!==l;el("circle",{cx:P.X(x),cy:P.Y(y),r:3+34*r.W[i]**0.75*1.0,fill:l>0?"var(--s1)":"var(--s2)",opacity:0.8,stroke:wrong?"var(--ink)":"var(--surface)","stroke-width":wrong?2.2:1},P.G)});
+  const Q=g("w7r");clear(Q);const A=axes(Q,44,14,290,290,[0.5,10.5],[0,2.4],"weight αₜ: AdaBoost and the exact projection","round","");ticks(A,[1,2,3,4,5,6,7,8,9,10],[0,0.5,1,1.5,2],v=>v.toFixed(0),f2);
+  path(A.G,R.map(q=>[A.X(q.t),A.Y(q.alpha)]),"var(--s1)",2.2);path(A.G,R.map(q=>[A.X(q.t),A.Y(q.aml)]),"var(--s2)",2.2);
+  R.forEach(q=>{dotAt(A,q.t,q.alpha,3.2,"var(--s1)");dotAt(A,q.t,q.aml,3.2,"var(--s2)")});line(A,A.X(t),A.y0,A.X(t),A.y0+A.h,"var(--faint)",1,"4 3");
+  legendRow(Q,150,60,"var(--s2)","maximum likelihood, normalised");legendRow(Q,150,78,"var(--s1)","AdaBoost: ½ log((1−ε)/ε)");
+  g("w7s").innerHTML=`<div>round ${t}: stump (feature ${r.desc[0]+1}, threshold ${f3(r.desc[1])}, sign ${r.desc[2]>0?"+":"−"}), ε<sub>t</sub> = <b>${f5(r.eps)}</b>, α<sub>t</sub> = <b>${f6(r.alpha)}</b>, Z<sub>t</sub> = <b>${f6(r.Z)}</b> = 2√(ε(1−ε)) = ${f6(2*Math.sqrt(r.eps*(1-r.eps)))}</div>
+   <div>E<sub>W<sub>t+1</sub></sub>[y h<sub>t</sub>] = <b>0</b> to rounding (|·| = ${Math.abs(r.edge)<1e-15?"below 1e-15":"CHECK"}): the new weights give this stump error exactly ½; exact (logistic) weight for this round: <b>${f5(r.aml)}</b></div>
+   <div>after the round: training error <b>${f3(r.err)}</b>, Π Z<sub>s</sub> = mean exp(−yF) = <b>${f5(r.prodZ)}</b> (an upper bound for the error)</div>`;
+ }
+ g("w7t").addEventListener("input",draw);draw();
+})();
+
+// ===== widget 8: the Gaussian RBM learns the leading principal components
+(function(){
+ const LAM=[4,2.5,1.5,0.5],C=LAM.map((l,i)=>LAM.map((_,j)=>i===j?l:0));
+ const W0=m=>Array.from({length:m},(_,i)=>Array.from({length:4},(_,j)=>0.04*Math.sin(1.7*i+2.3*j+1)+0.01*(i+1)*Math.cos(j)));
+ function draw(){
+  const sv2=+g("w8s").value,m=+g("w8m").value,rule=+g("w8k").value;g("w8so").textContent=f2(sv2);g("w8mo").textContent=m;
+  const T=10,res=rbmFlow(W0(m),C,sv2,rule,T,0.02,5),S=g("w8v");clear(S);
+  const P=axes(S,50,14,420,290,[0,T],[0,1.0],"singular values of W during learning","time","");ticks(P,[0,2,4,6,8,10],[0,0.25,0.5,0.75,1],v=>v.toFixed(0),f2);
+  const cols=["var(--s1)","var(--s2)","var(--s3)","var(--s4)"];
+  for(let k=0;k<m;k++)path(P.G,res.traj.map((v,i)=>[P.X(i*5*0.02),P.Y(v[k])]),cols[k],2.2);
+  const pred=[];for(let i=0;i<Math.min(m,4);i++)if(LAM[i]>sv2)pred.push(Math.sqrt(1-sv2/LAM[i]));
+  pred.forEach(p=>line(P,P.x0,P.Y(p),P.x0+P.w,P.Y(p),"var(--faint)",1.2,"5 3"));
+  legendRow(S,500,40,"var(--s1)","largest singular value");if(m>1)legendRow(S,500,60,"var(--s2)","second");if(m>2)legendRow(S,500,80,"var(--s3)","third");if(m>3)legendRow(S,500,100,"var(--s4)","fourth");
+  label(S,500,128,"dashed: √(1 − σᵥ²/λᵢ) for λᵢ > σᵥ²","start","var(--muted)",10.5);
+  const sv=res.sv,cov=[];for(let i=0;i<4;i++){const s=i<m?sv[i]:0;cov.push(sv2/(1-s*s))}cov.sort((a,b)=>b-a);
+  const rule_=rule===0?"maximum likelihood (11.229)":`CD<sub>${rule}</sub> (11.230)`;
+  g("w8s2").innerHTML=`<div>${rule_}, ${m} hidden unit${m>1?"s":""}, σ<sub>v</sub>² = ${f2(sv2)}, data eigenvalues λ = (4, 2.5, 1.5, 0.5): singular values of W at time ${T}: <b>${sv.slice(0,m).map(f5).join(", ")}</b></div>
+   <div>predicted √(1 − σ<sub>v</sub>²/λ<sub>i</sub>) for the ${pred.length} direction${pred.length===1?"":"s"} with λ<sub>i</sub> &gt; σ<sub>v</sub>² (at most m): <b>${pred.map(f5).join(", ")||"none"}</b>; eigenvalues of the model covariance σ<sub>v</sub>²(I − WᵀW)⁻¹: <b>${cov.map(f4).join(", ")}</b> (11.234)</div>`;
+ }
+ ["w8s","w8m","w8k"].forEach(i=>g(i).addEventListener("input",draw));g("w8k").addEventListener("change",draw);draw();
+})();
+
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
