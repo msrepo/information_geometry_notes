@@ -112,7 +112,7 @@ Amari, S. *Information Geometry and Its Applications*. Applied Mathematical Scie
 | 2 | Exponential Families and Mixture Families of Probability Distributions | [read online](https://msrepo.github.io/information_geometry_notes/ch02-exponential-and-mixture-families/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch02-exponential-and-mixture-families/figures/interactive.html) · [source](chapters/ch02-exponential-and-mixture-families/notes.md) · [code](chapters/ch02-exponential-and-mixture-families/code/) |
 | 3 | Invariant Geometry of Manifold of Probability Distributions | to come |
 | 4 | α-Geometry, Tsallis q-Entropy and Positive-Definite Matrices | to come |
-| 5 | Elements of Differential Geometry | to come |
+| 5 | Elements of Differential Geometry | [read online](https://msrepo.github.io/information_geometry_notes/ch05-elements-of-differential-geometry/) · [interactive](https://msrepo.github.io/information_geometry_notes/ch05-elements-of-differential-geometry/figures/interactive.html) · [source](chapters/ch05-elements-of-differential-geometry/notes.md) · [code](chapters/ch05-elements-of-differential-geometry/code/) |
 | 6 | Dual Affine Connections and Dually Flat Manifold | to come |
 | 7 | Asymptotic Theory of Statistical Inference | to come |
 | 8 | Estimation in the Presence of Hidden Variables | to come |

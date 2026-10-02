@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elements of Differential Geometry Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,canvas:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:150px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.callout{border-left:3px solid var(--s1);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:1rem 0}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Elements of differential geometry, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 5 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Each widget is one idea of the chapter made touchable: a tangent vector as a random variable, what the Christoffel symbols measure, geodesics under three different connections, parallel transport and holonomy, the loop formula for curvature, and the difference between intrinsic and embedding curvature.
+The numbers shown are the ones printed by <code>code/diffgeo.py</code>.</p>
+
+<h2>1. A tangent vector is a derivative, an arrow, and a random variable</h2>
+<p>On the Gaussian manifold with coordinates $\xi=(\mu,\sigma)$, a tangent vector $A=A^\mu\partial_\mu+A^\sigma\partial_\sigma$ is an arrow in the parameter plane. The book also identifies $\partial_i$ with the <b>score</b> $\partial_i\log p(x;\xi)$ (5.10), so $A$ is the random variable $f(x)=A^i\partial_i\log p$.
+It has mean $0$, and its second moment is $A^\mathsf{T}gA$: the squared Fisher length of the arrow. Left: the arrow, drawn in coordinates $(\mu/\sqrt2,\sigma)$ in which the Fisher metric is conformal, so the dashed <b>unit Fisher circle</b> really is a circle; an arrow reaching beyond it has length above 1.
+Right: the density, the density moved a little along $A$, and below it $f(x)$ built from the two basis scores (dashed) and, as dots, built a second way from the components in the natural coordinates $\theta$. The dots land on the curve: components change contravariantly, basis vectors covariantly, the vector does not change.</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$\mu$ <input type="range" id="w1m" min="-2" max="3" step="0.05" value="1"><output id="w1mo"></output></label>
+    <label>$\sigma$ <input type="range" id="w1s" min="0.5" max="3" step="0.05" value="2"><output id="w1so"></output></label>
+    <label>$A^\mu$ <input type="range" id="w1a" min="-2" max="2" step="0.05" value="1"><output id="w1ao"></output></label>
+    <label>$A^\sigma$ <input type="range" id="w1b" min="-2" max="2" step="0.05" value="0.5"><output id="w1bo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w1l" viewBox="0 0 340 250" role="img" aria-label="The parameter plane with a tangent vector and the unit Fisher circle"></svg></div>
+    <div><svg id="w1r" viewBox="0 0 340 330" role="img" aria-label="The density, the perturbed density, and the score function of the tangent vector"></svg></div>
+  </div>
+  <div class="stats" id="w1s_"></div>
+  <div class="cap" id="w1n"></div>
+</div>
+
+<h2>2. What a Christoffel symbol measures: the polar frame turning</h2>
+<p>In the plane with polar coordinates $(r,\vartheta)$ the basis vectors $e_r,e_\vartheta$ change from point to point; $e_\vartheta$ even has length $r$. The book's definition (5.18)–(5.20) is: map the frame at the nearby point back to the first tangent space; the change is $de_i=\Gamma_{ki}{}^je_j\,d\xi^k$. Drag the point and the step.
+The picture shows $e_r,e_\vartheta$ at $P$ (solid), the frame at $P'=P+d\xi$ moved back to $P$ (dashed), and the difference (green). The table solves for the exact components of that difference in the basis at $P$, and compares them with the first-order prediction from $\Gamma_{\vartheta\vartheta}{}^r=-r$ and $\Gamma_{r\vartheta}{}^\vartheta=\Gamma_{\vartheta r}{}^\vartheta=1/r$ (everything else vanishes). The plane is flat; these numbers are non-zero only because the coordinates are curved.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$r$ <input type="range" id="w2r" min="0.6" max="3" step="0.05" value="2"><output id="w2ro"></output></label>
+    <label>$\vartheta$ <input type="range" id="w2t" min="0" max="360" step="1" value="40"><output id="w2to"></output></label>
+    <label>$dr$ <input type="range" id="w2dr" min="-0.6" max="0.6" step="0.01" value="0"><output id="w2dro"></output></label>
+    <label>$d\vartheta$ <input type="range" id="w2dt" min="-0.8" max="0.8" step="0.01" value="0.4"><output id="w2dto"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w2v" viewBox="0 0 340 340" role="img" aria-label="The polar frame at two nearby points"></svg></div>
+    <div id="w2tab"></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>$e_r$</span><span><span class="sw" style="border-color:var(--s2)"></span>$e_\vartheta$ (length $r$)</span><span><span class="sw dash" style="border-color:var(--faint)"></span>frame at $P'$, moved back</span><span><span class="sw" style="border-color:var(--s3)"></span>$de_i$</span></div>
+</div>
+
+<h2>3. Geodesics depend on the connection, not just the manifold</h2>
+<p>The geodesic equation $\ddot\xi^k+\Gamma_{ij}{}^k\dot\xi^i\dot\xi^j=0$ (5.54) needs a connection. On the Gaussian manifold there are three natural ones. The <b>e-connection</b> declares the coordinate lines of $\theta=(\mu/\sigma^2,-1/2\sigma^2)$ straight, the <b>m-connection</b> those of $\eta=(\mu,\mu^2+\sigma^2)$, and the <b>Levi-Civita</b> connection is the one tied to the Fisher metric; it is their average.
+Start all of them at the same point with the same velocity. The black dashed curve is a connection in between, $(1-s)\Gamma^e+s\Gamma^m$. The picture uses $(\mu/\sqrt2,\sigma)$ so that Levi-Civita geodesics are true semicircles. Only the Levi-Civita curve keeps its speed, and only it is also the <i>shortest</i> curve between its endpoints (Theorem 5.2): compare the Fisher length of each curve with the Fisher–Rao distance between its endpoints.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>$\mu_0$ <input type="range" id="w3m" min="-2" max="4" step="0.05" value="1"><output id="w3mo"></output></label>
+    <label>$\sigma_0$ <input type="range" id="w3s" min="0.5" max="3" step="0.05" value="2"><output id="w3so"></output></label>
+    <label>$\dot\mu$ <input type="range" id="w3a" min="-2" max="2" step="0.05" value="1"><output id="w3ao"></output></label>
+    <label>$\dot\sigma$ <input type="range" id="w3b" min="-2" max="2" step="0.05" value="0.5"><output id="w3bo"></output></label>
+    <label>$T$ <input type="range" id="w3T" min="0.2" max="3" step="0.05" value="1"><output id="w3To"></output></label>
+    <label>$s$ <input type="range" id="w3d" min="0" max="1" step="0.01" value="0.25"><output id="w3do"></output></label>
+  </div>
+  <svg id="w3v" viewBox="0 0 700 330" role="img" aria-label="Geodesics of three connections from one point with one velocity"></svg>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>e</span><span><span class="sw" style="border-color:var(--s2)"></span>m</span><span><span class="sw" style="border-color:var(--s3)"></span>Levi-Civita</span><span><span class="sw dash" style="border-color:var(--ink)"></span>$(1-s)\Gamma^e+s\Gamma^m$</span></div>
+  <div id="w3tab"></div>
+</div>
+
+<h2>4. Parallel transport round a loop: holonomy</h2>
+<p>Carry a vector round the boundary of a coordinate rectangle $P\to Q\to R\to S\to P$ by solving (5.58). On a <b>flat</b> manifold it comes back unchanged. On the sphere it comes back rotated by the enclosed area times $K=1$; on the Gaussian manifold by area times $K=-1/2$, the other way round.
+In the plane with polar coordinates the <i>components</i> change all along the way, but the Cartesian arrow does not move: all the arrows are parallel and the loop does nothing. On the Gaussian manifold choose the connection with $s$: $s=0$ is e, $s=1$ is m, $s=\tfrac12$ is Levi-Civita. For e and m the loop returns the vector exactly (the connections are flat), but its Fisher length changes on the way; only $s=\tfrac12$ preserves it, and only $s=\tfrac12$ gives a pure rotation.
+Also read the last line: the two routes from $P$ to $R$ arrive at different vectors (path dependence, (5.59)).</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>space <select id="w4m"><option value="sphere">unit sphere (θ, φ)</option><option value="polar">plane, polar (r, ϑ)</option><option value="gauss">Gaussians (μ, σ)</option></select></label>
+    <label id="w4sl">$s$ <input type="range" id="w4s" min="0" max="1" step="0.01" value="0.5"><output id="w4so"></output></label>
+    <label><span id="w4l1">$\theta_1$</span> <input type="range" id="w4a" min="0" max="1" step="0.01" value="0.5"><output id="w4ao"></output></label>
+    <label><span id="w4l2">$\Delta\theta$</span> <input type="range" id="w4da" min="0" max="1" step="0.01" value="0.5"><output id="w4dao"></output></label>
+    <label><span id="w4l3">$\varphi_1$</span> <input type="range" id="w4b" min="0" max="1" step="0.01" value="0.5"><output id="w4bo"></output></label>
+    <label><span id="w4l4">$\Delta\varphi$</span> <input type="range" id="w4db" min="0" max="1" step="0.01" value="0.5"><output id="w4dbo"></output></label>
+    <label>vector angle <input type="range" id="w4p" min="0" max="360" step="1" value="0"><output id="w4po"></output></label>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 380" role="img" aria-label="The loop and the transported vector"></svg>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>start</span><span><span class="sw" style="border-color:var(--s3)"></span>transported along the way</span><span><span class="sw" style="border-color:var(--s2)"></span>after the loop</span></div>
+  <div class="stats" id="w4s_"></div>
+</div>
+
+<h2>5. The loop formula: no factor 2</h2>
+<p>The book derives curvature from a tiny quadrilateral $P,Q,R,S$ with sides $d_1\xi$ and $d_2\xi$: transport $A$ from $P$ to $R$ along $PQR$ and along $PSR$ and subtract. Its (5.65) reads $A_{21}-A_{12}=R_{jkl}{}^iA^l(d_1\xi^jd_2\xi^k-d_1\xi^kd_2\xi^j)$.
+Here the experiment is done honestly with the Runge–Kutta transport of widget 4 and the curvature tensor of (5.66). Shrink $\varepsilon$: the measured $(A_{21}-A_{12})/\varepsilon^2$ (green) converges to $R_{jkl}{}^iA^l\,u_1^ju_2^k$ (black), <i>half</i> of the printed right-hand side (red dashed), because the printed bracket counts each pair $(j,k)$ twice. The e-connection has $R=0$: everything collapses to zero.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>space <select id="w5m"><option value="sphere">unit sphere at (1, 0.4)</option><option value="gl">Gaussians, Levi-Civita at (1, 2)</option><option value="ge">Gaussians, e-connection at (1, 2)</option></select></label>
+    <label>$\log_{10}\varepsilon$ <input type="range" id="w5e" min="-2.3" max="-0.4" step="0.01" value="-1"><output id="w5eo"></output></label>
+    <label>$A^1$ <input type="range" id="w5a" min="-1" max="1" step="0.05" value="0.3"><output id="w5ao"></output></label>
+    <label>$A^2$ <input type="range" id="w5b" min="-1" max="1" step="0.05" value="0.8"><output id="w5bo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 316" role="img" aria-label="The quadrilateral and the two routes"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 316" role="img" aria-label="Measured difference, derived prediction and printed prediction in the plane of vector components"></svg></div>
+  </div>
+  <div class="key"><span><span class="sw" style="border-color:var(--s3)"></span>measured $(A_{21}-A_{12})/\varepsilon^2$</span><span><span class="sw" style="border-color:var(--ink)"></span>$R_{jkl}{}^iA^l u_1^ju_2^k$</span><span><span class="sw dash" style="border-color:var(--s2)"></span>printed (5.65): twice that</span></div>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>6. Flat inside, curved outside: unrolling a cylinder</h2>
+<p>Bend a flat sheet into a cylinder. The sheet's coordinates $(s,z)$ never change, the metric stays $\mathrm{diag}(1,1)$, the induced connection stays $0$, and a straight line stays a geodesic: the intrinsic (Riemann–Christoffel) curvature is $0$ throughout. What changes is the embedding: the acceleration of the geodesic in space is purely normal, with size $\kappa=u/R$ per unit speed squared, the embedding curvature $H_{ss}$ of (5.101)–(5.102). The Gauss curvature $K=\det H/\det g=\kappa\cdot0=0$.
+Move the bend $u$ from 0 (flat sheet) to 1 (full cylinder of radius $R$), and turn the view. Compare the sphere, where $H_{ab}=-g_{ab}/\rho$ in both directions, $\det H\neq0$, and $K=1/\rho^2$: no bending of a sheet can produce it.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>bend $u$ <input type="range" id="w6u" min="0" max="1" step="0.01" value="0.7"><output id="w6uo"></output></label>
+    <label>$R$ <input type="range" id="w6R" min="0.6" max="2" step="0.05" value="1"><output id="w6Ro"></output></label>
+    <label>slope <input type="range" id="w6c" min="-1" max="1" step="0.05" value="0.35"><output id="w6co"></output></label>
+    <label>turn <input type="range" id="w6y" min="-180" max="180" step="1" value="25"><output id="w6yo"></output></label>
+    <label>tilt <input type="range" id="w6p" min="5" max="85" step="1" value="30"><output id="w6po"></output></label>
+  </div>
+  <svg id="w6v" viewBox="0 0 700 340" role="img" aria-label="A flat sheet bent into a cylinder with a geodesic and its normal acceleration"></svg>
+  <div class="key"><span><span class="sw" style="border-color:var(--s1)"></span>geodesic (straight in the sheet)</span><span><span class="sw" style="border-color:var(--s2)"></span>acceleration in space (normal)</span></div>
+  <div class="stats" id="w6s_"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+function arrow(P,x1,y1,x2,y2,col,w,head,dash){
+ const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(!(L>1e-6))return;
+ const ux=dx/L,uy=dy/L,hh=Math.min(head||8,L*0.8),hx=x2-ux*hh,hy=y2-uy*hh;
+ el("line",{x1,y1,x2:hx,y2:hy,stroke:col,"stroke-width":w||2,"stroke-linecap":"round","stroke-dasharray":dash||""},P);
+ el("polygon",{points:`${x2},${y2} ${hx-uy*hh*0.42},${hy+ux*hh*0.42} ${hx+uy*hh*0.42},${hy-ux*hh*0.42}`,fill:col},P);
+}
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f6=v=>v.toFixed(6);
+const sg=(v,d)=>(v<0?"−":"+")+Math.abs(v).toFixed(d);
+const RT2=Math.SQRT2;
+
+// ---------- geometry of the examples: metric g, Christoffel symbols G[i][j][k] = Gamma_{ij}^k, transport, geodesics, curvature
+const Z2=()=>[[0,0],[0,0]],G0=()=>[Z2(),Z2()];
+const MET={sphere:x=>[[1,0],[0,Math.sin(x[0])**2]],polar:x=>[[1,0],[0,x[0]*x[0]]],gauss:x=>[[1/(x[1]*x[1]),0],[0,2/(x[1]*x[1])]]};
+const GAM={
+ sphere:x=>{const G=G0();G[1][1][0]=-Math.sin(x[0])*Math.cos(x[0]);G[0][1][1]=G[1][0][1]=Math.cos(x[0])/Math.sin(x[0]);return G},
+ polar:x=>{const G=G0();G[1][1][0]=-x[0];G[0][1][1]=G[1][0][1]=1/x[0];return G},
+ gE:x=>{const G=G0(),s=x[1];G[0][1][0]=G[1][0][0]=-2/s;G[1][1][1]=-3/s;return G},
+ gM:x=>{const G=G0(),s=x[1];G[0][0][1]=1/s;G[1][1][1]=1/s;return G},
+ gS:t=>x=>{const a=GAM.gE(x),b=GAM.gM(x),G=G0();for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++)G[i][j][k]=(1-t)*a[i][j][k]+t*b[i][j][k];return G}
+};
+function geo(G,x0,v0,T,n){
+ let s=[x0[0],x0[1],v0[0],v0[1]];const out=[s.slice()],dt=T/n;
+ const rhs=s=>{const Gm=G([s[0],s[1]]),a=[0,0];for(let k=0;k<2;k++){let t=0;for(let i=0;i<2;i++)for(let j=0;j<2;j++)t+=Gm[i][j][k]*s[2+i]*s[2+j];a[k]=-t}return [s[2],s[3],a[0],a[1]]};
+ for(let it=0;it<n;it++){
+  const k1=rhs(s),k2=rhs(s.map((v,i)=>v+dt/2*k1[i])),k3=rhs(s.map((v,i)=>v+dt/2*k2[i])),k4=rhs(s.map((v,i)=>v+dt*k3[i]));
+  s=s.map((v,i)=>v+dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]));
+  if(!isFinite(s[0])||!isFinite(s[1])||s[1]<0.02||s[1]>40)break;
+  out.push(s.slice());
+ }
+ return out;
+}
+function transport(G,pts,A0,steps){
+ let A=A0.slice();const rec=[{x:pts[0].slice(),A:A.slice()}];
+ for(let q=0;q<pts.length-1;q++){
+  const p=pts[q],r=pts[q+1],xd=[r[0]-p[0],r[1]-p[1]];
+  const rhs=(t,A)=>{const Gm=G([p[0]+t*xd[0],p[1]+t*xd[1]]),o=[0,0];for(let i=0;i<2;i++){let s=0;for(let j=0;j<2;j++)for(let k=0;k<2;k++)s+=Gm[j][k][i]*xd[j]*A[k];o[i]=-s}return o};
+  const dt=1/steps;let t=0;
+  for(let it=0;it<steps;it++){
+   const k1=rhs(t,A),k2=rhs(t+dt/2,A.map((v,i)=>v+dt/2*k1[i])),k3=rhs(t+dt/2,A.map((v,i)=>v+dt/2*k2[i])),k4=rhs(t+dt,A.map((v,i)=>v+dt*k3[i]));
+   A=A.map((v,i)=>v+dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]));t+=dt;
+   rec.push({x:[p[0]+t*xd[0],p[1]+t*xd[1]],A:A.slice()});
+  }
+ }
+ return rec;
+}
+const quad=(g,A)=>A[0]*A[0]*g[0][0]+2*A[0]*A[1]*g[0][1]+A[1]*A[1]*g[1][1];
+const angle=(g,A,B)=>{const c=A[0]*(g[0][0]*B[0]+g[0][1]*B[1])+A[1]*(g[1][0]*B[0]+g[1][1]*B[1]),det=g[0][0]*g[1][1]-g[0][1]*g[1][0],s=Math.sqrt(det)*(A[0]*B[1]-A[1]*B[0]);return Math.atan2(s,c)};
+function riem(G,x){
+ const h=1e-5,dG=[0,1].map(i=>{const xp=x.slice(),xm=x.slice();xp[i]+=h;xm[i]-=h;const a=G(xp),b=G(xm);return a.map((r,j)=>r.map((c,k)=>c.map((v,l)=>(v-b[j][k][l])/(2*h))))});
+ const Gm=G(x),R=[0,1].map(()=>[0,1].map(()=>[0,1].map(()=>[0,0])));
+ for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++)for(let l=0;l<2;l++){
+  let v=dG[i][j][k][l]-dG[j][i][k][l];
+  for(let m=0;m<2;m++)v+=Gm[i][m][l]*Gm[j][k][m]-Gm[j][m][l]*Gm[i][k][m];
+  R[i][j][k][l]=v;
+ }
+ return R;
+}
+const loopPts=(a,da,b,db)=>[[a,b],[a+da,b],[a+da,b+db],[a,b+db],[a,b]];
+const frD=(m1,s1,m2,s2)=>Math.SQRT2*Math.acosh(1+((m1-m2)**2/2+(s1-s2)**2)/(2*s1*s2));
+
+// ===== widget 1: a tangent vector is a random variable
+(function(){
+ const gaussP=(x,m,s)=>Math.exp(-((x-m)*(x-m))/(2*s*s))/(s*Math.sqrt(2*Math.PI));
+ function draw(){
+  const m=+g("w1m").value,s=+g("w1s").value,Am=+g("w1a").value,As=+g("w1b").value;
+  g("w1mo").textContent=f2(m);g("w1so").textContent=f2(s);g("w1ao").textContent=f2(Am);g("w1bo").textContent=f2(As);
+  const L=g("w1l");clear(L);
+  const A=axes(L,36,16,296,190,[-3.5,4.0],[0,4.8],"parameter plane, x = μ/√2 and σ","x = μ/√2");
+  const x0=m/RT2,px=A.w/7.5;
+  el("circle",{cx:A.X(x0),cy:A.Y(s),r:s/RT2*px,fill:"var(--s1)","fill-opacity":0.08,stroke:"var(--s1)","stroke-width":1.2,"stroke-dasharray":"4 3"},A.G);
+  arrow(A.G,A.X(x0),A.Y(s),A.X(x0+Am/RT2),A.Y(s+As),"var(--s1)",2.6,9);
+  el("circle",{cx:A.X(x0),cy:A.Y(s),r:4.5,fill:"var(--ink)"},A.G);
+  // right panel
+  const R=g("w1r");clear(R);
+  const xr=[m-4.5*s,m+4.5*s],n=240,xs=[];for(let i=0;i<=n;i++)xs.push(xr[0]+(xr[1]-xr[0])*i/n);
+  const eps=0.25,m2=m+eps*Am,s2=Math.max(0.12,s+eps*As);
+  const p1=xs.map(x=>gaussP(x,m,s)),p2=xs.map(x=>gaussP(x,m2,s2));
+  const top=axes(R,36,16,296,128,xr,[0,Math.max(...p1,...p2)*1.15],"p(x; ξ) and p(x; ξ + 0.25 A)",null);
+  path(top.G,xs.map((x,i)=>[top.X(x),top.Y(p1[i])]),"var(--ink)",2);
+  path(top.G,xs.map((x,i)=>[top.X(x),top.Y(p2[i])]),"var(--s1)",1.8,"5 3");
+  const fx=x=>Am*(x-m)/(s*s)+As*((x-m)**2-s*s)/(s**3);
+  const t1=x=>Am*(x-m)/(s*s),t2=x=>As*((x-m)**2-s*s)/(s**3);
+  const Ath=[Am/(s*s)-2*m*As/(s**3),As/(s**3)],fth=x=>Ath[0]*(x-m)+Ath[1]*(x*x-(m*m+s*s));
+  const fs=xs.map(fx),mx=Math.max(1e-9,...fs.map(Math.abs),...xs.map(t1).map(Math.abs),...xs.map(t2).map(Math.abs))*1.1;
+  const bot=axes(R,36,176,296,126,xr,[-mx,mx],"f(x), the score of A (dashed: its two terms)","x");
+  el("line",{x1:bot.X(xr[0]),x2:bot.X(xr[1]),y1:bot.Y(0),y2:bot.Y(0),stroke:"var(--faint)","stroke-width":1},bot.G);
+  path(bot.G,xs.map(x=>[bot.X(x),bot.Y(t1(x))]),"var(--s2)",1.4,"4 3");
+  path(bot.G,xs.map(x=>[bot.X(x),bot.Y(t2(x))]),"var(--s3)",1.4,"4 3");
+  path(bot.G,xs.map((x,i)=>[bot.X(x),bot.Y(fs[i])]),"var(--s1)",2.6);
+  for(let i=0;i<=24;i++){const x=xr[0]+(xr[1]-xr[0])*i/24;el("circle",{cx:bot.X(x),cy:bot.Y(fth(x)),r:2.6,fill:"var(--ink)"},bot.G)}
+  // moments
+  const N=4000,lo=m-9*s,hi=m+9*s,dx=(hi-lo)/N;let e1=0,e2=0,mxd=0;
+  for(let i=0;i<N;i++){const x=lo+(i+0.5)*dx,p=gaussP(x,m,s),f=fx(x);e1+=f*p*dx;e2+=f*f*p*dx;mxd=Math.max(mxd,Math.abs(f-fth(x)))}
+  g("w1s_").innerHTML=`<div>A in θ: (${f4(Ath[0])}, ${f4(Ath[1])})</div><div>|A|² = A<sup>T</sup>gA = (A<sup>μ</sup>)²/σ² + 2(A<sup>σ</sup>)²/σ² <b>${f4((Am*Am+2*As*As)/(s*s))}</b></div><div>E[f²] by integration <b>${f4(e2)}</b></div><div>E[f] <b>${e1.toExponential(1)}</b></div><div>θ route vs μσ route: max difference <b>${mxd.toExponential(1)}</b></div>`;
+  g("w1n").textContent="Blue: f(x). Dashed orange and green: the two terms A^μ ∂_μ log p and A^σ ∂_σ log p, the basis scores weighted by the components. Black dots: the same random variable from the θ components and the θ scores x − η₁ and x² − η₂.";
+ }
+ ["w1m","w1s","w1a","w1b"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 2: the polar frame
+(function(){
+ function draw(){
+  const r=+g("w2r").value,th=+g("w2t").value*Math.PI/180,dr=+g("w2dr").value,dth=+g("w2dt").value;
+  g("w2ro").textContent=f2(r);g("w2to").textContent=g("w2t").value+"°";g("w2dro").textContent=f2(dr);g("w2dto").textContent=f2(dth);
+  const S=g("w2v");clear(S);
+  const A=axes(S,10,10,320,320,[-3.8,3.8],[-3.8,3.8],"","");
+  for(const rr of [1,2,3])path(A.G,Array.from({length:121},(_,i)=>{const t=i/120*2*Math.PI;return [A.X(rr*Math.cos(t)),A.Y(rr*Math.sin(t))]}),"var(--line)",1);
+  for(let k=0;k<12;k++){const t=k*Math.PI/6;path(A.G,[[A.X(0),A.Y(0)],[A.X(3.7*Math.cos(t)),A.Y(3.7*Math.sin(t))]],"var(--line)",0.8)}
+  const er=(r,t)=>[Math.cos(t),Math.sin(t)],et=(r,t)=>[-r*Math.sin(t),r*Math.cos(t)];
+  const P=[r*Math.cos(th),r*Math.sin(th)],r2=r+dr,t2=th+dth,P2=[r2*Math.cos(t2),r2*Math.sin(t2)];
+  const e1=er(r,th),e2=et(r,th),f1=er(r2,t2),f2_=et(r2,t2);
+  el("circle",{cx:A.X(P2[0]),cy:A.Y(P2[1]),r:3.5,fill:"var(--faint)"},A.G);
+  el("line",{x1:A.X(P[0]),y1:A.Y(P[1]),x2:A.X(P2[0]),y2:A.Y(P2[1]),stroke:"var(--faint)","stroke-width":1,"stroke-dasharray":"3 3"},A.G);
+  const tip=(v)=>[A.X(P[0]+v[0]),A.Y(P[1]+v[1])];
+  // frame at P2 moved back to P (dashed), difference (green)
+  arrow(A.G,A.X(P[0]),A.Y(P[1]),...tip(f1),"var(--s1)",2,7,"4 3");
+  arrow(A.G,A.X(P[0]),A.Y(P[1]),...tip(f2_),"var(--s2)",2,7,"4 3");
+  arrow(A.G,...tip(e1),...tip(f1),"var(--s3)",2.4,7);
+  arrow(A.G,...tip(e2),...tip(f2_),"var(--s3)",2.4,7);
+  arrow(A.G,A.X(P[0]),A.Y(P[1]),...tip(e1),"var(--s1)",2.8,9);
+  arrow(A.G,A.X(P[0]),A.Y(P[1]),...tip(e2),"var(--s2)",2.8,9);
+  el("circle",{cx:A.X(P[0]),cy:A.Y(P[1]),r:4.5,fill:"var(--ink)"},A.G);
+  // exact components of the differences in the basis (e_r, e_theta) at P, and the first-order prediction
+  const det=e1[0]*e2[1]-e1[1]*e2[0];
+  const comp=v=>[(v[0]*e2[1]-v[1]*e2[0])/det,(e1[0]*v[1]-e1[1]*v[0])/det];
+  const d1=comp([f1[0]-e1[0],f1[1]-e1[1]]),d2=comp([f2_[0]-e2[0],f2_[1]-e2[1]]);
+  const p1=[0,dth/r],p2=[-r*dth,dr/r];
+  const row=(lab,ex,pr)=>`<tr><td>${lab}</td><td><b>${f4(ex[0])}</b></td><td><b>${f4(ex[1])}</b></td><td>${f4(pr[0])}</td><td>${f4(pr[1])}</td></tr>`;
+  g("w2tab").innerHTML=`<table class="t"><tr><th></th><th colspan="2">exact, in basis (e<sub>r</sub>, e<sub>ϑ</sub>) at P</th><th colspan="2">first order, Γ<sub>ki</sub><sup>j</sup> dξ<sup>k</sup></th></tr><tr><th></th><th>e<sub>r</sub>-comp</th><th>e<sub>ϑ</sub>-comp</th><th>e<sub>r</sub>-comp</th><th>e<sub>ϑ</sub>-comp</th></tr>${row("de<sub>r</sub>",d1,p1)}${row("de<sub>ϑ</sub>",d2,p2)}</table>
+  <div class="stats"><div>Γ<sub>ϑϑ</sub><sup>r</sup> = −r <b>${f3(-r)}</b></div><div>Γ<sub>rϑ</sub><sup>ϑ</sup> = 1/r <b>${f3(1/r)}</b></div><div>g = diag(1, r²) <b>${f3(r*r)}</b></div><div>|e<sub>ϑ</sub>| = r <b>${f3(r)}</b></div></div>
+  <div class="cap">de<sub>r</sub> = Γ<sub>ϑr</sub><sup>ϑ</sup> dϑ e<sub>ϑ</sub> = (dϑ/r) e<sub>ϑ</sub>: moving round the circle, the radial vector turns toward e<sub>ϑ</sub> by the angle dϑ. de<sub>ϑ</sub> = −r dϑ e<sub>r</sub> + (dr/r) e<sub>ϑ</sub>: it turns back toward the centre, and stretches with r. Make dξ small: the exact and first-order columns agree to second order.</div>`;
+ }
+ ["w2r","w2t","w2dr","w2dt"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: geodesics under three connections
+(function(){
+ function draw(){
+  const m0=+g("w3m").value,s0=+g("w3s").value,va=+g("w3a").value,vb=+g("w3b").value,T=+g("w3T").value,dial=+g("w3d").value;
+  g("w3mo").textContent=f2(m0);g("w3so").textContent=f2(s0);g("w3ao").textContent=f2(va);g("w3bo").textContent=f2(vb);g("w3To").textContent=f2(T);g("w3do").textContent=f2(dial);
+  const S=g("w3v");clear(S);
+  const x0=m0/RT2;
+  const defs=[["e",GAM.gE,"var(--s1)",""],["m",GAM.gM,"var(--s2)",""],["LC",GAM.gS(0.5),"var(--s3)",""],["s="+f2(dial),GAM.gS(dial),"var(--ink)","6 4"]];
+  const runs=defs.map(d=>geo(d[1],[m0,s0],[va,vb],T,500));
+  let xlo=x0,xhi=x0,ylo=s0,yhi=s0;
+  runs.forEach(st=>st.forEach(q=>{const x=q[0]/RT2;xlo=Math.min(xlo,x);xhi=Math.max(xhi,x);ylo=Math.min(ylo,q[1]);yhi=Math.max(yhi,q[1])}));
+  const W=640,H=270,asp=W/H;
+  let wx=Math.max((xhi-xlo)*1.3,0.4),wy=Math.max((yhi-ylo)*1.3,0.4);
+  if(wx/wy<asp)wx=wy*asp;else wy=wx/asp;
+  const cxm=(xlo+xhi)/2;let cym=(ylo+yhi)/2;
+  let yr0=cym-wy/2;if(yr0<0)yr0=0;
+  const A=axes(S,40,12,W,H,[cxm-wx/2,cxm+wx/2],[yr0,yr0+wy],"","x = μ/√2  (so that Levi-Civita geodesics are true semicircles)");
+  const rows=[];
+  defs.forEach(([lab,G,col,dash],di)=>{
+   const st=runs[di],n=st.length-1;
+   path(A.G,st.map(q=>[A.X(q[0]/RT2),A.Y(q[1])]),col,dash?2:2.6,dash);
+   const end=st[n];el("circle",{cx:A.X(end[0]/RT2),cy:A.Y(end[1]),r:4.6,fill:col},A.G);
+   const sp0=Math.sqrt(quad(MET.gauss([st[0][0],st[0][1]]),[st[0][2],st[0][3]]));let len=0,spe=sp0,prev=sp0;
+   for(let i=1;i<=n;i++){const sp=Math.sqrt(quad(MET.gauss([st[i][0],st[i][1]]),[st[i][2],st[i][3]]));len+=(sp+prev)/2*(T/500);prev=sp;spe=sp}
+   const d=frD(m0,s0,end[0],end[1]);
+   rows.push(`<tr><td><b>${lab}</b></td><td>(${f4(end[0])}, ${f4(end[1])})</td><td>${f4(sp0)} → ${f4(spe)}</td><td>${f4(len)}</td><td>${f4(d)}</td><td><b>${f4(len/d)}</b>${n<500?" (left the chart)":""}</td></tr>`);
+  });
+  el("circle",{cx:A.X(x0),cy:A.Y(s0),r:5.5,fill:"var(--ink)"},A.G);
+  arrow(A.G,A.X(x0),A.Y(s0),A.X(x0+0.5*va/RT2),A.Y(s0+0.5*vb),"var(--ink)",2,8);
+  g("w3tab").innerHTML=`<table class="t"><tr><th>connection</th><th>endpoint (μ, σ) at t = T</th><th>speed at 0 → T</th><th>Fisher length</th><th>Fisher–Rao distance of endpoints</th><th>length / distance</th></tr>${rows.join("")}</table>
+  <div class="cap">Only Levi-Civita keeps the speed, and only its length ratio is exactly 1: a curve that is straight for another connection (e, m, or the mixture) is longer than the shortest path between its own endpoints. The arrow is the common initial velocity (drawn at half length).</div>`;
+ }
+ ["w3m","w3s","w3a","w3b","w3T","w3d"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 4: parallel transport round a rectangle
+(function(){
+ const cart=(th,ph)=>[Math.sin(th)*Math.cos(ph),Math.sin(th)*Math.sin(ph),Math.cos(th)];
+ function camera(thc,phc){
+  const c=cart(thc,phc);let up=[0,0,1];if(Math.abs(c[2])>0.98)up=[0,1,0];
+  const d=up[0]*c[0]+up[1]*c[1]+up[2]*c[2];let u=[up[0]-d*c[0],up[1]-d*c[1],up[2]-d*c[2]];const nu=Math.hypot(...u);u=u.map(v=>v/nu);
+  const mc=[-c[0],-c[1],-c[2]],r=[mc[1]*u[2]-mc[2]*u[1],mc[2]*u[0]-mc[0]*u[2],mc[0]*u[1]-mc[1]*u[0]];
+  return {c,r,u};
+ }
+ const SP={
+  sphere:{lab:["θ₁","Δθ","φ₁","Δφ"],a:[0.3,2.4,0.8],da:[0.1,1.2,0.8],b:[0,3.2,0.2],db:[0.1,2.8,1.2]},
+  polar:{lab:["r₁","Δr","ϑ₁","Δϑ"],a:[0.6,2.5,1.0],da:[0.2,1.5,1.0],b:[0,6.2,0.3],db:[0.2,3.1,1.6]},
+  gauss:{lab:["μ₁","Δμ","σ₁","Δσ"],a:[-1.5,2,0],da:[0.2,3,1.5],b:[0.5,2,1.0],db:[0.2,2,1.0]}
+ };
+ function setRanges(){
+  const k=g("w4m").value,sp=SP[k];
+  [["w4a","a"],["w4da","da"],["w4b","b"],["w4db","db"]].forEach(([id,key],i)=>{const e=g(id);e.min=sp[key][0];e.max=sp[key][1];e.step=0.01;e.value=sp[key][2];g("w4l"+(i+1)).textContent=sp.lab[i]});
+  g("w4sl").style.display=k==="gauss"?"":"none";
+ }
+ function draw(){
+  const k=g("w4m").value,s=+g("w4s").value;
+  const a1=+g("w4a").value;let da=+g("w4da").value,b1=+g("w4b").value,db=+g("w4db").value;
+  if(k==="sphere")da=Math.min(da,3.0-a1);
+  g("w4so").textContent=f2(s);g("w4ao").textContent=f2(a1);g("w4dao").textContent=f2(da);g("w4bo").textContent=f2(b1);g("w4dbo").textContent=f2(db);g("w4po").textContent=g("w4p").value+"°";
+  const psi=+g("w4p").value*Math.PI/180;
+  const G=k==="sphere"?GAM.sphere:k==="polar"?GAM.polar:GAM.gS(s),met=MET[k];
+  const loop=loopPts(a1,da,b1,db),P=loop[0],gP=met(P);
+  const A0=[Math.cos(psi)/Math.sqrt(gP[0][0]),Math.sin(psi)/Math.sqrt(gP[1][1])];
+  const rec=transport(G,loop,A0,200),end=rec[rec.length-1].A,nrec=rec.length-1;
+  let lmin=1e9,lmax=-1e9;rec.forEach(q=>{const l=Math.sqrt(quad(met(q.x),q.A));lmin=Math.min(lmin,l);lmax=Math.max(lmax,l)});
+  const rot=angle(gP,A0,end);
+  const R=loop[2],viaQ=transport(G,[loop[0],loop[1],loop[2]],A0,200),viaS=transport(G,[loop[0],loop[3],loop[2]],A0,200);
+  const aQ=viaQ[viaQ.length-1].A,aS=viaS[viaS.length-1].A,gR=met(R),pathdiff=angle(gR,aS,aQ);
+  const S=g("w4v");clear(S);
+  const idx=[1,2,3,4,5,6,7,8,9,10,11].map(i=>Math.round(i*nrec/12));
+  if(k==="sphere"){
+   const cx=190,cy=190,Rp=165;
+   const tc=a1+da/2+(0),pc=b1+db/2;
+   const cm=camera(Math.min(2.9,Math.max(0.25,tc)),pc),scr=p3=>[cx+Rp*(p3[0]*cm.r[0]+p3[1]*cm.r[1]+p3[2]*cm.r[2]),cy-Rp*(p3[0]*cm.u[0]+p3[1]*cm.u[1]+p3[2]*cm.u[2])];
+   const vis=p3=>p3[0]*cm.c[0]+p3[1]*cm.c[1]+p3[2]*cm.c[2]>0.02;
+   el("circle",{cx,cy,r:Rp,fill:"var(--soft)",stroke:"var(--faint)","stroke-width":1.2},S);
+   const curve=(fn,N,t0,t1)=>{let seg=[];for(let i=0;i<=N;i++){const q=fn(t0+(t1-t0)*i/N),p3=cart(q[0],q[1]);if(vis(p3))seg.push(scr(p3));else{if(seg.length>1)path(S,seg,"var(--line)",0.9);seg=[]}}if(seg.length>1)path(S,seg,"var(--line)",0.9)};
+   for(let j=0;j<12;j++)curve(t=>[t,j*Math.PI/6],90,0.02,Math.PI-0.02);
+   for(let j=1;j<6;j++)curve(t=>[j*Math.PI/6,t],180,0,2*Math.PI);
+   const dense=[];for(let q=0;q<4;q++)for(let i=0;i<40;i++){const p=loop[q],r=loop[q+1],t=i/40;dense.push([p[0]+t*(r[0]-p[0]),p[1]+t*(r[1]-p[1])])}dense.push(loop[4]);
+   path(S,dense.map(q=>scr(cart(q[0],q[1]))),"var(--ink)",2.6);
+   const t3=(x,A)=>{const th=x[0],ph=x[1],eth=[Math.cos(th)*Math.cos(ph),Math.cos(th)*Math.sin(ph),-Math.sin(th)],eph=[-Math.sin(th)*Math.sin(ph),Math.sin(th)*Math.cos(ph),0];return [A[0]*eth[0]+A[1]*eph[0],A[0]*eth[1]+A[1]*eph[1],A[0]*eth[2]+A[1]*eph[2]]};
+   const drawA=(x,A,col,w,hd)=>{const p3=cart(x[0],x[1]),v=t3(x,A).map(c=>c*0.3),a=scr(p3),b=scr([p3[0]+v[0],p3[1]+v[1],p3[2]+v[2]]);arrow(S,a[0],a[1],b[0],b[1],col,w,hd)};
+   idx.forEach(i=>drawA(rec[i].x,rec[i].A,"var(--s3)",1.8,6));
+   drawA(rec[0].x,rec[0].A,"var(--s1)",3.2,9);drawA(rec[nrec].x,rec[nrec].A,"var(--s2)",3.2,9);
+   const c0=scr(cart(P[0],P[1]));el("circle",{cx:c0[0],cy:c0[1],r:3.5,fill:"var(--ink)"},S);
+  }else if(k==="polar"){
+   const A=axes(S,40,10,360,360,[-4,4],[-4,4],"","");
+   for(const rr of [1,2,3,4])path(A.G,Array.from({length:121},(_,i)=>{const t=i/120*2*Math.PI;return [A.X(rr*Math.cos(t)),A.Y(rr*Math.sin(t))]}),"var(--line)",0.9);
+   for(let j=0;j<12;j++){const t=j*Math.PI/6;path(A.G,[[A.X(0),A.Y(0)],[A.X(4*Math.cos(t)),A.Y(4*Math.sin(t))]],"var(--line)",0.8)}
+   const dense=[];for(let q=0;q<4;q++)for(let i=0;i<40;i++){const p=loop[q],r=loop[q+1],t=i/40;dense.push([p[0]+t*(r[0]-p[0]),p[1]+t*(r[1]-p[1])])}dense.push(loop[4]);
+   path(A.G,dense.map(q=>[A.X(q[0]*Math.cos(q[1])),A.Y(q[0]*Math.sin(q[1]))]),"var(--ink)",2.6);
+   const drawA=(x,Av,col,w,hd)=>{const r=x[0],t=x[1],vx=Av[0]*Math.cos(t)-Av[1]*r*Math.sin(t),vy=Av[0]*Math.sin(t)+Av[1]*r*Math.cos(t),L=Math.hypot(vx,vy),sc=L>0?0.7/Math.max(L,1e-9)*Math.min(L,1.0):0;
+    arrow(A.G,A.X(r*Math.cos(t)),A.Y(r*Math.sin(t)),A.X(r*Math.cos(t)+vx*0.7),A.Y(r*Math.sin(t)+vy*0.7),col,w,hd)};
+   idx.forEach(i=>drawA(rec[i].x,rec[i].A,"var(--s3)",1.8,6));
+   drawA(rec[0].x,rec[0].A,"var(--s1)",3.2,9);drawA(rec[nrec].x,rec[nrec].A,"var(--s2)",3.2,9);
+  }else{
+   const xr=[(a1-0.8)/RT2,(a1+da+1.2)/RT2],yr0=Math.max(0,b1-0.5),yr=[yr0,b1+db+0.45];
+   const sc=Math.min(520/(xr[1]-xr[0]),300/(yr[1]-yr[0])),w=sc*(xr[1]-xr[0]),h=sc*(yr[1]-yr[0]);
+   const A=axes(S,60,16,w,h,xr,yr,"","x = μ/√2  (angles are true in these coordinates)");
+   el("text",{x:36,y:16+h/2,fill:"var(--muted)","font-size":11,transform:`rotate(-90 36 ${16+h/2})`,"text-anchor":"middle"},S).textContent="σ";
+   path(A.G,loop.map(q=>[A.X(q[0]/RT2),A.Y(q[1])]),"var(--ink)",2.6);
+   const drawA=(x,Av,col,w2,hd)=>{const L=Math.sqrt(quad(MET.gauss(x),Av)),dx=Av[0]/RT2,dy=Av[1],nn=Math.hypot(dx,dy),len=0.2*x[1]*L;
+    arrow(A.G,A.X(x[0]/RT2),A.Y(x[1]),A.X(x[0]/RT2+dx/nn*len),A.Y(x[1]+dy/nn*len),col,w2,hd)};
+   idx.forEach(i=>drawA(rec[i].x,rec[i].A,"var(--s3)",1.8,6));
+   drawA(rec[0].x,rec[0].A,"var(--s1)",3.2,9);drawA(rec[nrec].x,rec[nrec].A,"var(--s2)",3.2,9);
+   el("circle",{cx:A.X(P[0]/RT2),cy:A.Y(P[1]),r:3.5,fill:"var(--ink)"},A.G);
+  }
+  let pred="";
+  if(k==="sphere"){const area=(Math.cos(a1)-Math.cos(a1+da))*db;pred=`<div>K × area = 1 × ${f4(area)} <b>${f4(area)}</b></div>`}
+  else if(k==="polar"){pred=`<div>K = 0: the loop does nothing <b>0</b></div>`}
+  else{const area=RT2*da*(1/b1-1/(b1+db));pred=Math.abs(s-0.5)<1e-9?`<div>K × area = −½ × ${f4(area)} <b>${sg(-0.5*area,4)}</b></div>`:`<div>R<sub>s</sub> = 4s(1−s) R<sub>LC</sub> <b>${f4(4*s*(1-s))}</b> × Levi-Civita's</div>`}
+  g("w4s_").innerHTML=`<div>turned by <b>${sg(rot,4)}</b> rad (${sg(rot*180/Math.PI,1)}°)</div>${pred}<div>vector length min → max <b>${f4(lmin)} → ${f4(lmax)}</b>, at the end ${f4(Math.sqrt(quad(gP,end)))}</div><div>final minus initial components <b>(${sg(end[0]-A0[0],4)}, ${sg(end[1]-A0[1],4)})</b></div><div>two routes P→R: ${sg(pathdiff,4)} rad apart</div>`;
+ }
+ g("w4m").addEventListener("change",()=>{setRanges();draw()});["w4s","w4a","w4da","w4b","w4db","w4p"].forEach(i=>g(i).addEventListener("input",draw));setRanges();draw();
+})();
+
+// ===== widget 5: the loop formula
+(function(){
+ const U1=[1,0.3],U2=[-0.2,1.0];
+ function draw(){
+  const k=g("w5m").value,eps=Math.pow(10,+g("w5e").value),A=[+g("w5a").value,+g("w5b").value];
+  g("w5eo").textContent=eps.toFixed(4);g("w5ao").textContent=f2(A[0]);g("w5bo").textContent=f2(A[1]);
+  const G=k==="sphere"?GAM.sphere:k==="gl"?GAM.gS(0.5):GAM.gE,x=k==="sphere"?[1.0,0.4]:[1.0,2.0];
+  const R=riem(G,x);let q=[0,0];
+  for(let i=0;i<2;i++){let s=0;for(let j=0;j<2;j++)for(let kk=0;kk<2;kk++)for(let l=0;l<2;l++)s+=R[j][kk][l][i]*A[l]*U1[j]*U2[kk];q[i]=s}
+  const P=x,Q=[x[0]+eps*U1[0],x[1]+eps*U1[1]],Rr=[Q[0]+eps*U2[0],Q[1]+eps*U2[1]],S=[x[0]+eps*U2[0],x[1]+eps*U2[1]];
+  const last=r=>r[r.length-1].A;
+  const a12=last(transport(G,[P,Q,Rr],A,60)),a21=last(transport(G,[P,S,Rr],A,60)),loop=last(transport(G,[P,Q,Rr,S,P],A,60));
+  const meas=[(a21[0]-a12[0])/(eps*eps),(a21[1]-a12[1])/(eps*eps)],lp=[(loop[0]-A[0])/(eps*eps),(loop[1]-A[1])/(eps*eps)];
+  const L=g("w5l");clear(L);
+  const Ax=axes(L,20,16,300,260,[-0.5,1.6],[-0.4,1.7],"the quadrilateral in units of ε","");
+  const pt=(u)=>[Ax.X(u[0]),Ax.Y(u[1])];
+  const C={P:[0,0],Q:U1,R:[U1[0]+U2[0],U1[1]+U2[1]],S:U2};
+  path(Ax.G,[pt(C.P),pt(C.Q),pt(C.R)],"var(--s1)",2.6);path(Ax.G,[pt(C.P),pt(C.S),pt(C.R)],"var(--s2)",2.6);
+  for(const key in C){const p=pt(C[key]);el("circle",{cx:p[0],cy:p[1],r:4,fill:"var(--ink)"},Ax.G);el("text",{x:p[0]+7,y:p[1]-7,fill:"var(--ink)","font-size":12},Ax.G).textContent=key}
+  el("text",{x:26,y:294,fill:"var(--muted)","font-size":10.5},L).textContent="blue: P→Q→R (A₁₂), orange: P→S→R (A₂₁)";
+  el("text",{x:26,y:309,fill:"var(--muted)","font-size":10.5},L).textContent="d₁ξ = ε(1, 0.3), d₂ξ = ε(−0.2, 1)";
+  const Rg=g("w5r");clear(Rg);
+  const mx=Math.max(1e-9,Math.hypot(...q)*2,Math.hypot(...meas))*1.2;
+  const B=axes(Rg,20,16,300,260,[-mx,mx],[-mx,mx],"in the plane of vector components (A¹, A²)","");
+  el("line",{x1:B.X(-mx),x2:B.X(mx),y1:B.Y(0),y2:B.Y(0),stroke:"var(--faint)","stroke-width":0.8},B.G);el("line",{x1:B.X(0),x2:B.X(0),y1:B.Y(-mx),y2:B.Y(mx),stroke:"var(--faint)","stroke-width":0.8},B.G);
+  arrow(B.G,B.X(0),B.Y(0),B.X(2*q[0]),B.Y(2*q[1]),"var(--s2)",2,8,"5 3");
+  arrow(B.G,B.X(0),B.Y(0),B.X(meas[0]),B.Y(meas[1]),"var(--s3)",3.2,9);
+  arrow(B.G,B.X(0),B.Y(0),B.X(q[0]),B.Y(q[1]),"var(--ink)",1.6,8);
+  const nq=Math.hypot(...q),nm=Math.hypot(...meas);
+  g("w5s").innerHTML=`<div>|measured| = |A₂₁ − A₁₂|/ε² <b>${f6(nm)}</b></div><div>|R<sub>jkl</sub><sup>i</sup> A<sup>l</sup> u₁<sup>j</sup> u₂<sup>k</sup>| <b>${f6(nq)}</b></div><div>ratio measured / derived <b>${nq>1e-9?f4(nm/nq):"–"}</b></div><div>ratio measured / printed (5.65) <b>${nq>1e-9?f4(nm/(2*nq)):"–"}</b></div><div>loop change / ε², P→Q→R→S→P: <b>(${sg(lp[0],5)}, ${sg(lp[1],5)})</b> against −derived (${sg(-q[0],5)}, ${sg(-q[1],5)})</div>`;
+ }
+ ["w5m","w5e","w5a","w5b"].forEach(i=>g(i).addEventListener("input",draw));g("w5m").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 6: unrolling a cylinder
+(function(){
+ function draw(){
+  const u=Math.max(0.02,+g("w6u").value),u0=+g("w6u").value,R=+g("w6R").value,c=+g("w6c").value,yaw=+g("w6y").value*Math.PI/180,tilt=+g("w6p").value*Math.PI/180;
+  g("w6uo").textContent=f2(u0);g("w6Ro").textContent=f2(R);g("w6co").textContent=f2(c);g("w6yo").textContent=g("w6y").value+"°";g("w6po").textContent=g("w6p").value+"°";
+  const S=g("w6v");clear(S);
+  const rho=R/u,W=Math.PI*R,H=2.4;
+  const pos=(s,z)=>{const ph=s/rho;return [rho*Math.sin(ph),rho*(1-Math.cos(ph)),z-H/2]};
+  const proj=p=>{const x=p[0]*Math.cos(yaw)-p[1]*Math.sin(yaw),y=p[0]*Math.sin(yaw)+p[1]*Math.cos(yaw);return [350+80*x,170-80*(p[2]*Math.cos(tilt)+y*Math.sin(tilt))]};
+  const line=(pts,col,w,dash)=>path(S,pts.map(proj),col,w,dash);
+  for(let k=-6;k<=6;k++){const s=k*W/6;line([pos(s,0),pos(s,H)],"var(--line)",1)}
+  for(let j=0;j<=6;j++){const z=j*H/6;line(Array.from({length:81},(_,i)=>pos(-W+2*W*i/80,z)),"var(--line)",1)}
+  line(Array.from({length:81},(_,i)=>pos(-W+2*W*i/80,0)),"var(--faint)",1.6);line(Array.from({length:81},(_,i)=>pos(-W+2*W*i/80,H)),"var(--faint)",1.6);
+  line([pos(-W,0),pos(-W,H)],"var(--faint)",1.6);line([pos(W,0),pos(W,H)],"var(--faint)",1.6);
+  // geodesic: straight in the sheet, z = z0 + c s
+  const z0=H/2,sMax=Math.min(W,(c===0?1e9:Math.abs((c>0?H-z0:z0)/c)));
+  line(Array.from({length:101},(_,i)=>{const s=-Math.min(W,(c===0?1e9:z0/Math.abs(c)))+(Math.min(W,(c===0?1e9:z0/Math.abs(c)))+sMax)*i/100;return pos(s,z0+c*s)}),"var(--s1)",3);
+  // velocity and acceleration at s = 0
+  const p0=pos(0,z0),sp=Math.hypot(1,c),vel=[1/sp*0.6,0,c/sp*0.6],cen=[0,1,0],acc=cen.map(v=>v*Math.min(1.4,u*1.0));
+  const a=proj(p0);
+  const tipV=proj([p0[0]+vel[0],p0[1]+vel[1],p0[2]+vel[2]]),tipA=proj([p0[0]+acc[0],p0[1]+acc[1],p0[2]+acc[2]]);
+  arrow(S,a[0],a[1],tipV[0],tipV[1],"var(--s1)",2.8,9);
+  if(u0>0.03)arrow(S,a[0],a[1],tipA[0],tipA[1],"var(--s2)",2.8,9);
+  el("circle",{cx:a[0],cy:a[1],r:4,fill:"var(--ink)"},S);
+  const kn=u0/R;
+  g("w6s_").innerHTML=`<div>intrinsic: metric diag(1, 1), Γ = 0, R<sub>ijk</sub><sup>l</sup> = <b>0</b></div><div>radius of the bend ρ = R/u <b>${u0>0.02?f3(rho):"∞"}</b></div><div>embedding curvature H<sub>ss</sub> = ⟨∇<sub>e<sub>s</sub></sub> e<sub>s</sub>, n⟩ = u/R <b>${f4(kn)}</b> per unit speed²</div><div>H<sub>zz</sub> = H<sub>sz</sub> = <b>0</b></div><div>K = det H / det g <b>${f4(kn*0)}</b></div><div>the geodesic's length is unchanged by bending <b>✓</b></div>`;
+ }
+ ["w6u","w6R","w6c","w6y","w6p"].forEach(i=>g(i).addEventListener("input",draw));draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
