@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invariant Geometry Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1d21; --muted:#5b5f68; --faint:#8a8880; --line:#e2dfd8; --soft:#f2f0ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --radius:12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417; --surface:#1b1d21; --ink:#ebebed; --muted:#a3a6ae; --faint:#85837b; --line:#2e3138; --soft:#23262b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:36px 16px 80px}
+a{color:var(--s1)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .4rem}
+h2{font-size:1.3rem;margin:2.6rem 0 .5rem;padding-top:.5rem;border-top:1px solid var(--line)}
+.lede{color:var(--muted);margin-bottom:1.2rem}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:.2rem 0 .7rem;font-size:.9rem}
+.controls label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.controls output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+button,select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+input[type=range]{accent-color:var(--s1);width:140px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:.5rem 0}
+.stats div{background:var(--soft);border-radius:8px;padding:6px 10px;font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted)}
+.stats b{font-size:1.02rem;color:var(--ink)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin:.4rem 0}
+.sw{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:6px;vertical-align:3px}
+.sw.dash{border-top-style:dashed}
+table.t{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums;margin:.5rem 0}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;color:var(--muted)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td b{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>Invariance, f-divergences and the Fisher metric, by hand</h1>
+<p class="lede">Companion to the notes on Chapter 3 of Amari's <i>Information Geometry and Its Applications</i>. <a href="../index.html">Back to the notes</a>.
+Everything here lives on a handful of outcomes, so every divergence is an exact sum and every "probability of a large deviation" an exact multinomial sum: no sampling anywhere. The numbers at the default settings match <code>code/invariant_geometry.py</code>.</p>
+
+<h2>1. Merging outcomes: the divergence can only drop, and drops by nothing exactly when the conditionals agree</h2>
+<p>Take two distributions $p,q$ on three outcomes and merge two of the outcomes into one cell, as if you could no longer tell them apart. For an $f$-divergence $D_f[p:q]=\sum_i p_if(q_i/p_i)$ the value after merging is never larger (Theorem 3.1, by Jensen's inequality), and it is unchanged exactly when $q_i/p_i$ is the same for the merged outcomes: then, inside the cell, $p$ and $q$ split their mass in the same proportions, so nothing about how they differ is lost. Press the button to make that happen. Now switch to the <b>squared Euclidean distance</b> or the <b>non-convex</b> $f$: after the same merge the number goes <i>up</i>, so they are not information-monotone. The variation distance never goes up but can stay put when the conditionals differ (strict convexity is missing).</p>
+<div class="widget" id="w1">
+  <div class="controls">
+    <label>$p_0$ <input type="range" id="w1p0" min="0.05" max="0.9" step="0.01" value="0.5"><output id="w1p0o"></output></label>
+    <label>$p_1$ <input type="range" id="w1p1" min="0.05" max="0.9" step="0.01" value="0.3"><output id="w1p1o"></output></label>
+    <label>$q_0$ <input type="range" id="w1q0" min="0.05" max="0.9" step="0.01" value="0.2"><output id="w1q0o"></output></label>
+    <label>$q_1$ <input type="range" id="w1q1" min="0.05" max="0.9" step="0.01" value="0.2"><output id="w1q1o"></output></label>
+  </div>
+  <div class="controls">
+    <label>merge <select id="w1m"><option value="12" selected>outcomes 1 and 2</option><option value="02">outcomes 0 and 2</option><option value="01">outcomes 0 and 1</option></select></label>
+    <label>divergence <select id="w1k"><option value="kl" selected>KL[p:q]</option><option value="dkl">dual KL, KL[q:p]</option><option value="chi2">χ² (α = 3)</option><option value="hell">Hellinger (α = 0)</option><option value="js">Jensen–Shannon</option><option value="tv">variation |1−u|</option><option value="sq">squared Euclid (not an f-divergence)</option><option value="nc">non-convex f (not an f-divergence)</option></select></label>
+    <button id="w1b" type="button">make the conditionals of the merged cell equal</button>
+  </div>
+  <svg id="w1v" viewBox="0 0 700 250" role="img" aria-label="Bars of p and q before and after merging two outcomes"></svg>
+  <div class="stats" id="w1s"></div>
+  <div class="key"><span><span class="sw" style="color:var(--s1)"></span>p</span><span><span class="sw" style="color:var(--s2)"></span>q</span><span>under each outcome: $u=q/p$</span></div>
+</div>
+
+<h2>2. The alpha family, and the sign of the linear term in (3.95)</h2>
+<p>The $\alpha$-divergence is $D_f$ for the function $f_\alpha(u)=\frac4{1-\alpha^2}(1-u^{(1+\alpha)/2})$ of (3.38). To use it on positive measures (where the total masses need not match) the book adds a linear term so that $f(1)=f'(1)=0$: the <b>standard</b> function. The printed (3.95) has the opposite sign of that term. Move $\alpha$ and watch the slope at $u=1$: the standard version has slope $0$, the function (3.38) has $-2/(1-\alpha)$, the printed one $-4/(1-\alpha)$. On probability distributions the linear term cancels and all three agree; make the mass of $n$ differ from 1 and only the standard one stays a divergence (non-negative). The dashed curve is the dual $f^*(u)=uf(1/u)$, which for the standard family is exactly $f_{-\alpha}$.</p>
+<div class="widget" id="w2">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w2a" min="-4" max="4" step="0.1" value="0"><output id="w2ao"></output></label>
+    <label>version <select id="w2v"><option value="std" selected>standard (+2(u−1)/(1−α))</option><option value="book">(3.38) (no linear term)</option><option value="print">(3.95) as printed (−2(u−1)/(1−α))</option></select></label>
+    <label>total mass of $n$ <input type="range" id="w2M" min="0.5" max="2" step="0.1" value="1"><output id="w2Mo"></output></label>
+  </div>
+  <svg id="w2p" viewBox="0 0 700 280" role="img" aria-label="The alpha function, its dual and the parabola"></svg>
+  <div id="w2tab"></div>
+  <div class="cap">$m=p=(.5,.3,.2)$ and $n=M\,q$ with $q=(.2,.2,.6)$, so $M=1$ is the case of two probability distributions. For $\alpha=\pm1$ the function (3.38) does not exist and (3.95) reduces to the standard one.</div>
+</div>
+
+<h2>3. Every f-divergence has the Fisher metric as its quadratic form</h2>
+<p>Expand $D_f[p:p+\varepsilon d]$ for small $\varepsilon$: the first-order term vanishes (because $f'(1)=0$ and $\sum d_i=0$) and the second-order term is $\tfrac12 f''(1)\sum d_i^2/p_i$, which is $f''(1)$ times half the Fisher information of the direction $d$ (3.67)–(3.68). So $D_f/\varepsilon^2$ should level off at that number: the plot shows how fast. The Jensen–Shannon divergence has $f''(1)=1/4$. Two functions fail: $(u-1)^4$ is convex with $f(1)=f'(1)=0$ but $f''(1)=0$, so the limit is $0$ and there is no metric; the variation distance $|1-u|$ is not differentiable at $1$ and $D/\varepsilon^2$ blows up like $1/\varepsilon$.</p>
+<div class="widget" id="w3">
+  <div class="controls">
+    <label>f <select id="w3f"><option value="kl" selected>KL (α = −1)</option><option value="chi2">χ² (α = 3)</option><option value="hell">Hellinger (α = 0)</option><option value="js">Jensen–Shannon</option><option value="tv">variation |1−u|</option><option value="quart">(u−1)⁴</option></select></label>
+    <label>direction <select id="w3d"><option value="a" selected>d = (.1, −.04, −.06)</option><option value="b">d = (.1, −.05, −.05)</option><option value="c">d = (0, .1, −.1)</option></select></label>
+    <label>log₁₀ ε <input type="range" id="w3e" min="-3" max="0.25" step="0.05" value="-1"><output id="w3eo"></output></label>
+  </div>
+  <svg id="w3v" viewBox="0 0 700 260" role="img" aria-label="The divergence divided by epsilon squared against epsilon"></svg>
+  <div class="stats" id="w3s"></div>
+</div>
+
+<h2>4. Zero forcing and zero avoiding: what the best approximation does depends on alpha</h2>
+<p>Approximate the two-humped distribution $p$ below (half $N(10,2^2)$, half $N(28,3^2)$ on 40 points, with a gap in the middle where $p$ is almost $0$) by the best discretised Gaussian, measured by $D_\alpha[p:q]$. For $\alpha\le-1$ the divergence is infinite if $q$ vanishes where $p$ does not, so the best $q$ must cover <i>both</i> humps (<b>zero avoiding</b>, a wide Gaussian that puts mass in the gap). For $\alpha\ge1$ it is infinite if $q$ is positive where $p$ vanishes, so the best $q$ hides inside one hump (<b>zero forcing</b>). The book's statement is about $\pm1$; slide $\alpha$ through $0$ and see where the fit actually jumps.</p>
+<div class="widget" id="w4">
+  <div class="controls">
+    <label>$\alpha$ <input type="range" id="w4a" min="-3" max="3" step="0.5" value="-1"><output id="w4ao"></output></label>
+    <label><input type="checkbox" id="w4l"> log scale</label>
+  </div>
+  <svg id="w4v" viewBox="0 0 700 250" role="img" aria-label="The two-humped distribution and the best Gaussian approximation"></svg>
+  <div class="stats" id="w4s"></div>
+  <div class="key"><span><span class="sw" style="color:var(--faint)"></span>p</span><span><span class="sw" style="color:var(--s1)"></span>best Gaussian q (grid search over μ, σ)</span></div>
+</div>
+
+<h2>5. Large deviations: the exponent is the KL divergence to the nearest point of the set</h2>
+<p>Draw $N$ values of $x\in\{0,1,2\}$ from $p=(.5,.3,.2)$ and let $\hat p$ be the empirical distribution. What is the probability that its mean is at least $a$, i.e. that $\hat p$ lands in the shaded corner $A$? Sanov's lemma and the large deviation theorem (3.55)–(3.59) say it decays like $e^{-NI}$ with $I=\min_{q\in A}\mathrm{KL}[q:p]$, reached at the <b>e-projection</b> $q^*$ of $p$ on $A$, which is the exponential tilt $q^*_i\propto p_ie^{\lambda x_i}$. The dots on the right are exact multinomial sums; the curve is the exponent corrected by the polynomial factor (Bahadur–Rao). Increase $N$: the dots approach $I$ from above, like $\log N/N$.</p>
+<div class="widget" id="w5">
+  <div class="controls">
+    <label>threshold $a$ <input type="range" id="w5a" min="0.8" max="1.5" step="0.1" value="1.1"><output id="w5ao"></output></label>
+    <label>$N$ <input type="range" id="w5n" min="10" max="400" step="10" value="100"><output id="w5no"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w5l" viewBox="0 0 340 300" role="img" aria-label="The simplex with the set A, the point p, the e-projection and the KL level set"></svg></div>
+    <div><svg id="w5r" viewBox="0 0 340 300" role="img" aria-label="Minus the logarithm of the probability divided by N against N"></svg></div>
+  </div>
+  <div class="stats" id="w5s"></div>
+</div>
+
+<h2>6. Theorem 3.2: the Fisher information integrated along either geodesic is the symmetrised KL</h2>
+<p>Join $p$ and $q$ by the e-geodesic $p_t\propto p^{1-t}q^t$ and by the m-geodesic $(1-t)p+tq$, and measure the Fisher information $g(t)$ of the moving point at each $t$. The theorem says the area under $g_e$ and the area under $g_m$ both equal $D[p:q]+D[q:p]$. The book prints <b>half</b> of that sum on the left of (3.66); the readout shows the full sum matching and half of it not. The two curves are very different (the m-geodesic's information is large where $p_t$ is nearly empty), yet their areas agree. The last number is $s^2$, the squared Fisher–Rao distance: always at most the area (Cauchy–Schwarz), so half the sum could never be equal to it.</p>
+<div class="widget" id="w6">
+  <div class="controls">
+    <label>$p_0$ <input type="range" id="w6p0" min="0.02" max="0.95" step="0.01" value="0.6"><output id="w6p0o"></output></label>
+    <label>$p_1$ <input type="range" id="w6p1" min="0.02" max="0.95" step="0.01" value="0.38"><output id="w6p1o"></output></label>
+    <label>$q_0$ <input type="range" id="w6q0" min="0.02" max="0.95" step="0.01" value="0.02"><output id="w6q0o"></output></label>
+    <label>$q_1$ <input type="range" id="w6q1" min="0.02" max="0.95" step="0.01" value="0.38"><output id="w6q1o"></output></label>
+  </div>
+  <svg id="w6v" viewBox="0 0 700 270" role="img" aria-label="The Fisher information along the e-geodesic and the m-geodesic"></svg>
+  <div class="stats" id="w6s"></div>
+</div>
+
+<h2>7. Chentsov: the Fisher weight is the only one that survives splitting an outcome</h2>
+<p>Split one outcome of $q$ into two with proportions $r=(\rho,1-\rho)$, so a distribution on $2$ outcomes becomes one on $3$ (a <i>Markov embedding</i>: you add randomness that does not depend on the parameter, so no information is gained). An invariant metric must give the pushed-forward vector the same length. Take a family of metrics $\sum_iZ_i^2/p_i^{\,a}$ ($a=1$ is the Fisher metric, $a=0$ the Euclidean one). The vector $e_1$ that carries the split cell has squared length multiplied by $\sum_ir_i^{2-a}$, equal to $1$ for every split only at $a=1$. Add the term $B(\sum Z_i)^2$ and nothing changes at $a=1$ for <i>any</i> $B$ (on tangent vectors, with $\sum Z_i=0$, it is invisible): on positive measures the invariant metric is not unique, which the book's proof glosses over.</p>
+<div class="widget" id="w7">
+  <div class="controls">
+    <label>weight exponent $a$ <input type="range" id="w7a" min="0" max="2.2" step="0.05" value="0"><output id="w7ao"></output></label>
+    <label>split $\rho$ <input type="range" id="w7r" min="0.05" max="0.5" step="0.05" value="0.3"><output id="w7ro"></output></label>
+    <label>$B$ <input type="range" id="w7b" min="0" max="2" step="0.1" value="0"><output id="w7bo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w7l" viewBox="0 0 340 280" role="img" aria-label="Squared length ratio of three vectors under the splitting embedding"></svg></div>
+    <div><svg id="w7r2" viewBox="0 0 340 280" role="img" aria-label="Squared length ratio of the split vector against the exponent"></svg></div>
+  </div>
+  <div class="stats" id="w7s"></div>
+</div>
+
+<h2>8. The simplex is a sphere of radius 2, and scale makes it grow</h2>
+<p>In the coordinates $\xi_i=2\sqrt{p_i}$ the Fisher metric of the simplex becomes the ordinary Euclidean one and $\sum\xi_i^2=4$: the three-outcome simplex is an octant of a sphere of radius $2$, with Gauss curvature $1/4$. The Fisher–Rao geodesic is a great circle; the m-geodesic (straight in $p$) and the e-geodesic are longer, and the Hellinger divergence $D_0=4(1-\cos(s/2))$ is half the squared <i>chord</i>. Turn the view with the sliders. On positive measures $m=Mp$ the radius becomes $2\sqrt M$: the metric splits as $dM^2/M+M\,g_{\rm Fisher}$, distances between $Mp$ and $Mq$ scale like $\sqrt M$ and $D_f[Mp:Mq]=M\,D_f[p:q]$.</p>
+<div class="widget" id="w8">
+  <div class="controls">
+    <label>$p_0$ <input type="range" id="w8p0" min="0.02" max="0.95" step="0.01" value="0.6"><output id="w8p0o"></output></label>
+    <label>$p_1$ <input type="range" id="w8p1" min="0.02" max="0.95" step="0.01" value="0.38"><output id="w8p1o"></output></label>
+    <label>$q_0$ <input type="range" id="w8q0" min="0.02" max="0.95" step="0.01" value="0.02"><output id="w8q0o"></output></label>
+    <label>$q_1$ <input type="range" id="w8q1" min="0.02" max="0.95" step="0.01" value="0.38"><output id="w8q1o"></output></label>
+  </div>
+  <div class="controls">
+    <label>yaw <input type="range" id="w8y" min="-1.2" max="1.2" step="0.05" value="0.35"><output id="w8yo"></output></label>
+    <label>pitch <input type="range" id="w8t" min="-0.6" max="0.8" step="0.05" value="0.2"><output id="w8to"></output></label>
+    <label>total mass $M$ <input type="range" id="w8M" min="0.25" max="4" step="0.05" value="1"><output id="w8Mo"></output></label>
+  </div>
+  <div class="grid2">
+    <div><svg id="w8l" viewBox="0 0 340 300" role="img" aria-label="The simplex as an octant of a sphere with three curves between two points"></svg></div>
+    <div id="w8tab"></div>
+  </div>
+  <div class="key"><span><span class="sw" style="color:var(--s1)"></span>Fisher–Rao geodesic (great circle)</span><span><span class="sw" style="color:var(--s2)"></span>m-geodesic</span><span><span class="sw" style="color:var(--s3)"></span>e-geodesic</span><span><span class="sw dash" style="color:var(--ink)"></span>chord</span></div>
+</div>
+</main>
+
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg",g=id=>document.getElementById(id);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const clear=s=>{while(s.firstChild)s.removeChild(s.firstChild)};
+let uid=0;
+function axes(P,x0,y0,w,h,xr,yr,title,xl,yl){
+ el("rect",{x:x0,y:y0,width:w,height:h,fill:"var(--soft)",stroke:"var(--line)"},P);
+ if(title)el("text",{x:x0+6,y:y0+14,fill:"var(--muted)","font-size":11},P).textContent=title;
+ if(xl)el("text",{x:x0+w/2,y:y0+h+26,"text-anchor":"middle",fill:"var(--muted)","font-size":11},P).textContent=xl;
+ if(yl)el("text",{x:x0-44,y:y0+h/2,"text-anchor":"middle",fill:"var(--muted)","font-size":11,transform:`rotate(-90 ${x0-44} ${y0+h/2})`},P).textContent=yl;
+ const X=v=>x0+(v-xr[0])/(xr[1]-xr[0])*w,Y=v=>y0+h-(v-yr[0])/(yr[1]-yr[0])*h,id="c"+(uid++),c=el("clipPath",{id},el("defs",{},P));
+ el("rect",{x:x0,y:y0,width:w,height:h},c);
+ return {X,Y,x0,y0,w,h,G:el("g",{"clip-path":"url(#"+id+")"},P)};
+}
+const path=(P,pts,col,w,dash)=>el("path",{d:pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-dasharray":dash||"","stroke-linejoin":"round"},P);
+const f2=v=>v.toFixed(2),f3=v=>v.toFixed(3),f4=v=>v.toFixed(4),f5=v=>v.toFixed(5),f6=v=>v.toFixed(6);
+const ticks=(P,xs,ys,fx,fy)=>{(xs||[]).forEach(v=>{const x=P.X(v);el("line",{x1:x,x2:x,y1:P.y0,y2:P.y0+P.h,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x,y:P.y0+P.h+12,"text-anchor":"middle",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fx||f2)(v)});(ys||[]).forEach(v=>{const y=P.Y(v);el("line",{x1:P.x0,x2:P.x0+P.w,y1:y,y2:y,stroke:"var(--line)","stroke-width":.6},P.G.parentNode);el("text",{x:P.x0-4,y:y+3.5,"text-anchor":"end",fill:"var(--muted)","font-size":10},P.G.parentNode).textContent=(fy||f2)(v)})};
+const txt=(P,x,y,s,col,size,anchor)=>{const t=el("text",{x,y,fill:col||"var(--muted)","font-size":size||11,"text-anchor":anchor||"start"},P);t.textContent=s;return t};
+
+// ---------- numerics shared by several widgets (plain functions, no DOM)
+const sum=a=>{let s=0;for(const x of a)s+=x;return s};
+const FUN={
+ kl:u=>-Math.log(u)+u-1, dkl:u=>u*Math.log(u)-u+1, chi2:u=>0.5*(u-1)*(u-1),
+ hell:u=>2*(Math.sqrt(u)-1)**2, js:u=>0.5*(u*Math.log(u)-(1+u)*Math.log((1+u)/2)),
+ tv:u=>Math.abs(1-u), nc:u=>{const t=(u-1)*(u-1);return t/(1+t)}, quart:u=>(u-1)**4
+};
+const FPP={kl:1,dkl:1,chi2:1,hell:1,js:0.25,quart:0,tv:NaN};          // f''(1)
+const Df=(f,p,q)=>{let s=0;for(let i=0;i<p.length;i++)s+=p[i]*f(q[i]/p[i]);return s};
+const klv=(p,q)=>{let s=0;for(let i=0;i<p.length;i++)s+=p[i]*Math.log(p[i]/q[i]);return s};
+function gl(n){                                       // Gauss-Legendre nodes and weights on (0,1)
+ const x=new Float64Array(n),w=new Float64Array(n);
+ for(let i=0;i<n;i++){let z=Math.cos(Math.PI*(i+0.75)/(n+0.5)),pp=1;
+  for(let it=0;it<100;it++){let p1=1,p2=0;for(let j=0;j<n;j++){const p3=p2;p2=p1;p1=((2*j+1)*z*p2-j*p3)/(j+1)}
+   pp=n*(z*p1-p2)/(z*z-1);const z1=z;z=z1-p1/pp;if(Math.abs(z-z1)<1e-15)break}
+  x[i]=0.5*(1-z);w[i]=1/((1-z*z)*pp*pp)}
+ return [x,w];
+}
+const GL200=gl(200);
+
+// ===== widget 1: merging outcomes
+(function(){
+ const NAMES={kl:"KL[p:q]",dkl:"KL[q:p]",chi2:"χ²",hell:"Hellinger",js:"Jensen–Shannon",tv:"variation",sq:"squared Euclid",nc:"non-convex f"};
+ const D=(k,p,q)=>{if(k==="sq"){let s=0;for(let i=0;i<p.length;i++)s+=(p[i]-q[i])**2;return s}return Df(FUN[k],p,q)};
+ function fix(a,b){const A=g(a),B=g(b);if(+A.value+ +B.value>0.97)B.value=(0.97-A.value).toFixed(2)}
+ function get(){
+  fix("w1p0","w1p1");fix("w1q0","w1q1");
+  const p0=+g("w1p0").value,p1=+g("w1p1").value,q0=+g("w1q0").value,q1=+g("w1q1").value;
+  return {p:[p0,p1,1-p0-p1],q:[q0,q1,1-q0-q1]};
+ }
+ function bars(S,x0,w,P,Q,labels){
+  const n=P.length,gw=w/n,H=150,base=190;
+  for(let i=0;i<n;i++){
+   const cx=x0+gw*(i+0.5);
+   el("rect",{x:cx-24,y:base-H*P[i],width:22,height:H*P[i],fill:"var(--s1)",opacity:.85},S);
+   el("rect",{x:cx+2,y:base-H*Q[i],width:22,height:H*Q[i],fill:"var(--s2)",opacity:.85},S);
+   txt(S,cx,base+16,labels[i],"var(--ink)",11,"middle");
+   txt(S,cx,base+32,"u = "+f2(Q[i]/P[i]),"var(--muted)",10.5,"middle");
+  }
+  el("line",{x1:x0,x2:x0+w,y1:base,y2:base,stroke:"var(--faint)"},S);
+ }
+ function draw(){
+  const {p,q}=get(),k=g("w1k").value,m=g("w1m").value,i=+m[0],j=+m[1],kk=3-i-j;
+  ["w1p0","w1p1","w1q0","w1q1"].forEach(id=>g(id+"o").textContent=f2(+g(id).value));
+  const pb=[p[kk],p[i]+p[j]],qb=[q[kk],q[i]+q[j]];
+  const S=g("w1v");clear(S);
+  txt(S,20,18,"before: three outcomes","var(--ink)",12);txt(S,400,18,"after merging outcomes "+i+" and "+j,"var(--ink)",12);
+  bars(S,10,370,p,q,["outcome 0","outcome 1","outcome 2"]);
+  // bracket under the merged pair
+  const gw=370/3,xa=10+gw*(i+0.5)-24,xb=10+gw*(j+0.5)+24;
+  el("path",{d:`M${xa} 232 L${xa} 238 L${xb} 238 L${xb} 232`,fill:"none",stroke:"var(--s4)","stroke-width":2},S);
+  bars(S,400,290,pb,qb,["outcome "+kk,"cell "+i+" + "+j]);
+  const d=D(k,p,q),db=D(k,pb,qb),ui=q[i]/p[i],uj=q[j]/p[j],eq=Math.abs(ui-uj)<1e-9;
+  let verdict;
+  if(db>d*(1+1e-12))verdict="<b style=\"color:var(--s2)\">merged value is larger: information gained, not allowed</b>";
+  else if(eq)verdict="equal conditionals: <b>no loss</b>";
+  else if(Math.abs(db-d)<1e-12*Math.max(1,d))verdict="<b style=\"color:var(--s2)\">no loss although the conditionals differ</b>";
+  else verdict="loses information";
+  g("w1s").innerHTML=`<div>${NAMES[k]}: <b>${f6(d)}</b> before, <b>${f6(db)}</b> after, ratio <b>${f4(db/d)}</b></div><div>u = q/p of the merged outcomes: ${f4(ui)}, ${f4(uj)}</div><div>${verdict}</div>`;
+ }
+ ["w1p0","w1p1","w1q0","w1q1","w1k","w1m"].forEach(id=>g(id).addEventListener("input",draw));
+ g("w1b").addEventListener("click",()=>{
+  const {p,q}=get(),m=g("w1m").value,i=+m[0],j=+m[1],Q=q[i]+q[j],pij=p[i]+p[j],nq=q.slice();
+  nq[i]=Q*p[i]/pij;nq[j]=Q*p[j]/pij;
+  const set=(id,v)=>{g(id).value=Math.min(0.9,Math.max(0.05,v)).toFixed(2)};
+  set("w1q0",nq[0]);set("w1q1",nq[1]);draw();
+ });
+ draw();
+})();
+
+// ===== widget 2: the alpha family
+(function(){
+ const near=(a,b)=>Math.abs(a-b)<1e-9;
+ const fStd=a=>near(a,1)?(u=>u*Math.log(u)-(u-1)):near(a,-1)?(u=>-Math.log(u)+(u-1)):(u=>4/(1-a*a)*(1-Math.pow(u,(1+a)/2))+2/(1-a)*(u-1));
+ const fBook=a=>(near(a,1)||near(a,-1))?null:(u=>4/(1-a*a)*(1-Math.pow(u,(1+a)/2)));
+ const fPrint=a=>(near(a,1)||near(a,-1))?fStd(a):(u=>4/(1-a*a)*(1-Math.pow(u,(1+a)/2))-2/(1-a)*(u-1));
+ const pick=(v,a)=>v==="std"?fStd(a):v==="book"?fBook(a):fPrint(a);
+ const d1=(f,u,h=1e-6)=>(f(u*(1+h))-f(u*(1-h)))/(2*u*h);
+ const d2=(f,u,h=1e-4)=>(f(u*(1+h))-2*f(u)+f(u*(1-h)))/((u*h)**2);
+ const P0=[.5,.3,.2],Q0=[.2,.2,.6];
+ function draw(){
+  const a=+g("w2a").value,v=g("w2v").value,M=+g("w2M").value;g("w2ao").textContent=f2(a);g("w2Mo").textContent=f2(M);
+  const f=pick(v,a),S=g("w2p");clear(S);
+  const us=[];for(let i=0;i<=300;i++)us.push(0.06+(3-0.06)*i/300);
+  let lo=0,hi=1.5;if(f){for(const u of us)for(const y of [f(u),u*f(1/u)])if(isFinite(y)){lo=Math.min(lo,y);hi=Math.max(hi,y)}}
+  lo=Math.max(lo,-12);hi=Math.min(hi,12);const pad=0.08*(hi-lo);
+  const P=axes(S,60,14,610,230,[0,3],[lo-pad,hi+pad],"f(u) (solid), its dual u f(1/u) (dashed), (u−1)²/2 (dotted)","u","");
+  ticks(P,[0,0.5,1,1.5,2,2.5,3],[Math.round(lo),0,Math.round(hi)].filter((v,i,a)=>a.indexOf(v)===i),f2,v=>v.toFixed(0));
+  path(P.G,us.map(u=>[P.X(u),P.Y(0.5*(u-1)**2)]),"var(--faint)",1.2,"2 3");
+  if(f){
+   path(P.G,us.map(u=>[P.X(u),P.Y(f(u))]),"var(--s1)",2.4);
+   path(P.G,us.map(u=>[P.X(u),P.Y(u*f(1/u))]),"var(--s2)",1.8,"6 3");
+   el("circle",{cx:P.X(1),cy:P.Y(0),r:4.5,fill:"var(--s4)"},P.G);
+  }else txt(P.G,P.X(0.3),P.Y(0),"(3.38) is not defined at α = ±1","var(--muted)",12);
+  const rows=[["std","standard"],["book","(3.38)"],["print","(3.95) as printed"]].map(([k,nm])=>{
+   const ff=pick(k,a);
+   if(!ff)return `<tr><td>${nm}</td><td colspan="4">not defined at α = ±1</td></tr>`;
+   const m=P0,n=Q0.map(x=>M*x);
+   return `<tr><td>${nm}</td><td>${(Math.abs(d1(ff,1))<5e-6?0:d1(ff,1)).toFixed(4)}</td><td>${f4(d2(ff,1))}</td><td><b>${f6(Df(ff,m,n))}</b></td><td>${f6(Df(pick(k,-a)||ff,n,m))}</td></tr>`;
+  }).join("");
+  g("w2tab").innerHTML=`<table class="t"><tr><th>version</th><th>f′(1)</th><th>f″(1)</th><th>D<sub>α</sub>[m:n]</th><th>D<sub>−α</sub>[n:m]</th></tr>${rows}</table>`;
+ }
+ ["w2a","w2v","w2M"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 3: the local expansion
+(function(){
+ const P0=[.5,.3,.2],DIR={a:[.1,-.04,-.06],b:[.1,-.05,-.05],c:[0,.1,-.1]};
+ const val=(f,d,e)=>Df(f,P0,P0.map((x,i)=>x+e*d[i]))/(e*e);
+ function draw(){
+  const kind=g("w3f").value,d=DIR[g("w3d").value],le=+g("w3e").value,e=Math.pow(10,le);g("w3eo").textContent=f2(le);
+  const f=FUN[kind],lim=FPP[kind]>=0?0.5*FPP[kind]*sum(d.map((x,i)=>x*x/P0[i])):NaN,tvm=kind==="tv";
+  const S=g("w3v");clear(S);
+  const ymax=tvm?0.5:(isNaN(lim)||lim===0?0.2:lim*2.2);
+  const P=axes(S,70,14,590,205,[-3,0.25],[0,ymax],tvm?"D_f[p : p + ε d] / ε  (not ε²: the variation distance is linear in ε)":"D_f[p : p + ε d] / ε²","log₁₀ ε","");
+  ticks(P,[-3,-2.5,-2,-1.5,-1,-0.5,0],[0,ymax/2,ymax],f2,v=>v.toPrecision(2));
+  const pts=[];for(let i=0;i<=240;i++){const t=-3+3.25*i/240;pts.push([P.X(t),P.Y(tvm?val(f,d,Math.pow(10,t))*Math.pow(10,t):val(f,d,Math.pow(10,t)))])}
+  if(!isNaN(lim))path(P.G,[[P.X(-3),P.Y(lim)],[P.X(0.25),P.Y(lim)]],"var(--faint)",1.4,"5 3");
+  path(P.G,pts,"var(--s1)",2.4);
+  el("circle",{cx:P.X(le),cy:P.Y(Math.min(ymax,tvm?val(f,d,e)*e:val(f,d,e))),r:4.5,fill:"var(--s2)"},P.G);
+  const v=val(f,d,e);
+  g("w3s").innerHTML=`<div>D/ε² at ε = ${e.toPrecision(3)}: <b>${f6(v)}</b></div><div>limit ½ f″(1) Σ d²/p: <b>${isNaN(lim)?"does not exist (f is not differentiable at 1)":f6(lim)}</b></div><div>${isNaN(lim)?"D/ε = "+f4(v*e)+" is constant: linear in ε":"ratio to the limit: "+(lim>0?f4(v/lim):"→ 0: f″(1) = 0, no metric")}</div>`;
+ }
+ ["w3f","w3d","w3e"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 4: zero forcing and zero avoiding
+(function(){
+ const X=[];for(let i=0;i<40;i++)X.push(i);
+ const bump=(m,s)=>{const w=X.map(x=>Math.exp(-0.5*((x-m)/s)**2)),t=sum(w);return w.map(v=>v/t)};
+ const b1=bump(10,2),b2=bump(28,3),pb=X.map((_,i)=>0.5*b1[i]+0.5*b2[i]);
+ const MU=[];for(let v=0;v<=39.001;v+=0.25)MU.push(v);
+ const SG=[];for(let i=0;i<160;i++)SG.push(Math.exp(Math.log(0.4)+(Math.log(20)-Math.log(0.4))*i/159));
+ let LQ=null;
+ function build(){
+  LQ=new Float64Array(MU.length*SG.length*40);let o=0;
+  for(const mu of MU)for(const s of SG){const w=X.map(x=>Math.exp(-0.5*((x-mu)/s)**2)),t=sum(w);for(let i=0;i<40;i++)LQ[o++]=Math.log(Math.max(w[i]/t,1e-300))}
+ }
+ function Dfit(a,o){
+  let s=0;
+  if(a===-1){for(let i=0;i<40;i++)s+=pb[i]*(Math.log(pb[i])-LQ[o+i]);return s}
+  if(a===1){for(let i=0;i<40;i++){const lq=LQ[o+i];s+=Math.exp(lq)*(lq-Math.log(pb[i]))}return s}
+  const b=(1-a)/2,c=(1+a)/2;
+  for(let i=0;i<40;i++)s+=Math.pow(pb[i],b)*Math.exp(c*LQ[o+i]);
+  return 4/(1-a*a)*(1-s);
+ }
+ function fit(a){
+  if(!LQ)build();
+  let best=Infinity,bi=0,bj=0;
+  for(let i=0;i<MU.length;i++)for(let j=0;j<SG.length;j++){const d=Dfit(a,(i*SG.length+j)*40);if(d<best){best=d;bi=i;bj=j}}
+  return {mu:MU[bi],sg:SG[bj],D:best,o:(bi*SG.length+bj)*40};
+ }
+ function draw(){
+  const a=+g("w4a").value,lg=g("w4l").checked;g("w4ao").textContent=(a>0?"+":"")+a.toFixed(1);
+  const r=fit(a),S=g("w4v");clear(S);
+  const yr=lg?[-7,-0.5]:[0,0.13],T=y=>lg?Math.log10(Math.max(y,1e-12)):y;
+  const P=axes(S,50,14,620,205,[-0.5,39.5],yr,lg?"log₁₀ probability":"probability","x","");
+  ticks(P,[0,5,10,15,20,25,30,35],lg?[-6,-4,-2]:[0,0.05,0.1],v=>v.toFixed(0),lg?(v=>v.toFixed(0)):f2);
+  for(let i=0;i<40;i++){const y=T(pb[i]);el("rect",{x:P.X(i-0.4),y:P.Y(Math.max(y,yr[0])),width:P.w/40*0.8,height:P.y0+P.h-P.Y(Math.max(y,yr[0])),fill:"var(--faint)",opacity:.55},P.G)}
+  const q=[];for(let i=0;i<40;i++)q.push(Math.exp(LQ[r.o+i]));
+  path(P.G,q.map((v,i)=>[P.X(i),P.Y(Math.max(T(v),yr[0]-1))]),"var(--s1)",2.6);
+  const q0=q.slice(0,20),w1=sum(q.slice(0,20)),w2=sum(q.slice(20));
+  g("w4s").innerHTML=`<div>best fit: μ = <b>${f2(r.mu)}</b>, σ = <b>${f3(r.sg)}</b></div><div>D<sub>α</sub> = <b>${f4(r.D)}</b></div><div>q mass left / right of the gap: ${f3(w1)} / ${f3(w2)} (p: ${f3(sum(pb.slice(0,20)))} / ${f3(sum(pb.slice(20)))})</div><div>${(r.sg<5)?"hides inside one hump: zero forcing":"covers both humps: zero avoiding"}</div>`;
+ }
+ g("w4a").addEventListener("input",draw);g("w4l").addEventListener("change",draw);draw();
+})();
+
+// ===== widget 5: large deviations
+(function(){
+ const p=[.5,.3,.2],x=[0,1,2],LF=[0];for(let k=1;k<=400;k++)LF.push(LF[k-1]+Math.log(k));
+ const L=p.map(Math.log);
+ function tilt(l){const w=p.map((v,i)=>v*Math.exp(l*x[i])),t=sum(w);return w.map(v=>v/t)}
+ function solve(a){let lo=0,hi=10;for(let i=0;i<200;i++){const m=(lo+hi)/2,q=tilt(m);if(q[1]+2*q[2]<a)lo=m;else hi=m}const l=(lo+hi)/2;return [l,tilt(l)]}
+ function logTail(N,a){
+  const thr=Math.round(a*N);let mx=-Infinity;const vals=[];
+  for(let n1=0;n1<=N;n1++)for(let n2=0;n1+n2<=N;n2++){
+   if(n1+2*n2<thr)continue;const n0=N-n1-n2,lp=LF[N]-LF[n0]-LF[n1]-LF[n2]+n0*L[0]+n1*L[1]+n2*L[2];vals.push(lp);if(lp>mx)mx=lp}
+  let s=0;for(const v of vals)s+=Math.exp(v-mx);return mx+Math.log(s);
+ }
+ const SQ3=Math.sqrt(3);
+ function contour(c){
+  const out=[];
+  for(let k=0;k<=240;k++){
+   const ph=2*Math.PI*k/240,d=[Math.cos(ph),Math.sin(ph)],sd=d[0]+d[1];let rmax=Infinity;
+   for(let j=0;j<2;j++)if(d[j]<0)rmax=Math.min(rmax,-p[1+j]/d[j]);if(sd>0)rmax=Math.min(rmax,p[0]/sd);
+   const qr=r=>[p[0]-r*sd,p[1]+r*d[0],p[2]+r*d[1]],kl=r=>{const q=qr(r);let s=0;for(let i=0;i<3;i++)if(q[i]>0)s+=q[i]*Math.log(q[i]/p[i]);return s};
+   if(kl(rmax)<c)continue;let lo=0,hi=rmax;for(let i=0;i<50;i++){const m=(lo+hi)/2;if(kl(m)<c)lo=m;else hi=m}out.push(qr((lo+hi)/2));
+  }
+  return out;
+ }
+ function clip(a){ // triangle (q1,q2) intersected with q1 + 2 q2 >= a, as barycentric triples
+  let poly=[[0,0],[1,0],[0,1]];const h=v=>v[0]+2*v[1]-a,res=[];
+  for(let i=0;i<3;i++){const A=poly[i],B=poly[(i+1)%3],ha=h(A),hb=h(B);
+   if(ha>=0)res.push(A);if((ha>=0)!==(hb>=0)){const t=ha/(ha-hb);res.push([A[0]+t*(B[0]-A[0]),A[1]+t*(B[1]-A[1])])}}
+  return res.map(v=>[1-v[0]-v[1],v[0],v[1]]);
+ }
+ function draw(){
+  const a=+g("w5a").value,N=+g("w5n").value;g("w5ao").textContent=f2(a);g("w5no").textContent=N;
+  const [lam,qs]=solve(a),I=klv(qs,p),mean=qs[1]+2*qs[2],v=qs[1]+4*qs[2]-mean*mean;
+  // left: ternary
+  const S=g("w5l");clear(S);
+  const side=250,X0=45,Y0=268,M=q=>[X0+q[1]*side+q[2]*side/2,Y0-q[2]*side*SQ3/2];
+  const tri=[[1,0,0],[0,1,0],[0,0,1]].map(M);
+  el("path",{d:"M"+tri.map(q=>q[0]+" "+q[1]).join("L")+"Z",fill:"none",stroke:"var(--faint)"},S);
+  const A=clip(a);if(A.length>2)el("path",{d:"M"+A.map(M).map(q=>q[0].toFixed(1)+" "+q[1].toFixed(1)).join("L")+"Z",fill:"var(--s1)",opacity:.22},S);
+  [0.03,0.06,I].forEach((c,k)=>{const pts=contour(c).map(M);if(pts.length>1)path(S,pts,k===2?"var(--s2)":"var(--faint)",k===2?2.4:1)});
+  const tp=[];for(let l=-0.45;l<=Math.max(1.05,lam+0.2);l+=0.02)tp.push(M(tilt(l)));path(S,tp,"var(--s3)",2.2);
+  path(S,[M(p),M(qs)],"var(--faint)",1,"4 3");
+  [[p,"var(--s4)","p"],[qs,"var(--s2)","q*"]].forEach(([q,c,lab])=>{const m=M(q);el("circle",{cx:m[0],cy:m[1],r:5,fill:c},S);txt(S,m[0]+8,m[1]-6,lab,"var(--ink)",11)});
+  txt(S,tri[0][0],tri[0][1]+16,"x = 0","var(--muted)",10.5,"middle");txt(S,tri[1][0],tri[1][1]+16,"x = 1","var(--muted)",10.5,"middle");txt(S,tri[2][0],tri[2][1]-6,"x = 2","var(--muted)",10.5,"middle");
+  txt(S,10,16,"shaded: A = {mean of x ≥ "+f2(a)+"}; orange: KL[q:p] = I","var(--muted)",10.5);
+  // right: exponent vs N
+  const R=g("w5r");clear(R);
+  const Ns=[];for(let n=10;n<=400;n+=10)Ns.push(n);
+  const rate=Ns.map(n=>-logTail(n,a)/n),br=n=>I+Math.log((1-Math.exp(-lam))*Math.sqrt(2*Math.PI*n*v))/n;
+  const ymax=Math.max(rate[0],br(10))*1.05,ymin=Math.min(I*0.9,rate[rate.length-1]);
+  const P=axes(R,80,14,248,230,[1,2.65],[ymin,ymax],"","N (log scale)","−(1/N) log P");
+  ticks(P,[1,1.477,2,2.477],[ymin,(ymin+ymax)/2,ymax],v=>Math.round(Math.pow(10,v)).toString(),v=>v.toFixed(3));
+  path(P.G,[[P.X(1),P.Y(I)],[P.X(2.65),P.Y(I)]],"var(--faint)",1.4,"5 3");
+  path(P.G,Ns.map(n=>[P.X(Math.log10(n)),P.Y(br(n))]),"var(--s3)",2);
+  Ns.forEach((n,i)=>el("circle",{cx:P.X(Math.log10(n)),cy:P.Y(rate[i]),r:3,fill:"var(--s1)"},P.G));
+  el("circle",{cx:P.X(Math.log10(N)),cy:P.Y(-logTail(N,a)/N),r:5.5,fill:"none",stroke:"var(--s2)","stroke-width":2},P.G);
+  const lP=logTail(N,a),brv=Math.exp(-N*I)/((1-Math.exp(-lam))*Math.sqrt(2*Math.PI*N*v));
+  g("w5s").innerHTML=`<div>λ = <b>${f6(lam)}</b>, I = KL[q*:p] = <b>${f6(I)}</b></div><div>q* = (${qs.map(f5).join(", ")})</div><div>N = ${N}: −(1/N) log P = <b>${f6(-lP/N)}</b></div><div>P·e<sup>NI</sup>·√N = ${f6(Math.exp(lP+N*I)*Math.sqrt(N))}</div><div>P / Bahadur–Rao = <b>${f6(Math.exp(lP)/brv)}</b></div>`;
+ }
+ ["w5a","w5n"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 6: Theorem 3.2
+(function(){
+ function integrals(p,q){
+  const [t,w]=GL200,ge=[],gm=[],d=p.map((x,i)=>Math.log(q[i]/x));
+  for(let k=0;k<t.length;k++){
+   const ti=t[k],lw=p.map((x,i)=>(1-ti)*Math.log(x)+ti*Math.log(q[i])),mx=Math.max(...lw),pe=lw.map(v=>Math.exp(v-mx)),z=sum(pe);pe.forEach((v,i)=>pe[i]=v/z);
+   let m=0;for(let i=0;i<3;i++)m+=pe[i]*d[i];let vr=0;for(let i=0;i<3;i++)vr+=pe[i]*(d[i]-m)**2;ge.push(vr);
+   let s=0;for(let i=0;i<3;i++){const pm=(1-ti)*p[i]+ti*q[i];s+=(q[i]-p[i])**2/pm}gm.push(s);
+  }
+  let ie=0,im=0;for(let k=0;k<t.length;k++){ie+=w[k]*ge[k];im+=w[k]*gm[k]}
+  return {t,ge,gm,ie,im};
+ }
+ function draw(){
+  ["w6p0","w6p1","w6q0","w6q1"].forEach(id=>g(id+"o").textContent=f2(+g(id).value));
+  const fix=(a,b)=>{const A=g(a),B=g(b);if(+A.value+ +B.value>0.99)B.value=(0.99-A.value).toFixed(2)};fix("w6p0","w6p1");fix("w6q0","w6q1");
+  const p0=+g("w6p0").value,p1=+g("w6p1").value,q0=+g("w6q0").value,q1=+g("w6q1").value,p=[p0,p1,1-p0-p1],q=[q0,q1,1-q0-q1];
+  const r=integrals(p,q),J=klv(p,q)+klv(q,p),bc=sum(p.map((x,i)=>Math.sqrt(x*q[i]))),s2=(2*Math.acos(Math.min(1,bc)))**2;
+  const S=g("w6v");clear(S);
+  const gmax=Math.min(40,Math.max(...r.gm,...r.ge)*1.1);
+  const P=axes(S,50,14,620,215,[0,1],[0,gmax],"Fisher information g(t) along the curve","t","");
+  ticks(P,[0,0.25,0.5,0.75,1],[0,gmax/2,gmax],f2,v=>v.toFixed(1));
+  const ord=Array.from(r.t,(t,i)=>[t,r.ge[i],r.gm[i]]).sort((a,b)=>a[0]-b[0]);
+  el("path",{d:"M"+P.X(0)+" "+P.Y(0)+ord.map(o=>"L"+P.X(o[0]).toFixed(1)+" "+P.Y(o[1]).toFixed(1)).join("")+"L"+P.X(1)+" "+P.Y(0)+"Z",fill:"var(--s1)",opacity:.14},P.G);
+  path(P.G,ord.map(o=>[P.X(o[0]),P.Y(o[2])]),"var(--s2)",2.2);path(P.G,ord.map(o=>[P.X(o[0]),P.Y(o[1])]),"var(--s1)",2.4);
+  path(P.G,[[P.X(0),P.Y(J)],[P.X(1),P.Y(J)]],"var(--faint)",1.3,"5 3");path(P.G,[[P.X(0),P.Y(J/2)],[P.X(1),P.Y(J/2)]],"var(--s4)",1.3,"5 3");
+  txt(P.G,P.X(0.5),P.Y(J)-6,"mean height = D[p:q] + D[q:p]","var(--muted)",10.5,"middle");txt(P.G,P.X(0.5),P.Y(J/2)+14,"half of it: what (3.66) as printed would give","var(--muted)",10.5,"middle");
+  g("w6s").innerHTML=`<div>∫g<sub>e</sub> = <b>${f6(r.ie)}</b></div><div>∫g<sub>m</sub> = <b>${f6(r.im)}</b></div><div>D[p:q] + D[q:p] = <b>${f6(J)}</b></div><div>½ (D + D*) = ${f6(J/2)}</div><div>s² (Fisher–Rao) = ${f6(s2)}</div>`;
+ }
+ ["w6p0","w6p1","w6q0","w6q1"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 7: Chentsov
+(function(){
+ const ratioE1=(a,r,B,q1)=>{let s=0;for(const x of r)s+=Math.pow(x,2-a);return (s*Math.pow(q1,-a)+B)/(Math.pow(q1,-a)+B)};   // ||h e_1||^2/||e_1||^2 for g = sum Z^2/p^a + B (sum Z)^2, q1 = mass of the split cell
+ const ratioT=(a,r,q1)=>{ // tangent vector Z = e_1 - e_2 at q = (q1, 1-q1), image h Z = (r q1-scaled column, -e_2)
+  let n=0;for(const x of r)n+=x*x/Math.pow(x*q1,a);n+=1/Math.pow(1-q1,a);
+  const d=Math.pow(q1,-a)+Math.pow(1-q1,-a);return n/d};
+ function draw(){
+  const a=+g("w7a").value,rho=+g("w7r").value,B=+g("w7b").value;g("w7ao").textContent=f2(a);g("w7ro").textContent=f2(rho);g("w7bo").textContent=f2(B);
+  const r=[rho,1-rho],q1=0.3;
+  const vals=[["split vector e₁ (not tangent)",ratioE1(a,r,B,q1)],["tangent e₁ − e₂ at q = (.3,.7)",ratioT(a,r,q1)],["split vector, B = 0",ratioE1(a,r,0,q1)]];
+  const L=g("w7l");clear(L);
+  const ym=Math.max(2.2,1.1*Math.max(...vals.map(v=>v[1])));
+  const P=axes(L,60,14,265,215,[0,3],[0,ym],"squared length after / before","","");ticks(P,[],[0,1,2].filter(v=>v<=ym),f2,v=>v.toFixed(0));
+  path(P.G,[[P.X(0),P.Y(1)],[P.X(3),P.Y(1)]],"var(--faint)",1.4,"5 3");
+  vals.forEach((v,i)=>{const x0=P.X(0.25+i*0.95);el("rect",{x:x0,y:P.Y(v[1]),width:P.w/3*0.7,height:P.y0+P.h-P.Y(v[1]),fill:["var(--s1)","var(--s3)","var(--s2)"][i],opacity:.85},P.G);
+   txt(L,P.x0+P.w/3*(i+0.5),P.y0+P.h+14,["e₁","e₁−e₂","e₁ (B=0)"][i],"var(--muted)",10.5,"middle");txt(L,P.x0+P.w/3*(i+0.5),P.Y(v[1])-5,f4(v[1]),"var(--ink)",11,"middle")});
+  const R=g("w7r2");clear(R);
+  const P2=axes(R,50,14,275,215,[0,2.2],[0,3.4],"ratio for e₁ against a","a","");
+  ticks(P2,[0,0.5,1,1.5,2],[0,1,2,3],f2,v=>v.toFixed(0));
+  const as=[];for(let i=0;i<=110;i++)as.push(2.2*i/110);
+  path(P2.G,as.map(t=>[P2.X(t),P2.Y(ratioE1(t,r,B,q1))]),"var(--s1)",2.4);
+  path(P2.G,[[P2.X(0),P2.Y(1)],[P2.X(2.2),P2.Y(1)]],"var(--faint)",1.3,"5 3");path(P2.G,[[P2.X(1),P2.Y(0)],[P2.X(1),P2.Y(3.4)]],"var(--faint)",1.3,"5 3");
+  el("circle",{cx:P2.X(a),cy:P2.Y(ratioE1(a,r,B,q1)),r:5,fill:"var(--s2)"},P2.G);
+  g("w7s").innerHTML=`<div>Σ r<sub>i</sub><sup>2−a</sup> = <b>${f4(r.reduce((s,x)=>s+Math.pow(x,2-a),0))}</b> (B = 0, the cell carries all of e₁)</div><div>with B = ${f2(B)} and q₁ = .3: <b>${f4(vals[0][1])}</b></div><div>tangent vector e₁ − e₂: <b>${f4(vals[1][1])}</b> (B has no effect)</div><div>${Math.abs(a-1)<1e-9?"a = 1: ratio exactly 1 for every split and every B":"a ≠ 1: the metric is not invariant"}</div>`;
+ }
+ ["w7a","w7r","w7b"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+// ===== widget 8: the sphere
+(function(){
+ const SQ=Math.sqrt;
+ function views(yaw,pitch){
+  const ex0=[-1/SQ(2),1/SQ(2),0],ey0=[-1/SQ(6),-1/SQ(6),2/SQ(6)],w0=[1/SQ(3),1/SQ(3),1/SQ(3)];
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+  const wv=w0.map((_,i)=>cy*cp*w0[i]+sy*cp*ex0[i]+sp*ey0[i]),ex=ex0.map((_,i)=>cy*ex0[i]-sy*w0[i]);
+  const ey=[wv[1]*ex[2]-wv[2]*ex[1],wv[2]*ex[0]-wv[0]*ex[2],wv[0]*ex[1]-wv[1]*ex[0]];
+  return v=>[v[0]*ex[0]+v[1]*ex[1]+v[2]*ex[2],v[0]*ey[0]+v[1]*ey[1]+v[2]*ey[2]];
+ }
+ const sq=p=>p.map(x=>2*SQ(x));
+ function lengths(p,q){
+  const [t,w]=GL200,d=p.map((x,i)=>Math.log(q[i]/x));let Le=0,Lm=0;
+  for(let k=0;k<t.length;k++){
+   const ti=t[k],lw=p.map((x,i)=>(1-ti)*Math.log(x)+ti*Math.log(q[i])),mx=Math.max(...lw),pe=lw.map(v=>Math.exp(v-mx)),z=sum(pe);pe.forEach((v,i)=>pe[i]=v/z);
+   let m=0;for(let i=0;i<3;i++)m+=pe[i]*d[i];let vr=0;for(let i=0;i<3;i++)vr+=pe[i]*(d[i]-m)**2;Le+=w[k]*SQ(vr);
+   let s=0;for(let i=0;i<3;i++){const pm=(1-ti)*p[i]+ti*q[i];s+=(q[i]-p[i])**2/pm}Lm+=w[k]*SQ(s);
+  }
+  const bc=sum(p.map((x,i)=>SQ(x*q[i]))),s=2*Math.acos(Math.min(1,bc)),xp=sq(p),xq=sq(q),chord=SQ(sum(xp.map((v,i)=>(v-xq[i])**2)));
+  return {s,Le,Lm,chord,bc};
+ }
+ function draw(){
+  ["w8p0","w8p1","w8q0","w8q1"].forEach(id=>g(id+"o").textContent=f2(+g(id).value));
+  const fix=(a,b)=>{const A=g(a),B=g(b);if(+A.value+ +B.value>0.99)B.value=(0.99-A.value).toFixed(2)};fix("w8p0","w8p1");fix("w8q0","w8q1");
+  const yaw=+g("w8y").value,pitch=+g("w8t").value,Mm=+g("w8M").value;g("w8yo").textContent=f2(yaw);g("w8to").textContent=f2(pitch);g("w8Mo").textContent=f2(Mm);
+  const p0=+g("w8p0").value,p1=+g("w8p1").value,q0=+g("w8q0").value,q1=+g("w8q1").value,p=[p0,p1,1-p0-p1],q=[q0,q1,1-q0-q1];
+  const pr=views(yaw,pitch),S=g("w8l");clear(S);
+  const edges=[];for(let e=0;e<3;e++){const pts=[];for(let i=0;i<=100;i++){const t=Math.PI/2*i/100,c=2*Math.cos(t),s=2*Math.sin(t),v=[0,0,0];v[e]=c;v[(e+1)%3]=s;pts.push(v)}edges.push(pts)}
+  const all=[].concat(...edges).map(pr),xs=all.map(v=>v[0]),ys=all.map(v=>v[1]);
+  const sc=Math.min(300/(Math.max(...xs)-Math.min(...xs)),250/(Math.max(...ys)-Math.min(...ys))),cx=170-sc*(Math.max(...xs)+Math.min(...xs))/2,cy=150+sc*(Math.max(...ys)+Math.min(...ys))/2;
+  const px=v=>{const a=pr(v);return [cx+sc*a[0],cy-sc*a[1]]};
+  edges.forEach(e=>path(S,e.map(px),"var(--faint)",1.3));
+  for(let i=0;i<3;i++)for(const c of [0.25,0.5,0.75]){const pts=[],rad=2*SQ(1-c);for(let k=0;k<=60;k++){const ph=Math.PI/2*k/60,v=[0,0,0];v[i]=2*SQ(c);v[(i+1)%3]=rad*Math.cos(ph);v[(i+2)%3]=rad*Math.sin(ph);pts.push(px(v))}path(S,pts,"var(--line)",1)}
+  const L=lengths(p,q),om=L.s/2,xp=sq(p),xq=sq(q),T=[];for(let k=0;k<=80;k++)T.push(k/80);
+  const gc=T.map(t=>xp.map((v,i)=>(Math.sin((1-t)*om)*v+Math.sin(t*om)*xq[i])/Math.sin(om)));
+  const mg=T.map(t=>sq(p.map((v,i)=>(1-t)*v+t*q[i])));
+  const eg=T.map(t=>{const w=p.map((v,i)=>Math.pow(v,1-t)*Math.pow(q[i],t)),z=sum(w);return sq(w.map(v=>v/z))});
+  const ch=T.map(t=>xp.map((v,i)=>(1-t)*v+t*xq[i]));
+  if(L.s>1e-6){path(S,ch.map(px),"var(--ink)",1.2,"4 3");path(S,eg.map(px),"var(--s3)",2.2);path(S,mg.map(px),"var(--s2)",2.2);path(S,gc.map(px),"var(--s1)",2.4)}
+  [[xp,"p"],[xq,"q"]].forEach(([v,lab])=>{const m=px(v);el("circle",{cx:m[0],cy:m[1],r:5,fill:"var(--s4)"},S);txt(S,m[0]+8,m[1]-6,lab,"var(--ink)",11)});
+  [0,1,2].forEach(k=>{const v=[0,0,0];v[k]=2;const m=px(v);txt(S,m[0]+(k===0?-8:k===1?8:0),m[1]+(k<2?15:-8),"outcome "+k,"var(--muted)",10.5,k===0?"end":k===1?"start":"middle")});
+  const D0=4*(1-Math.cos(L.s/2)),RR=2*SQ(Mm),pc=v=>L.s>1e-9?(100*(v/L.s-1)).toFixed(2)+"%":"–";
+  g("w8tab").innerHTML=`<table class="t"><tr><th>curve</th><th>length</th><th>vs great circle</th></tr>
+  <tr><td>Fisher–Rao geodesic</td><td><b>${f6(L.s)}</b></td><td>–</td></tr>
+  <tr><td>m-geodesic</td><td><b>${f6(L.Lm)}</b></td><td>${L.s>1e-9?"+":""}${pc(L.Lm)}</td></tr>
+  <tr><td>e-geodesic</td><td><b>${f6(L.Le)}</b></td><td>${L.s>1e-9?"+":""}${pc(L.Le)}</td></tr>
+  <tr><td>chord (through the ball)</td><td><b>${f6(L.chord)}</b></td><td>${pc(L.chord)}</td></tr></table>
+  <table class="t"><tr><th>Hellinger divergence D₀[p:q]</th><td><b>${f6(D0)}</b></td></tr><tr><th>chord² / 2</th><td>${f6(L.chord*L.chord/2)}</td></tr><tr><th>2 Σ(√p − √q)²</th><td>${f6(2*sum(p.map((x,i)=>(SQ(x)-SQ(q[i]))**2)))}</td></tr></table>
+  <table class="t"><tr><th>total mass M = ${f2(Mm)}</th><th>value</th></tr><tr><td>radius of the sphere 2√M</td><td><b>${f4(RR)}</b></td></tr><tr><td>Gauss curvature 1/(4M)</td><td>${f4(1/(4*Mm))}</td></tr><tr><td>distance between Mp and Mq: √M s</td><td>${f4(SQ(Mm)*L.s)}</td></tr><tr><td>D₀[Mp:Mq] = M D₀[p:q]</td><td>${f4(Mm*D0)}</td></tr></table>`;
+ }
+ ["w8p0","w8p1","w8q0","w8q1","w8y","w8t","w8M"].forEach(id=>g(id).addEventListener("input",draw));draw();
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{const go=()=>window.renderMathInElement&&renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});window.addEventListener("load",go);go()});
+</script>
+</body>
+</html>
