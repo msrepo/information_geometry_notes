@@ -300,7 +300,18 @@ together for the four potentials above.
 
 ## 5. Two flat structures and the shortest path (§1.5)
 
-**Two kinds of straight.** Declare $\theta$ an affine coordinate system: a curve $\theta(t)=at+b$ is straight, an
+**### The dually flat structure of the Gaussian family
+
+The family of Gaussians is the smallest example in which both flat structures can be seen at once. It has two coordinate systems that are each natural for a different reason: the natural parameters $\theta=(\mu/\sigma^2,\,-1/(2\sigma^2))$ and the expectation parameters $\eta=(\mu,\,\mu^2+\sigma^2)$. One convex potential $\psi$ links them, $\eta=\nabla\psi(\theta)$ and $\theta=\nabla\psi^*(\eta)$.
+
+<figure>
+<img src="figures/dually-flat-gaussian.svg" alt="Two charts of the same Gaussian family with two Gaussians P and Q marked. Left, the natural parameters: the blue grid and the blue e-geodesic between P and Q are straight, the orange curves of constant expectation parameters and the orange m-geodesic are curved. Right, the expectation parameters: the orange grid and the orange m-geodesic are straight, and the blue curves are curved. Arrows between the charts are labelled eta equals the gradient of psi and theta equals the gradient of psi-star.">
+<figcaption>The same two Gaussians in the two charts. In the $\theta$ chart the blue lines are straight (the grid and the e-geodesic) and the orange ones bend; in the $\eta$ chart it is the other way round. Each chart makes one kind of line straight and bends the other.</figcaption>
+</figure>
+
+Read the figure as one idea shown twice. A line is "straight" only relative to a chart. In the $\theta$ chart the straight line between $P$ and $Q$ is the **e-geodesic**; in the $\eta$ chart it is the **m-geodesic**; and each of them looks bent in the other chart. Both charts are flat in their own sense, and the potential and its Legendre dual convert one into the other, which is what "dually flat" means. The allowed region is also different in each chart: the variance must be positive, which excludes the top edge $\theta_2=0$ in the left panel and everything on or below the parabola $\eta_2=\eta_1^2$ in the right one.
+
+Two kinds of straight.** Declare $\theta$ an affine coordinate system: a curve $\theta(t)=at+b$ is straight, an
 *e-geodesic*. Declare $\eta$ affine too: $\eta(t)=at+b$ is a *m-geodesic*. Because $\theta\mapsto\eta$ is not linear, the
 two families of lines are different. The picture below shows one pair $P=(0.7,0.2,0.1)$, $Q=(0.1,0.3,0.6)$
 joined by both, in the logit chart (left, e-geodesic straight) and the probability triangle (right, m-geodesic straight).
