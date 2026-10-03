@@ -1,0 +1,51 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Distance, divergence and metric</title>
+<desc>Left: three points where the direct path is shorter than the detour through a third point, the triangle inequality. Middle: a divergence between two points that has a different size in the two directions. Right: a divergence plotted against the second argument, a bowl with a dashed symmetric parabola fitted at its bottom; the curvature of that parabola is the metric.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+  .ax{stroke:#c9c8c0;stroke-width:1;fill:none} .grey{stroke:#8a8880;stroke-width:1.3;fill:none}
+  .b{stroke:#2a78d6;stroke-width:2.6;fill:none;stroke-linecap:round} .bt{stroke:#2a78d6;stroke-width:1.4;fill:none;stroke-linecap:round}
+  .o{stroke:#eb6834;stroke-width:2.6;fill:none;stroke-linecap:round} .ot{stroke:#eb6834;stroke-width:1.4;fill:none;stroke-linecap:round}
+  .dash{stroke:#8a8880;stroke-width:1.5;fill:none;stroke-dasharray:5 4}
+  .dot{fill:#1a1a19} .fb{fill:#2a78d6} .fo{fill:#eb6834}
+  @media (prefers-color-scheme: dark){
+    .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .grey,.dash{stroke:#85837b}
+    .b,.bt{stroke:#3987e5} .o,.ot{stroke:#d95926} .dot{fill:#eceae3} .fb{fill:#3987e5} .fo{fill:#d95926}
+  }
+</style>
+<text class="hd" x="120" y="28" text-anchor="middle">Distance</text>
+<text class="sm" x="120" y="46" text-anchor="middle">all four rules hold</text>
+<line class="grey" x1="40" y1="215" x2="115" y2="120"/>
+<line class="grey" x1="115" y1="120" x2="200" y2="215"/>
+<line class="b" x1="40" y1="215" x2="200" y2="215"/>
+<circle class="dot" cx="40" cy="215" r="4"/><circle class="dot" cx="200" cy="215" r="4"/><circle class="dot" cx="115" cy="120" r="4"/>
+<text class="v" x="28" y="236">p</text><text class="v" x="204" y="236">r</text><text class="v" x="109" y="110">q</text>
+<text class="sm" x="120" y="258" text-anchor="middle">the direct route is never longer</text>
+<text class="sm" x="120" y="274" text-anchor="middle">than a detour; and the same</text>
+<text class="sm" x="120" y="290" text-anchor="middle">length both ways</text>
+<text class="hd" x="360" y="28" text-anchor="middle">Divergence</text>
+<text class="sm" x="360" y="46" text-anchor="middle">only rules 1 and 2 hold</text>
+<path class="b" d="M 290,188 C 310,120 410,120 430,188"/>
+<path class="b" d="M 421,176 L 430,189 L 416,188"/>
+<path class="ot" d="M 430,202 C 410,235 310,235 290,202"/>
+<path class="ot" d="M 299,214 L 290,201 L 304,203"/>
+<circle class="dot" cx="290" cy="195" r="4"/><circle class="dot" cx="430" cy="195" r="4"/>
+<text class="v" x="278" y="215">p</text><text class="v" x="436" y="215">q</text>
+<text class="sm" x="360" y="128" text-anchor="middle">D(p ‖ q): large</text>
+<text class="sm" x="360" y="248" text-anchor="middle">D(q ‖ p): smaller</text>
+<text class="sm" x="360" y="274" text-anchor="middle">going one way can cost more</text>
+<text class="sm" x="360" y="290" text-anchor="middle">than going the other</text>
+<text class="hd" x="600" y="28" text-anchor="middle">Metric</text>
+<text class="sm" x="600" y="46" text-anchor="middle">the divergence's bowl, up close</text>
+<line class="ax" x1="520" y1="240" x2="685" y2="240"/><line class="ax" x1="590" y1="70" x2="590" y2="250"/>
+<path class="b" d="M 528,90 C 550,200 570,228 590,230 C 625,232 650,190 672,120"/>
+<path class="dash" d="M 535,170 Q 590,290 645,170"/>
+<circle class="dot" cx="590" cy="230" r="4"/>
+<text class="v" x="590" y="260" text-anchor="middle">q = p</text>
+<text class="sm" x="678" y="258" text-anchor="end">q</text>
+<text class="sm" x="598" y="82">D(p ‖ q)</text>
+<text class="sm" x="600" y="274" text-anchor="middle">dashed: the symmetric bowl that</text>
+<text class="sm" x="600" y="290" text-anchor="middle">fits at the bottom; its curvature</text>
+<text class="sm" x="600" y="306" text-anchor="middle">is the metric at p</text>
+</svg>
