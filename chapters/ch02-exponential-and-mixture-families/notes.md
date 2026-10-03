@@ -88,6 +88,28 @@ $$
 the last equality being (1.56) of Chapter 1. Check on the Gamma family: the second moment of the score, by quadrature, is $\left[\begin{smallmatrix}0.3949&2\\2&12\end{smallmatrix}\right]$, equal to the finite-difference Hessian of $\psi$.
 Everything on the geometric side (Fisher metric, e-flatness) is therefore *already* a statement about covariances of the statistics.
 
+### A picture: a Gaussian family and its cumulant generating function
+
+The chapter's opening line says that an exponential family is *associated with* a convex function, the cumulant generating function $\psi$ (the "free energy"). Two pictures show what that means for Gaussians.
+
+**One parameter: only the mean moves.** Fix the width and slide the mean. Each member of the family is a bell curve, and each is one point on the curve of $\psi$.
+
+<figure>
+<img src="figures/gaussian-cgf-1d.svg" alt="Left: four bell curves of equal width with different means. Middle: a convex bowl, psi of theta, with four coloured dots matching the four bell curves and a dashed tangent line at one of them. Right: the same bowl for three different widths; a wider Gaussian gives a more sharply curved bowl.">
+<figcaption>Left: a one-parameter Gaussian family. Middle: its cumulant generating function $\psi(\theta)$; each dot is the bell curve of the same colour, and the slope at a dot is that curve's mean. Right: the same function for three widths: the wider the Gaussian, the more curved the bowl.</figcaption>
+</figure>
+
+The function does the bookkeeping for the whole family. Its **slope** at a point is the mean of the distribution there, and its **curvature** is the variance. So a single convex function holds both the average and the spread of every member, and this is the reason the Hessian of $\psi$ is the Fisher information (Theorem 2.1 below).
+
+**Two parameters: the full Gaussian family.** Let the mean and the width both vary. The natural parameters are $\theta_1=\mu/\sigma^2$ and $\theta_2=-1/(2\sigma^2)$, so the allowed region is only the half-plane $\theta_2<0$.
+
+<figure>
+<img src="figures/gaussian-cgf-2d.svg" alt="Left: the plane of the two natural parameters with a forbidden edge at the top and four coloured points. Middle: the four Gaussians that the points stand for. Right: the cumulant generating function drawn as a bowl over the parameter plane, rising steeply toward the forbidden edge, with the four coloured points on the bowl.">
+<figcaption>Left: the parameter plane; each point is one Gaussian, and the edge $\theta_2=0$ is not allowed. Middle: the Gaussians those points stand for. Right: the cumulant generating function as a bowl over the plane; each Gaussian is a coloured point on it.</figcaption>
+</figure>
+
+Three things to see. First, the function is a bowl over a **half-plane**, not the whole plane: the parameters are only meaningful while the variance is positive. Second, the bowl climbs without limit as a point approaches the forbidden edge, which is where the Gaussian becomes infinitely wide. Third, the same recipe works as before: the slope of the bowl (now a two-component gradient) gives the expectation parameters $(\mu,\ \mu^2+\sigma^2)$, and its curvature (now a matrix) gives the covariance of $(x,x^2)$, the Fisher matrix.
+
 ## 2. The two examples: Gaussians and discrete distributions (§2.2)
 
 **Gaussian.** With statistics $(x,x^2)$ the natural parameters are $\theta=(\mu/\sigma^2,\,-1/2\sigma^2)$ and the dual ones $\eta=(\mu,\mu^2+\sigma^2)$, as in Chapter 1 (§1 and §5 there). A technical point the book spells out: $x_1=x$ and $x_2=x^2$ are tied by $x_2=x_1^2$, so the dominating measure on the $(x_1,x_2)$-plane lives on the parabola, $d\mu=\delta(x_2-x_1^2)\,dx$.
