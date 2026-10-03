@@ -10,6 +10,7 @@ the Legendre dual of psi is the negative entropy.
 Checked here, in the order the notes use them:
 
   0. the Gaussians in three charts: (mu, sigma), moments and natural parameters, and the maps between them;
+     and the 3-class softmax in four charts: logits, centred logits, probabilities and square roots;
   1. a divergence is a local squared distance: KL ~ (1/2) g dxi dxi, its asymmetry, and how badly
      the triangle inequality fails (even for the square root);
   2. Bregman divergences: the book's examples, the Itakura-Saito and generalised-KL cases, the matrix
@@ -121,6 +122,90 @@ def check_gaussian_charts():
     print("   theta2 for sigma = 0.5, 1, 2, 3: " + ", ".join(f"{-1 / (2 * s_ ** 2):.4f}" for s_ in (0.5, 1, 2, 3))
           + "  (equal steps of sigma bunch up towards 0 as sigma grows)")
     print("   m2 for mu = 1 and sigma = 0.5, 1, 2, 3: " + ", ".join(f"{1 + s_ ** 2:.2f}" for s_ in (0.5, 1, 2, 3)))
+
+
+# ------------------------------------------------------------------ 0b. one manifold, four charts: the softmax
+
+def softmax(z):
+    z = np.asarray(z, float)
+    e = np.exp(z - z.max())
+    return e / e.sum()
+
+
+def centred_logits(p):
+    """Logits are defined only up to z -> z + c (1, 1, 1); log p - mean(log p) is the representative that treats all outcomes alike."""
+    z = np.log(np.asarray(p, float))
+    return z - z.mean()
+
+
+def centred_xy(z):
+    """Chart 2 as drawn: the position of a logit vector in the plane z0 + z1 + z2 = 0, oriented like the probability triangle.
+    u = z @ (V - mean V); the rows of V - mean V add to zero, so u does not change under z -> z + c (1, 1, 1)."""
+    return np.asarray(z, float) @ (V - V.mean(axis=0))
+
+
+def sqrt_chart(p):
+    return 2 * np.sqrt(np.asarray(p, float)[1:])               # (x1, x2) = (2 sqrt p1, 2 sqrt p2)
+
+
+def p_of_sqrt(x):
+    q = np.asarray(x, float) ** 2 / 4
+    return np.concatenate([[1 - q.sum()], q])
+
+
+def G_sqrt(x):
+    """Fisher metric in the square-root chart: with x0^2 = 4 - x1^2 - x2^2, ds^2 = dx0^2 + dx1^2 + dx2^2, the round sphere of radius 2."""
+    x = np.asarray(x, float)
+    return np.eye(2) + np.outer(x, x) / (4 - float(x @ x))
+
+
+def check_softmax_charts():
+    head("0b. A 3-class softmax in four charts (section 1.1, the counterpart of the Gaussian picture)")
+    Wc = V - V.mean(axis=0)
+    cases = [("P", P3), ("Q", Q3), ("uniform", np.ones(3) / 3), ("saturated", softmax([0.0, 4.0, -2.0]))]
+    worst = np.zeros(4)
+    for name, p in cases:
+        th, zc, u, x = theta_of_p(p), centred_logits(p), centred_xy(np.log(p)), sqrt_chart(p)
+        back = [p_of_theta(th), softmax(zc), softmax(u @ np.linalg.pinv(Wc)), p_of_sqrt(x)]
+        worst = np.maximum(worst, [np.abs(b - p).max() for b in back])
+        print(f"   {name} p = ({p[0]:.4f}, {p[1]:.4f}, {p[2]:.4f}): logits theta = ({th[0]:.4f}, {th[1]:.4f}); centred logits ({zc[0]:.4f}, {zc[1]:.4f}, {zc[2]:.4f}) "
+              f"(drawn at ({u[0]:.4f}, {u[1]:.4f})); square-root chart ({x[0]:.4f}, {x[1]:.4f})")
+    print("   back to p from each chart, largest error over the four distributions: "
+          + ", ".join(f"{n} {w:.1e}" for n, w in zip(("logits", "centred logits", "drawn position", "square roots"), worst)))
+    z = np.array([0.3, -1.2, 2.0])
+    print(f"   raw logits z = ({z[0]}, {z[1]}, {z[2]}) are redundant: softmax(z + 7.3) differs from softmax(z) by at most {np.abs(softmax(z + 7.3) - softmax(z)).max():.1e}, "
+          f"and the drawn position of the centred logits moves by {np.abs(centred_xy(z + 7.3) - centred_xy(z)).max():.1e}")
+    cs = np.arange(-3, 4)
+    print("   the logit line theta1 = c is p1 = e^c p0, a straight line through the corner of outcome 2; it meets the edge p2 = 0 at p1 = 1/(1 + e^-c) = "
+          + ", ".join(f"{1 / (1 + math.exp(-c)):.4f}" for c in cs) + " for c = -3, ..., 3")
+    steps = [-4, -2, 0, 2, 4]
+    p1s = [p_of_theta(np.array([float(c), 0.0]))[1] for c in steps]
+    print("   along theta2 = 0, theta1 = -4, -2, 0, 2, 4 gives p1 = " + ", ".join(f"{v:.4f}" for v in p1s)
+          + "; the four steps move p1 by " + ", ".join(f"{b - a:.4f}" for a, b in zip(p1s, p1s[1:])))
+    print("   area scale from chart 1 to chart 3, |d(p1, p2)/d(theta1, theta2)| = det G = p0 p1 p2:")
+    for name, th in (("uniform", np.zeros(2)), ("P", theta_of_p(P3)), ("theta = (3, 3)", np.array([3.0, 3.0])), ("saturated", theta_of_p(softmax([0.0, 4.0, -2.0])))):
+        h = 1e-6
+        J = np.column_stack([(eta_of_theta(th + h * e_) - eta_of_theta(th - h * e_)) / (2 * h) for e_ in np.eye(2)])
+        print(f"      {name}: finite-difference determinant {np.linalg.det(J):.6f}, p0 p1 p2 = {p_of_theta(th).prod():.6f}")
+    p = P3
+    dp = np.array([-0.02, 0.05, -0.03])
+    dth = dp[1:] / p[1:] - dp[0] / p[0]                                   # the same step in each chart, to first order
+    dz = dp / p - (dp / p).mean()
+    du = dz @ Wc
+    dzb = du @ np.linalg.pinv(Wc)
+    Gz = np.diag(p) - np.outer(p, p)
+    dx = dp[1:] / np.sqrt(p[1:])
+    ds2 = {"logits": dth @ G_theta(theta_of_p(p)) @ dth, "centred logits": dzb @ Gz @ dzb,
+           "probabilities": dp[1:] @ G_eta(p[1:]) @ dp[1:], "square roots": dx @ G_sqrt(sqrt_chart(p)) @ dx}
+    print(f"   the step dp = ({dp[0]}, {dp[1]}, {dp[2]}) at P has ds^2 = " + ", ".join(f"{v:.6f} in {k}" for k, v in ds2.items())
+          + f" (G_theta, Cov_p of the logit change, G_eta, I + x x'/x0^2); directly sum dp_k^2/p_k = {np.sum(dp ** 2 / p):.6f}; largest difference {max(abs(v - np.sum(dp ** 2 / p)) for v in ds2.values()):.1e}")
+    c = 1.2
+    ps = np.array([p_of_theta(np.array([c, t_])) for t_ in np.linspace(-5, 5, 21)])
+    x3 = 2 * np.sqrt(ps)
+    ell = np.abs((1 + math.exp(c)) * x3[:, 1] ** 2 + math.exp(c) * x3[:, 2] ** 2 - 4 * math.exp(c)).max()
+    print(f"   the line theta1 = {c}: p1 - e^c p0 = {np.abs(ps[:, 1] - math.exp(c) * ps[:, 0]).max():.1e} (straight in the triangle); in the square-root chart "
+          f"x1 - e^(c/2) x0 = {np.abs(x3[:, 1] - math.exp(c / 2) * x3[:, 0]).max():.1e}, a plane through the origin, so it is a great circle through the corner of outcome 2, "
+          f"and (1 + e^c) x1^2 + e^c x2^2 - 4 e^c = {ell:.1e}, an ellipse in the (x1, x2) picture")
 
 
 def check_fisher_gaussian():
@@ -1197,6 +1282,68 @@ def fig_gaussian(out):
         "The coordinate grid of the (mu, sigma) half-plane redrawn in moment coordinates (m1, m2) = (mu, mu^2 + sigma^2) and natural coordinates theta = (mu/sigma^2, -1/(2 sigma^2)). The Gaussian (1, 2) is the point (1, 5) in moments and (0.25, -0.125) in natural parameters.", body))
 
 
+def fig_softmax(out):
+    body = []
+    cs = (-3, -2, -1, 0, 1, 2, 3)
+    T = 4.5                                                # the logit grid is drawn for |theta| <= T
+    ts = np.linspace(-T, T, 181)
+    Wc = V - V.mean(axis=0)
+
+    def to_chart(k, th):                                   # th: rows of logits relative to outcome 0
+        if k == 0:
+            return th
+        if k == 1:
+            return np.column_stack([np.zeros(len(th)), th]) @ Wc
+        ps = np.array([p_of_theta(t_) for t_ in th])
+        return ps @ V if k == 2 else 2 * np.sqrt(ps[:, 1:])
+
+    def halo(P_, x, y, s_, anchor="start", dx=0, dy=0):    # label with an outline in the background colour
+        body.append(f'<text class="sm ring" style="stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round" x="{P_.X(x) + dx:.1f}" y="{P_.Y(y) + dy:.1f}" text-anchor="{anchor}">{s_}</text>')
+
+    n = 190                                                # side of the square panels
+    A = Panel(body, 82, 44, n, n, (-4.9, 4.9), (-4.9, 4.9))
+    A.frame([-4, -2, 0, 2, 4], [-4, -2, 0, 2, 4], "θ₁ = z₁ − z₀ = log(p₁/p₀)", "θ₂ = z₂ − z₀ = log(p₂/p₀)", "chart 1: logits relative to outcome 0", grid=False)
+    sc = 24.0
+    B = Panel(body, 480, 44, n, n, (-n / 2 / sc, n / 2 / sc), (-n / 2 / sc, n / 2 / sc))
+    body.append('<text class="hd" x="480" y="32">chart 2: centred logits z − mean(z)</text>')
+    C = SimplexPanel(body, 82, 330, 216, "chart 3: probabilities (p₀, p₁, p₂)", ty=300)
+    C.frame_simplex()
+    D = Panel(body, 480, 312, n, n, (0, 2.1), (0, 2.1))
+    D.frame([0, 1, 2], [0, 1, 2], "x₁ = 2√p₁", "x₂ = 2√p₂", "chart 4: square roots (2√p₁, 2√p₂)", grid=False)
+    phi = np.linspace(0, math.pi / 2, 60)
+    D.line(2 * np.cos(phi), 2 * np.sin(phi), "ax")
+    for k, P_ in enumerate((A, B, C, D)):
+        for c in cs:
+            for fam, cls in ((0, "s1"), (1, "s4")):
+                th = np.column_stack([np.full_like(ts, c), ts]) if fam == 0 else np.column_stack([ts, np.full_like(ts, c)])
+                xy = to_chart(k, th)
+                P_.line(xy[:, 0], xy[:, 1], ("ln " if c == 0 else "thin ") + cls)
+    halo(D, 0.04, 0.04, "outcome 0", "start", 2, -4); halo(D, 2.0, 0.0, "outcome 1", "end", -2, -6); halo(D, 0.0, 2.0, "outcome 2", "start", 8, 3)
+    cx, cy = -2.75, -2.95                                  # a compass in the empty corner of chart 2: the direction in which each logit grows
+    for k_, name, anc, dx, dy in ((0, "class 0", "end", -5, 10), (1, "class 1", "start", 5, 10), (2, "class 2", "middle", 0, -7)):
+        d = Wc[k_] / np.hypot(*Wc[k_]) * 1.15
+        x1_, y1_ = B.X(cx), B.Y(cy); x2_, y2_ = B.X(cx + d[0]), B.Y(cy + d[1])
+        ux, uy = (x2_ - x1_), (y2_ - y1_); L = math.hypot(ux, uy); ux, uy = ux / L, uy / L
+        hx, hy = x2_ - 6 * ux, y2_ - 6 * uy
+        body.append(f'<line class="ax" x1="{x1_:.1f}" y1="{y1_:.1f}" x2="{hx:.1f}" y2="{hy:.1f}"/>')
+        body.append(f'<polygon class="f0" points="{x2_:.1f},{y2_:.1f} {hx - uy * 2.6:.1f},{hy + ux * 2.6:.1f} {hx + uy * 2.6:.1f},{hy - ux * 2.6:.1f}"/>')
+        body.append(f'<text class="sm" x="{x2_ + dx:.1f}" y="{y2_ + dy:.1f}" text-anchor="{anc}">{name}</text>')
+    thP = theta_of_p(P3)
+    for k, (P_, dx, dy, anc) in enumerate(((A, 7, -7, "start"), (B, -8, -7, "end"), (C, 8, -4, "start"), (D, 7, -7, "start"))):
+        x, y = to_chart(k, thP[None, :])[0]
+        P_.dot(x, y, "f2")
+        body.append(f'<text class="v ring" style="stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round" x="{P_.X(x) + dx:.1f}" y="{P_.Y(y) + dy:.1f}" text-anchor="{anc}">P</text>')
+    cap = ["Blue: θ₁ = −3, …, 3. Orange: θ₂ = −3, …, 3: equal steps of one logit (thick: 0, crossing at the uniform distribution).",
+           "Chart 2 is the plane z₀ + z₁ + z₂ = 0 (compass: where one logit grows). The dot is P = (0.7, 0.2, 0.1): θ = (−1.253, −1.946) in chart 1,",
+           "centred logits (1.066, −0.187, −0.880) in chart 2, probabilities (0.7, 0.2, 0.1) in chart 3 and (0.894, 0.632) in chart 4.",
+           "The set of softmax outputs is the same in all four; only the labels differ, and the logit grid is bent: two fans of straight lines in chart 3,",
+           "two fans of ellipse arcs in chart 4, crowded towards the boundary (saturation: equal logit steps are very unequal probability steps)."]
+    for k, line in enumerate(cap):
+        body.append(f'<text class="sm" x="40" y="{566 + 18 * k}">{line}</text>')
+    (out / "softmax-charts.svg").write_text(svg(800, 566 + 18 * len(cap) - 6, "One 3-class softmax in four coordinate charts",
+        "The coordinate grid of the logits (theta1, theta2) = (z1 - z0, z2 - z0) of a three-outcome softmax, redrawn in centred logits (a straight lattice with 60 degree angles in the plane z0 + z1 + z2 = 0), in probabilities (two fans of straight lines through two corners of the probability triangle) and in square-root coordinates (two fans of ellipse arcs in a quarter disc). The distribution P = (0.7, 0.2, 0.1) is theta = (-1.253, -1.946), centred logits (1.066, -0.187, -0.880) and square roots (0.894, 0.632).", body))
+
+
 def fig_gaussian_geodesics(out):
     body = []
     ts = np.linspace(0, 1, 120)
@@ -1277,14 +1424,14 @@ def fig_projection_gaussian(out):
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_gaussian(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_projection_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_softmax(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_projection_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
+    check_gaussian_charts(); check_softmax_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
     check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_projection_gaussian(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
