@@ -1,0 +1,48 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>A convex function and its Legendre transform</title>
+<desc>Left: a convex curve with a chord lying above it and a tangent line lying below it. Right: the same curve and the family of its tangent lines, each labelled by its slope; the tangent of one chosen slope is highlighted and its intercept with the vertical axis, which equals minus the Legendre transform at that slope, is marked.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f}
+.ax{stroke:#c9c8c0;stroke-width:1;fill:none}
+.cv{fill:none;stroke:#1a1a19;stroke-width:2.6;stroke-linejoin:round}
+.ch{stroke:#eb6834;stroke-width:2;fill:none} .tg{stroke:#2a78d6;stroke-width:2;fill:none}
+.tg2{stroke:#2a78d6;stroke-width:1;stroke-opacity:.45;fill:none} .hi{stroke:#2a78d6;stroke-width:2.6;fill:none}
+.ring{stroke:#fdfdfc;stroke-width:3.5;paint-order:stroke;stroke-linejoin:round} .dot{fill:#1a1a19} .ofill{fill:#eb6834}
+@media (prefers-color-scheme: dark){ .hd{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .cv{stroke:#eceae3} .ch,.ofill{stroke:#d95926;fill:#d95926} .ch{fill:none} .tg,.hi{stroke:#3987e5} .tg2{stroke:#3987e5} .dot{fill:#eceae3} .ring{stroke:#161615} }
+</style>
+<clipPath id="cL"><rect x="30" y="64" width="280" height="240"/></clipPath><clipPath id="cR"><rect x="410" y="64" width="280" height="240"/></clipPath>
+<line class="ax" x1="30" y1="245" x2="310" y2="245"/><line class="ax" x1="170" y1="70" x2="170" y2="300"/>
+<text class="sm" x="302" y="239">θ</text>
+<line class="ax" x1="410" y1="245" x2="690" y2="245"/><line class="ax" x1="550" y1="70" x2="550" y2="300"/>
+<text class="sm" x="682" y="239">θ</text>
+<line class="ch" x1="70.8" y1="183.0" x2="275.4" y2="171.6"/>
+<g clip-path="url(#cL)"><line class="tg" x1="21.2" y1="354.2" x2="318.8" y2="174.2"/></g>
+<polyline class="cv" points="46.0,127.4 49.1,135.9 52.2,143.9 55.3,151.5 58.4,158.6 61.5,165.3 64.6,171.6 67.7,177.5 70.8,183.0 73.9,188.2 77.0,193.0 80.1,197.5 83.2,201.8 86.3,205.7 89.4,209.4 92.5,212.8 95.6,215.9 98.7,218.9 101.8,221.6 104.9,224.1 108.0,226.4 111.1,228.5 114.2,230.5 117.3,232.3 120.4,233.9 123.5,235.4 126.6,236.8 129.7,238.0 132.8,239.1 135.9,240.1 139.0,241.0 142.1,241.8 145.2,242.5 148.3,243.1 151.4,243.6 154.5,244.0 157.6,244.4 160.7,244.7 163.8,244.8 166.9,245.0 170.0,245.0 173.1,245.0 176.2,244.8 179.3,244.7 182.4,244.4 185.5,244.0 188.6,243.6 191.7,243.1 194.8,242.5 197.9,241.8 201.0,241.0 204.1,240.1 207.2,239.1 210.3,238.0 213.4,236.8 216.5,235.4 219.6,233.9 222.7,232.3 225.8,230.5 228.9,228.5 232.0,226.4 235.1,224.1 238.2,221.6 241.3,218.9 244.4,215.9 247.5,212.8 250.6,209.4 253.7,205.7 256.8,201.8 259.9,197.5 263.0,193.0 266.1,188.2 269.2,183.0 272.3,177.5 275.4,171.6 278.5,165.3 281.6,158.6 284.7,151.5 287.8,143.9 290.9,135.9 294.0,127.4"/>
+<circle class="dot" cx="70.8" cy="183.0" r="3.5"/>
+<circle class="dot" cx="275.4" cy="171.6" r="3.5"/>
+<circle class="dot" cx="225.8" cy="230.5" r="3.5"/>
+<text class="sm ring" x="170.0" y="166.4" text-anchor="middle">chord: above the curve</text>
+<text class="sm ring" x="206.0" y="285.0">tangent: below the curve</text>
+<line class="tg2" x1="388.8" y1="48.2" x2="488.0" y2="269.0"/>
+<line class="tg2" x1="413.6" y1="136.6" x2="512.8" y2="267.0"/>
+<line class="tg2" x1="438.4" y1="190.9" x2="537.6" y2="261.9"/>
+<line class="tg2" x1="463.2" y1="222.2" x2="562.4" y2="256.0"/>
+<line class="tg2" x1="488.0" y1="239.5" x2="587.2" y2="249.3"/>
+<line class="tg2" x1="512.8" y1="249.3" x2="612.0" y2="239.5"/>
+<line class="tg2" x1="537.6" y1="256.0" x2="636.8" y2="222.2"/>
+<line class="tg2" x1="562.4" y1="261.9" x2="661.6" y2="190.9"/>
+<line class="tg2" x1="587.2" y1="267.0" x2="686.4" y2="136.6"/>
+<line class="tg2" x1="612.0" y1="269.0" x2="711.2" y2="48.2"/>
+<g clip-path="url(#cR)"><line class="hi" x1="401.2" y1="435.1" x2="698.8" y2="142.9"/></g>
+<polyline class="cv" points="426.0,127.4 429.1,135.9 432.2,143.9 435.3,151.5 438.4,158.6 441.5,165.3 444.6,171.6 447.7,177.5 450.8,183.0 453.9,188.2 457.0,193.0 460.1,197.5 463.2,201.8 466.3,205.7 469.4,209.4 472.5,212.8 475.6,215.9 478.7,218.9 481.8,221.6 484.9,224.1 488.0,226.4 491.1,228.5 494.2,230.5 497.3,232.3 500.4,233.9 503.5,235.4 506.6,236.8 509.7,238.0 512.8,239.1 515.9,240.1 519.0,241.0 522.1,241.8 525.2,242.5 528.3,243.1 531.4,243.6 534.5,244.0 537.6,244.4 540.7,244.7 543.8,244.8 546.9,245.0 550.0,245.0 553.1,245.0 556.2,244.8 559.3,244.7 562.4,244.4 565.5,244.0 568.6,243.6 571.7,243.1 574.8,242.5 577.9,241.8 581.0,241.0 584.1,240.1 587.2,239.1 590.3,238.0 593.4,236.8 596.5,235.4 599.6,233.9 602.7,232.3 605.8,230.5 608.9,228.5 612.0,226.4 615.1,224.1 618.2,221.6 621.3,218.9 624.4,215.9 627.5,212.8 630.6,209.4 633.7,205.7 636.8,201.8 639.9,197.5 643.0,193.0 646.1,188.2 649.2,183.0 652.3,177.5 655.4,171.6 658.5,165.3 661.6,158.6 664.7,151.5 667.8,143.9 670.9,135.9 674.0,127.4"/>
+<circle class="dot" cx="624.4" cy="215.9" r="3.5"/>
+<circle class="ofill" cx="550.0" cy="289.0" r="4.5"/>
+<text class="sm ring" x="560.0" y="293.0">intercept = −ψ*(η)</text>
+<text class="sm ring" x="550.0" y="310.0" text-anchor="middle">thick blue line: the tangent of one chosen slope η</text>
+<text class="hd" x="170" y="28" text-anchor="middle">A convex function</text>
+<text class="sm" x="170" y="46" text-anchor="middle">chords above, tangents below</text>
+<text class="hd" x="550" y="28" text-anchor="middle">The same curve from its tangents</text>
+<text class="sm" x="550" y="46" text-anchor="middle">label each tangent by slope, record its intercept</text>
+<text class="sm" x="360" y="338" text-anchor="middle">the intercepts, as a function of slope, are the Legendre transform (with a minus sign)</text>
+</svg>

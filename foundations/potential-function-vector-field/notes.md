@@ -35,6 +35,8 @@ A swirling field cannot come from a hill: walking once around a loop, you would 
 - The Hessian of $\psi$ is the metric: see [Jacobian and Hessian](../jacobian-and-hessian/index.html) and [distance, divergence and metric](../distance-divergence-metric/index.html).
 - A Bregman divergence is built from the potential: it is the gap between $\psi$ at one point and its tangent-line approximation taken from the other point: [Chapter 1: dually flat structure](../ch01-dually-flat-structure/index.html).
 
+- **Convexity and the transform:** the potential $\psi$ is convex, and its Legendre transform gives the dual potential: [Convex function and the Legendre transform](../convex-function-and-legendre-transform/index.html).
+
 ## Takeaways
 
 1. A potential is a function whose gradient is a vector field: the landscape behind the arrows.
