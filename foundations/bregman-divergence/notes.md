@@ -59,6 +59,8 @@ provided the path from $p$ to $r$ meets the set at a right angle in the dual sen
 
 The convex potential $\psi$ is the log-partition function of an exponential family ([Potential, function and vector field](../potential-function-vector-field/index.html)), and its Bregman divergence is the KL divergence between two members of that family. The same potential supplies the metric (its Hessian), the dual coordinates (its gradient) and the divergence (its tangent gap), so one convex function organises the whole geometry.
 
+- **The metric it induces:** for a family of distributions this is the Fisher information matrix, and the steepest descent direction in it is the natural gradient: [Fisher information and the natural gradient](../fisher-information-and-natural-gradient/index.html).
+
 ## Takeaways
 
 1. A Bregman divergence is the gap between a convex function and its tangent at the other point.

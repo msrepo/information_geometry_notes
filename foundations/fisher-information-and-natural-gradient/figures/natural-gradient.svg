@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 374" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Ordinary and natural gradient in a long thin valley</title>
+<desc>Left: contour lines of a loss that is long in one direction and narrow in the other. Gradient descent zigzags across the narrow valley, while the natural gradient goes almost straight to the minimum. Right: at one point, the Fisher ellipse shows which parameter steps change the distribution by the same amount; the ordinary negative gradient points mostly across the valley while the natural gradient, corrected by the inverse of the Fisher matrix, points along it toward the minimum.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.fr{fill:none;stroke:#c9c8c0;stroke-width:1} .ct{fill:none;stroke:#8a8880;stroke-width:1.4}
+.star{fill:none;stroke:#1a1a19;stroke-width:2}
+.gd{fill:none;stroke:#2a78d6;stroke-width:1.8} .gdp{fill:#2a78d6}
+.nat{fill:none;stroke:#eb6834;stroke-width:2.4} .natp{fill:#eb6834}
+.fish{fill:#eb6834;fill-opacity:.14;stroke:#eb6834;stroke-width:1.6;stroke-dasharray:5 3}
+.ag{stroke:#2a78d6;stroke-width:2.6;stroke-linecap:round;fill:none} .an{stroke:#eb6834;stroke-width:2.6;stroke-linecap:round;fill:none}
+.ring{stroke:#fdfdfc;stroke-width:3.5;paint-order:stroke;stroke-linejoin:round} .dot{fill:#1a1a19}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .fr{stroke:#4a4844} .ct{stroke:#85837b} .star{stroke:#eceae3} .gd,.ag{stroke:#3987e5} .gdp{fill:#3987e5} .nat,.an,.fish{stroke:#d95926} .natp{fill:#d95926} .fish{fill:#d95926} .ring{stroke:#161615} .dot{fill:#eceae3} }
+</style>
+<rect class="fr" x="10" y="64" width="330" height="236" rx="4"/>
+<rect class="fr" x="380" y="64" width="330" height="236" rx="4"/>
+<ellipse class="ct" style="opacity:1" cx="175" cy="195" rx="56.0" ry="22.9"/>
+<ellipse class="ct" style="opacity:1" cx="175" cy="195" rx="98.0" ry="40.0"/>
+<ellipse class="ct" style="opacity:1" cx="175" cy="195" rx="140.0" ry="57.2"/>
+<path class="star" d="M 175,195 m -5,0 h 10 m -5,-5 v 10"/>
+<ellipse class="ct" style="opacity:0.8" cx="545" cy="195" rx="56.0" ry="22.9"/>
+<ellipse class="ct" style="opacity:0.8" cx="545" cy="195" rx="98.0" ry="40.0"/>
+<ellipse class="ct" style="opacity:0.8" cx="545" cy="195" rx="140.0" ry="57.2"/>
+<path class="star" d="M 545,195 m -5,0 h 10 m -5,-5 v 10"/>
+<polyline class="gd" points="28.0,142.5 69.2,230.7 98.8,170.7 120.1,211.5 135.5,183.8 146.6,202.6 154.5,189.8 160.3,198.5 164.4,192.6 167.4,196.6"/>
+<circle class="gdp" cx="28.0" cy="142.5" r="2.8"/>
+<circle class="gdp" cx="69.2" cy="230.7" r="2.8"/>
+<circle class="gdp" cx="98.8" cy="170.7" r="2.8"/>
+<circle class="gdp" cx="120.1" cy="211.5" r="2.8"/>
+<circle class="gdp" cx="135.5" cy="183.8" r="2.8"/>
+<circle class="gdp" cx="146.6" cy="202.6" r="2.8"/>
+<circle class="gdp" cx="154.5" cy="189.8" r="2.8"/>
+<circle class="gdp" cx="160.3" cy="198.5" r="2.8"/>
+<circle class="gdp" cx="164.4" cy="192.6" r="2.8"/>
+<circle class="gdp" cx="167.4" cy="196.6" r="2.8"/>
+<polyline class="nat" points="28.0,142.5 72.1,158.2 103.0,169.3 124.6,177.0 139.7,182.4 150.3,186.2 157.7,188.8"/>
+<circle class="natp" cx="28.0" cy="142.5" r="2.8"/>
+<circle class="natp" cx="72.1" cy="158.2" r="2.8"/>
+<circle class="natp" cx="103.0" cy="169.3" r="2.8"/>
+<circle class="natp" cx="124.6" cy="177.0" r="2.8"/>
+<circle class="natp" cx="139.7" cy="182.4" r="2.8"/>
+<circle class="natp" cx="150.3" cy="186.2" r="2.8"/>
+<circle class="natp" cx="157.7" cy="188.8" r="2.8"/>
+<circle class="dot" cx="28.0" cy="142.5" r="4"/>
+<text class="v ring" x="22.0" y="132.5">start</text>
+<text class="sm ring" x="175.0" y="321.0" text-anchor="middle" style="fill:#2a78d6">ordinary gradient: zigzags across the valley</text>
+<text class="sm ring" x="175.0" y="337.0" text-anchor="middle" style="fill:#c4501f">natural gradient: straight to the minimum</text>
+<ellipse class="fish" cx="440.0" cy="153.0" rx="49.5" ry="20.2"/>
+<line class="ag" x1="440.0" y1="153.0" x2="471.5" y2="228.6"/>
+<line class="ag" x1="471.5" y1="228.6" x2="472.0" y2="219.6"/>
+<line class="ag" x1="471.5" y1="228.6" x2="464.8" y2="222.6"/>
+<line class="an" x1="440.0" y1="153.0" x2="471.5" y2="165.6"/>
+<line class="an" x1="471.5" y1="165.6" x2="465.4" y2="159.0"/>
+<line class="an" x1="471.5" y1="165.6" x2="462.5" y2="166.2"/>
+<circle class="dot" cx="440.0" cy="153.0" r="4"/>
+<text class="sm ring" x="480.0" y="91.0" text-anchor="middle">the Fisher ellipse: steps of equal</text>
+<text class="sm ring" x="480.0" y="105.0" text-anchor="middle">change in the distribution</text>
+<text class="sm ring" x="454.0" y="235.0" style="fill:#2a78d6">−gradient</text>
+<text class="sm ring" x="480.0" y="157.0" style="fill:#c4501f">−G⁻¹ gradient</text>
+<text class="hd" x="175" y="28" text-anchor="middle">Going down a thin valley</text>
+<text class="sm" x="175" y="46" text-anchor="middle">contours of the loss; + marks the minimum</text>
+<text class="hd" x="545" y="28" text-anchor="middle">Why they differ at one point</text>
+<text class="sm" x="545" y="46" text-anchor="middle">the Fisher matrix reshapes the step</text>
+<text class="sm" x="360" y="360" text-anchor="middle">the loss and the Fisher ellipse share the same stretched shape here, which is what makes the natural gradient aim straight at the minimum</text>
+</svg>
