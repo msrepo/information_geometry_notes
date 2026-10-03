@@ -63,15 +63,50 @@ Three things to see. First, the function is a bowl over a **half-plane**, not th
 
 ## A kernel exponential family, the simplest case
 
-An ordinary exponential family multiplies a few fixed functions of $x$ (such as $x$ and $x^2$) by weights $\theta_i$, adds them up in the exponent and normalises. A **kernel exponential family** does the same thing, but the fixed functions are *bumps* $k(x,c_i)$, one around each of a set of centres $c_i$. The weights decide how much probability sits near each centre:
+An ordinary exponential family multiplies a few fixed functions of $x$ (such as $x$ and $x^2$) by weights $\theta_i$, adds them up in the exponent and normalises. The book's **kernel exponential family** (§2.6, due to Fukumizu) does the same with *bumps* $k(x,y)$, one around every point $y$, and a whole function $\theta(y)$ of weights, one for each point $y$:
 
-$$p(x;\theta)\;\propto\;\exp\Big\{\sum_i\theta_i\,k(x,c_i)\Big\}.$$
+$$p(x;\theta)=\exp\Big\{\int\theta(y)\,k(x,y)\,dy-\psi[\theta]\Big\}\quad\text{with respect to a base measure }d\mu(x).$$
 
-With many centres the family can approximate nearly any smooth density, which is why it is a model "of all densities" in the book's section on the kernel exponential family. The simplest case to look at has just two centres on a line.
+Here $k$ is a positive-definite kernel, for example the Gaussian kernel $k_\sigma(x,y)\propto e^{-(x-y)^2/(2\sigma^2)}$ with width $\sigma$, and the base measure is a suitable fixed one, for instance $d\mu(x)=e^{-x^2/(2\tau^2)}dx$. The natural parameter is the function $\theta(y)$ (instead of a list $\theta_i$), the dual parameter is the function $\eta(y)=\mathbb E[k(x,y)]$, the average of the bump at $y$, and $\psi[\theta]$ is a convex functional of $\theta$. The book stresses that this family does **not** cover every density: there are many such models, one for each choice of $k$ and $d\mu$. The "naive treatment" of the space of all densities in §2.5 is the special case where the kernel is a delta function, $k(x,y)=\delta(x-y)$.
+
+**The simplest picture: two centres.** Replace the continuum of points $y$ by just two centres $c_1,c_2$, so the weight function is concentrated on them, $\theta(y)=\theta_1\delta(y-c_1)+\theta_2\delta(y-c_2)$. The integral becomes a sum and the family is
+
+$$p(x;\theta)\;\propto\;\exp\{\theta_1k(x,c_1)+\theta_2k(x,c_2)\}\quad(\text{times the base measure}),$$
+
+an ordinary two-parameter exponential family whose two "statistics" are the two bumps. The figure draws it with a uniform base measure on a fixed interval, to keep it simple; the book's example base measure is the Gaussian-weighted one above.
 
 <figure>
 <img src="figures/kernel-exponential-family.svg" alt="Left: two bump-shaped kernels, one solid and one dashed, centred at two points on a line. Middle: four densities built by weighting the two bumps and exponentiating: a flat grey one for zero weights, a blue one with a peak at the left centre, a green one with a peak at each centre, and an orange one with a tall peak at the right centre and a dip at the left. Right: the plane of the two weights, with four coloured points that are the four densities.">
 <figcaption>Left: two kernel bumps. Middle: densities built from them; each curve is one choice of weights. Right: the two weights are the parameters, and each coloured point is the density of the same colour in the middle panel.</figcaption>
 </figure>
 
-Read the picture from left to right. The two bumps are fixed once and for all. A choice of the two weights, one point in the right panel, gives one density in the middle panel. Zero weights give the flat grey density (here on a fixed interval). A positive weight on a bump piles probability near its centre (blue, left bump), positive weights on both give two peaks (green), and a negative weight on one bump pushes probability away from its centre (orange has a dip at the left centre). So the weights $\theta_1,\theta_2$ are the natural parameters of an exponential family whose "statistics" are the two kernel bumps, and everything said about exponential families applies: a convex normaliser $\psi(\theta)$, with its slope giving the average of each bump and its curvature giving how the bumps co-vary.
+Read the picture from left to right. The two bumps are fixed once and for all. A choice of the two weights, one point in the right panel, gives one density in the middle panel. Zero weights give the flat grey density. A positive weight on a bump piles probability near its centre (blue, left bump), positive weights on both give two peaks (green), and a negative weight on one bump pushes probability away from its centre (orange has a dip at the left centre). So the weights are the natural parameters, the dual parameters are the averages $\eta_i=\mathbb E[k(x,c_i)]$ of the two bumps, and everything said about exponential families applies: $\psi$ is convex, its slope gives the averages of the bumps and its curvature gives how they co-vary. With many centres the same construction becomes the function-valued $\theta(y)$ of the book.
+
+## The maximum entropy principle (§2.8.1)
+
+**The question.** You do not know a distribution on the outcomes, but you do know the average of some quantities of the outcome, for instance the average face value of a die. Many distributions agree with what you know. Which one should you pick? The **maximum entropy principle** says: with nothing else to go on, pick the one with the largest entropy, the one that assumes the least beyond what you know.
+
+In the book's notation there are $k$ functions $c_1(x),\dots,c_k(x)$ of the outcome, and the known averages are $\mathbb E[c_i(x)]=a_i$.
+
+<figure>
+<img src="figures/maxent-projection.svg" alt="Left: the triangle of distributions on three outcomes with the uniform distribution P0 at the centre and grey contour lines of equal entropy around it. A straight orange line M(a) is the sheet of distributions with a prescribed average. It touches one entropy contour at the point P-hat, which lies on a blue curve running from the uniform distribution, the family of maximum-entropy points. Another distribution P is marked on the orange line. Right: the entropy along the orange line, rising to one peak at P-hat, with P lower on the curve.">
+<figcaption>Left: all distributions on three outcomes. The orange line holds those that satisfy the prescribed average; the grey contours are lines of equal entropy around the uniform distribution $P_0$. The orange line touches the highest reachable contour at $\hat P$. Right: along the orange line the entropy has one peak, at $\hat P$.</figcaption>
+</figure>
+
+**Step 1: the constraints cut out a flat sheet.** All distributions with the prescribed averages form a sheet $M(a)$ inside the set of all distributions, of dimension $n-k$ when there are $n+1$ outcomes and $k$ constraints. It is **m-flat** (straight in the probabilities, the orange line in the picture), because a mixture of two distributions that both have the prescribed averages has them too.
+
+**Step 2: entropy is a distance to the uniform distribution.** The uniform distribution $P_0$ has the largest entropy of all, and its natural parameters are zero, $\theta_0=0$. The book shows that the divergence $D_{\mathrm{KL}}[P:P_0]$ is the negative entropy of $P$ plus a constant. So maximising entropy is the same as getting as close as possible to the uniform distribution in KL divergence: in the picture, reaching the highest entropy contour that the sheet can touch.
+
+**Step 3: Pythagoras picks the point.** Let $\hat P$ be the point of $M(a)$ with the largest entropy. For every other $P$ in the sheet,
+
+$$D_{\mathrm{KL}}[P:P_0]=D_{\mathrm{KL}}[P:\hat P]+D_{\mathrm{KL}}[\hat P:P_0].$$
+
+This is the generalised Pythagorean theorem of Chapter 1. The second term is the same for every $P$, and the first is positive unless $P=\hat P$, so $\hat P$ is the closest point to the uniform distribution. Geometrically, $\hat P$ is the **e-projection of $P_0$ onto $M(a)$**: the e-geodesic from $P_0$ to $\hat P$ meets the m-flat sheet at a right angle.
+
+**Step 4: the answer is an exponential family.** Change the prescribed averages and the sheet moves, and so does its maximum-entropy point. All these points $\hat P(a)$ together form a $k$-dimensional family, the blue curve, and it is an exponential family:
+
+$$\hat p(x;\theta)=\exp\{\theta\cdot c(x)-\psi(\theta)\}.$$
+
+In words: the maximum-entropy distribution for given averages is the uniform distribution tilted by an exponential of the quantities you constrained. The tilts $\theta$ are the Lagrange multipliers of the constraints. The book's variational derivation (maximising entropy under the constraints) gives the same result.
+
+**A note on the book's wording.** The text says the natural coordinates of this family are "specified by $\theta=a$". As I read it, the constraints fix the *expectation* parameters, $\eta=a$, and $\theta$ is the dual coordinate that goes with them, so I take the printed sentence to be a slip.
