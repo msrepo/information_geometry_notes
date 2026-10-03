@@ -25,6 +25,15 @@ A symmetric matrix $A$ is **positive definite** when $x^\top A x > 0$ for every 
 
 **3. A stretch without a flip.** The axes of the ellipse are the eigenvector directions of $A$, and the eigenvalues say how steep the bowl is along each. In the left panel the bowl is steeper along the first coordinate, so the ellipse is narrow there. In the right panel the off-diagonal entries tilt the axes onto the diagonals, with the steep direction along $(1,1)$. Positive definite means every eigenvalue is positive: no axis is flattened (zero) or flipped (negative).
 
+## The same three, as surfaces
+
+<figure>
+<img src="figures/positive-definite-3d.svg" alt="Three surfaces over a grey floor. Left: a bowl rising on all sides, for diag(2,1). Middle: a saddle for diag(1,-1), blue where it is above the floor and orange where it dips below. Right: a tilted bowl, steep along one diagonal and shallow along the other.">
+<figcaption>The height above the floor is $x^\top A x$ for the three matrices of the contour picture, seen from the same side. The contour lines above are what you get by slicing these surfaces at equal heights and looking straight down.</figcaption>
+</figure>
+
+On the left and on the right every part of the surface lies above the floor except the single point at the origin, which sits on it: that is positive definiteness. In the middle the surface climbs above the floor in one direction and sinks below it in the other, so there are vectors with a negative value: the saddle. Compare the tilted bowl with the plain one: both are bowls, but the tilted one is steep along one diagonal and shallow along the other, which is the same ellipse as before turned onto the diagonals.
+
 ## The three examples
 
 - **Left, $\mathrm{diag}(2,1)$.** Positive definite. A bowl that is steeper along the first coordinate.
