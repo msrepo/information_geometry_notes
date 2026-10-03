@@ -1,0 +1,44 @@
+<svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Maximum likelihood as an m-projection</title>
+<desc>Left: four data points on a line and the zero-mean bell curve fitted to them. Right: the plane of the two expectation parameters; the data define one observed point, the model of zero-mean Gaussians is a vertical line, and the maximum likelihood estimate is the foot of the horizontal straight line dropped from the observed point to the model, meeting it at a right angle. The estimate keeps the second coordinate of the observed point and ignores the first.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.ax{stroke:#c9c8c0;stroke-width:1;fill:none} .fr{fill:none;stroke:#c9c8c0;stroke-width:1}
+.eg{fill:none;stroke:#2a78d6;stroke-width:2.6} .eg2{stroke:#2a78d6;stroke-width:3;stroke-linecap:round}
+.mg{fill:none;stroke:#eb6834;stroke-width:3;stroke-linecap:round} .wall{fill:none;stroke:#8a8880;stroke-width:1.5;stroke-dasharray:5 3}
+.dt{fill:#1a1a19} .mk{fill:#1a1a19} .ra{fill:none;stroke:#1a1a19;stroke-width:1.4}
+.dot{fill:#1a1a19;stroke:#fdfdfc;stroke-width:1.5}
+.ring{stroke:#fdfdfc;stroke-width:3.5;paint-order:stroke;stroke-linejoin:round}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .ax,.fr{stroke:#4a4844} .eg,.eg2{stroke:#3987e5} .mg{stroke:#d95926} .wall{stroke:#85837b} .dt,.mk{fill:#eceae3} .ra{stroke:#eceae3} .dot{fill:#eceae3;stroke:#161615} .ring{stroke:#161615} }
+</style>
+<line class="ax" x1="30" y1="250" x2="270" y2="250"/><line class="ax" x1="30" y1="250" x2="30" y2="110"/>
+<polyline class="eg" points="30.0,247.5 31.2,247.3 32.4,247.1 33.6,246.9 34.8,246.7 36.0,246.4 37.2,246.2 38.4,245.9 39.6,245.6 40.8,245.3 42.0,245.0 43.2,244.7 44.4,244.4 45.6,244.0 46.8,243.6 48.0,243.2 49.2,242.8 50.4,242.4 51.6,241.9 52.8,241.4 54.0,240.9 55.2,240.4 56.4,239.8 57.6,239.2 58.8,238.6 60.0,238.0 61.2,237.3 62.4,236.6 63.6,235.9 64.8,235.2 66.0,234.4 67.2,233.6 68.4,232.8 69.6,232.0 70.8,231.1 72.0,230.2 73.2,229.3 74.4,228.3 75.6,227.3 76.8,226.3 78.0,225.2 79.2,224.2 80.4,223.1 81.6,221.9 82.8,220.8 84.0,219.6 85.2,218.4 86.4,217.2 87.6,215.9 88.8,214.6 90.0,213.3 91.2,212.0 92.4,210.7 93.6,209.3 94.8,207.9 96.0,206.5 97.2,205.1 98.4,203.7 99.6,202.3 100.8,200.9 102.0,199.4 103.2,198.0 104.4,196.5 105.6,195.1 106.8,193.6 108.0,192.2 109.2,190.7 110.4,189.3 111.6,187.9 112.8,186.5 114.0,185.1 115.2,183.7 116.4,182.3 117.6,181.0 118.8,179.6 120.0,178.4 121.2,177.1 122.4,175.9 123.6,174.7 124.8,173.5 126.0,172.4 127.2,171.3 128.4,170.2 129.6,169.2 130.8,168.3 132.0,167.4 133.2,166.5 134.4,165.7 135.6,164.9 136.8,164.2 138.0,163.6 139.2,163.0 140.4,162.5 141.6,162.0 142.8,161.6 144.0,161.2 145.2,160.9 146.4,160.7 147.6,160.6 148.8,160.5 150.0,160.4 151.2,160.5 152.4,160.6 153.6,160.7 154.8,160.9 156.0,161.2 157.2,161.6 158.4,162.0 159.6,162.5 160.8,163.0 162.0,163.6 163.2,164.2 164.4,164.9 165.6,165.7 166.8,166.5 168.0,167.4 169.2,168.3 170.4,169.2 171.6,170.2 172.8,171.3 174.0,172.4 175.2,173.5 176.4,174.7 177.6,175.9 178.8,177.1 180.0,178.4 181.2,179.6 182.4,181.0 183.6,182.3 184.8,183.7 186.0,185.1 187.2,186.5 188.4,187.9 189.6,189.3 190.8,190.7 192.0,192.2 193.2,193.6 194.4,195.1 195.6,196.5 196.8,198.0 198.0,199.4 199.2,200.9 200.4,202.3 201.6,203.7 202.8,205.1 204.0,206.5 205.2,207.9 206.4,209.3 207.6,210.7 208.8,212.0 210.0,213.3 211.2,214.6 212.4,215.9 213.6,217.2 214.8,218.4 216.0,219.6 217.2,220.8 218.4,221.9 219.6,223.1 220.8,224.2 222.0,225.2 223.2,226.3 224.4,227.3 225.6,228.3 226.8,229.3 228.0,230.2 229.2,231.1 230.4,232.0 231.6,232.8 232.8,233.6 234.0,234.4 235.2,235.2 236.4,235.9 237.6,236.6 238.8,237.3 240.0,238.0 241.2,238.6 242.4,239.2 243.6,239.8 244.8,240.4 246.0,240.9 247.2,241.4 248.4,241.9 249.6,242.4 250.8,242.8 252.0,243.2 253.2,243.6 254.4,244.0 255.6,244.4 256.8,244.7 258.0,245.0 259.2,245.3 260.4,245.6 261.6,245.9 262.8,246.2 264.0,246.4 265.2,246.7 266.4,246.9 267.6,247.1 268.8,247.3 270.0,247.5"/>
+<circle class="dt" cx="198.0" cy="250" r="5"/>
+<circle class="dt" cx="126.0" cy="250" r="5"/>
+<circle class="dt" cx="222.0" cy="250" r="5"/>
+<circle class="dt" cx="150.0" cy="250" r="5"/>
+<path class="mk" d="M 174.0,270 l -5,9 l 10,0 z"/>
+<text class="sm" x="194.0" y="296" text-anchor="middle">sample mean: ignored by the model</text>
+<text class="sm" x="270" y="272" text-anchor="end">x</text>
+<text class="sm" transform="translate(24 244) rotate(-90)" text-anchor="start">density</text>
+<text class="sm ring" x="170" y="100" text-anchor="middle">the fitted bell, mean fixed at 0</text>
+<clipPath id="cp"><rect x="450" y="80" width="270" height="200"/></clipPath>
+<rect class="fr" x="450" y="80" width="270" height="200"/>
+<g clip-path="url(#cp)"><polyline class="wall" points="450.0,215.7 452.7,219.5 455.4,223.2 458.1,226.8 460.8,230.2 463.5,233.6 466.2,236.8 468.9,239.9 471.6,242.9 474.3,245.7 477.0,248.5 479.7,251.1 482.4,253.7 485.1,256.1 487.8,258.4 490.5,260.6 493.2,262.6 495.9,264.6 498.6,266.4 501.3,268.1 504.0,269.7 506.7,271.2 509.4,272.6 512.1,273.8 514.8,275.0 517.5,276.0 520.2,276.9 522.9,277.7 525.6,278.4 528.3,278.9 531.0,279.4 533.7,279.7 536.4,279.9 539.1,280.0 541.8,280.0 544.5,279.8 547.2,279.6 549.9,279.2 552.6,278.7 555.3,278.1 558.0,277.4 560.7,276.6 563.4,275.7 566.1,274.6 568.8,273.4 571.5,272.1 574.2,270.7 576.9,269.2 579.6,267.6 582.3,265.8 585.0,263.9 587.7,261.9 590.4,259.8 593.1,257.6 595.8,255.3 598.5,252.8 601.2,250.3 603.9,247.6 606.6,244.8 609.3,241.9 612.0,238.9 614.7,235.7 617.4,232.5 620.1,229.1 622.8,225.6 625.5,222.0 628.2,218.3 630.9,214.4 633.6,210.5 636.3,206.4 639.0,202.2 641.7,197.9 644.4,193.5 647.1,189.0 649.8,184.3 652.5,179.6 655.2,174.7 657.9,169.7 660.6,164.6 663.3,159.3 666.0,154.0 668.7,148.5 671.4,143.0 674.1,137.3 676.8,131.5 679.5,125.6 682.2,119.5 684.9,113.4 687.6,107.1 690.3,100.7 693.0,94.2 695.7,87.6 698.4,80.9 701.1,74.0 703.8,67.1 706.5,60.0 709.2,52.8 711.9,45.5 714.6,38.1 717.3,30.5 720.0,22.9"/></g>
+<line class="mg" x1="540.0" y1="280.0" x2="540.0" y2="80.0"/>
+<line class="eg2" x1="600.0" y1="180.0" x2="540.0" y2="180.0"/>
+<polyline class="ra" points="552.0,180.0 552.0,168.0 540.0,168.0"/>
+<circle class="dot" cx="600.0" cy="180.0" r="5"/><text class="v ring" x="608.0" y="170.0" text-anchor="start">observed point</text>
+<circle class="dot" cx="540.0" cy="180.0" r="5"/><text class="v ring" x="530.0" y="172.0" text-anchor="end">estimate</text>
+<text class="sm ring" style="fill:#eb6834" x="548.0" y="98.0" text-anchor="start">model: zero-mean Gaussians</text>
+<text class="sm ring" style="fill:#2a78d6" x="570.0" y="202.0" text-anchor="middle">m-projection</text>
+<text class="sm" x="720" y="302" text-anchor="end">η₁ = average of x  →</text>
+<text class="sm" transform="translate(438 180) rotate(-90)" text-anchor="middle">η₂ = average of x²</text>
+<text class="sm ring" x="714.0" y="270.0" text-anchor="end">dashed: η₂ = η₁², not allowed below</text>
+<text class="hd" x="150" y="28" text-anchor="middle">The data and the fitted bell</text>
+<text class="sm" x="150" y="46" text-anchor="middle">black dots: the four observations</text>
+<text class="hd" x="585" y="28" text-anchor="middle">The same fit as a projection</text>
+<text class="sm" x="585" y="46" text-anchor="middle">expectation parameters η</text>
+<text class="sm" x="380" y="342" text-anchor="middle">the estimate matches the coordinate the model can express (the average of x²) and ignores the one it cannot (the average of x)</text>
+</svg>

@@ -173,6 +173,38 @@ The ratio of neighbouring faces is $p_{x+1}/p_x=e^{\theta}$ for every $x$: each 
 
 **A note on the book's wording.** The text says the natural coordinates of this family are "specified by $\theta=a$". As I read it, the constraints fix the *expectation* parameters, $\eta=a$, and $\theta$ is the dual coordinate that goes with them, so I take the printed sentence to be a slip.
 
+## Repeated observations and maximum likelihood (§2.8.3)
+
+**The idea in one sentence.** Maximum likelihood fitting is a geometric projection: the data define one point in the space of distributions, and the estimate is the nearest point of the model, measured in KL divergence.
+
+**Step 1: many observations, same geometry.** Observe $N$ independent samples $x_1,\dots,x_N$ from $p(x;\theta)=\exp\{\theta\cdot x-\psi(\theta)\}$. The joint density is a product, so the exponents add. In terms of the average $\bar x=\frac1N\sum_ix_i$ of the statistic it is $\exp\{N\,\theta\cdot\bar x-N\,\psi(\theta)\}$: the same form as one observation, with $x$ replaced by $\bar x$ and the potential multiplied by $N$. So the KL divergence and the Fisher metric are both $N$ times larger (more data, a finer ruler), while the coordinates $\theta,\eta$ and the flat structure do not change, and one can keep working in the original family.
+
+**Step 2: the data is a point.** The average $\bar x$ is a legitimate $\eta$-coordinate, so the observed data pick out one point $\bar\eta=\bar x$ of the family, the *observed point*. For a discrete variable this is the histogram of the data.
+
+**Step 3: the model is a subfamily.** One usually fits a smaller model $S=\{p(x;u)\}$ with fewer parameters $u$, a submanifold of the family. The estimate should be the member of $S$ closest to the observed point.
+
+**Step 4: "closest" means the m-projection.** Maximising the log-likelihood $\sum_i\log p(x_i;u)$ is, up to a constant that does not depend on $u$, the same as minimising the KL divergence from the empirical distribution to the model member. That is the **m-projection** of the observed point onto $S$ (Fig. 2.3 of the book): the foot of the m-geodesic dropped from the observed point onto the model. The orthogonality of that m-geodesic to $S$ is the likelihood equation.
+
+### A concrete example
+
+Take the family of Gaussians, with statistics $x$ and $x^2$, and fit the model $S=\{N(0,\sigma^2)\}$: Gaussians with the mean fixed at $0$ and only the variance free. Suppose the four observations are $2,\,-1,\,3,\,0$.
+
+<figure>
+<img src="figures/mle-projection.svg" alt="Left: four data points on a line and a bell curve centred at zero fitted to them, with the sample mean marked and labelled as ignored by the model. Right: the plane of the expectation parameters, average of x against average of x squared, with a dashed parabola bounding the allowed region, a vertical orange line for the model of zero-mean Gaussians, an observed point to the right of it, and a horizontal blue m-projection from the observed point to the line, meeting it at a right angle, ending at the estimate.">
+<figcaption>Left: the four observations and the fitted zero-mean bell. Right: the same fit in the $\eta$-plane. The data give the observed point, the model is the vertical line of zero-mean Gaussians, and the estimate is the foot of the straight horizontal line from the observed point to the model.</figcaption>
+</figure>
+
+1. **The observed point.** Its $\eta$-coordinates are the averages of the two statistics: $\bar\eta_1=\bar x=1$ and $\bar\eta_2=\overline{x^2}=(4+1+9+0)/4=3.5$. This is a valid Gaussian point, because $\bar\eta_2-\bar\eta_1^2>0$ (the sample variance is positive).
+2. **The model.** Zero-mean Gaussians have expectation parameters $\eta=(0,\sigma^2)$: a vertical line in the $\eta$-plane.
+3. **The projection.** The m-geodesic is a straight line in $\eta$ and must meet the model at a right angle. The model only has freedom in the second coordinate, so the right angle forces the foot to match the second coordinate of the observed point: $\hat\sigma^2=\overline{x^2}=3.5$. The first coordinate of the data (the sample mean, $1$) cannot be matched by the model and is ignored.
+4. **A check without geometry.** The log-likelihood is $-\frac N2\log\sigma^2-\frac{\sum x_i^2}{2\sigma^2}$, and setting its derivative to zero gives $\sigma^2=\frac1N\sum x_i^2=3.5$: the same answer.
+
+So the maximum likelihood estimate matches the dual coordinates that the model can express and ignores the rest: matching moments is the m-projection.
+
+**Why it is well behaved here.** The zero-mean Gaussians form a straight line in $\theta$ ($\theta_1=\mu/\sigma^2=0$), so the model is e-flat. By the projection theorem of Chapter 1, the m-projection onto an e-flat family is unique and gives the global minimum of the divergence. For a curved model the orthogonality condition only finds critical points, and local optima can appear.
+
+**Remarks in the book.** Binomial and multinomial distributions are the exponential families that arise from the simplex by multiple observations. Many models of continuous data are only curved subfamilies of exponential families, where the same projection picture still applies, and a non-exponential model can be approximated locally by a larger exponential family.
+
 ## The partition function
 
 For an exponential family $p(x;\theta)=\exp\{\theta\cdot x-\psi(\theta)\}$ with respect to a base measure $\mu$, the **partition function** is the normalising constant
