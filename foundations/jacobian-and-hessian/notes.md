@@ -40,6 +40,15 @@ It is symmetric for smooth $f$. The gradient says which way is uphill; the Hessi
 <figcaption>Contour lines near a point where the slope is zero, sorted by the Hessian there: curving up both ways is a minimum, up one way and down the other is a saddle, and flat in one direction is a trough.</figcaption>
 </figure>
 
+### The same three, as surfaces
+
+<figure>
+<img src="figures/hessian-3d.svg" alt="Three surfaces over a grey floor, each with two black slice curves through the origin along the two axes. Left: a bowl, both slices curve up. Middle: a saddle, one slice curves up and the other down. Right: a trough, one slice curves up and the other is straight.">
+<figcaption>The height is $f$ and the two black curves are slices through the origin along the two axes. Each slice bends exactly as much as the Hessian says it does in that direction: up, down or not at all.</figcaption>
+</figure>
+
+Read the black curves one at a time. A curve that bends up has positive curvature in its direction, one that bends down has negative curvature, and a straight one has none. The Hessian is the table of those bends for every direction at once; when all of them are positive the surface is a bowl.
+
 This is the positive-definite picture of [the earlier foundations page](../positive-definite-matrices/index.html) applied to curvature:
 
 - **Positive definite:** the ground curves up in every direction, so the point is a minimum.
