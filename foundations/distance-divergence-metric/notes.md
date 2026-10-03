@@ -46,6 +46,8 @@ A Riemannian metric is a ruler attached to every point of a curved space. At eac
 
 That last link is the opening idea of Amari's book: the KL divergence between nearby distributions produces the Fisher information matrix as its metric. What the divergence carries beyond the metric, namely its lopsidedness, is the extra structure of the dual connections. Chapter 1 begins from divergences: [Chapter 1: dually flat structure](../ch01-dually-flat-structure/index.html).
 
+- **Derivatives:** the metric of a potential is its Hessian, and coordinate changes use the Jacobian: [Jacobian and Hessian](../jacobian-and-hessian/index.html).
+
 ## Takeaways
 
 1. A distance obeys four rules: non-negative, zero only for identical points, symmetric, and the triangle inequality.

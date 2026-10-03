@@ -1,0 +1,34 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>The Hessian as curvature in each direction</title>
+<desc>Three contour pictures around a point where the slope is zero. Left: both curvatures are positive, so the contours are ellipses and the point is a minimum. Middle: one curvature is positive and one negative, so the contours are hyperbolas and the point is a saddle. Right: one curvature is positive and one is zero, so the contours are parallel lines and there is a flat direction.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.ax{stroke:#c9c8c0;stroke-width:1;fill:none} .up{stroke:#2a78d6;stroke-width:2;fill:none} .dn{stroke:#eb6834;stroke-width:2;fill:none;stroke-dasharray:6 4}
+.ca{stroke:#1a1a19;stroke-width:1.8;fill:none;stroke-linecap:round} .dot{fill:#1a1a19}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .up{stroke:#3987e5} .dn{stroke:#d95926} .ca{stroke:#eceae3} .dot{fill:#eceae3} }
+</style>
+<g class="ax"><line x1="25" y1="150" x2="215" y2="150"/><line x1="120" y1="55" x2="120" y2="245"/>
+<line x1="250" y1="150" x2="440" y2="150"/><line x1="345" y1="55" x2="345" y2="245"/>
+<line x1="475" y1="150" x2="665" y2="150"/><line x1="570" y1="55" x2="570" y2="245"/></g>
+<g class="up"><ellipse cx="120" cy="150" rx="25" ry="35"/><ellipse cx="120" cy="150" rx="50" ry="70"/><ellipse cx="120" cy="150" rx="64" ry="88" style="opacity:.55"/></g>
+<path class="up" d="M 402,84 C 380,116 368,134 365,150 C 368,166 380,184 402,216"/>
+<path class="up" d="M 288,84 C 310,116 322,134 325,150 C 322,166 310,184 288,216"/>
+<path class="dn" d="M 291,102 C 322,120 336,128 345,130 C 354,128 368,120 399,102"/>
+<path class="dn" d="M 291,198 C 322,180 336,172 345,170 C 354,172 368,180 399,198"/>
+<g class="up"><line x1="530" y1="60" x2="530" y2="240"/><line x1="550" y1="60" x2="550" y2="240" style="opacity:.0"/><line x1="610" y1="60" x2="610" y2="240"/><line x1="500" y1="60" x2="500" y2="240" style="opacity:.55"/><line x1="640" y1="60" x2="640" y2="240" style="opacity:.55"/></g>
+<line class="ca" x1="120" y1="150" x2="170" y2="150"/><line class="ca" x1="120" y1="150" x2="120" y2="110"/>
+<line class="ca" x1="345" y1="150" x2="395" y2="150"/><line class="ca" x1="345" y1="150" x2="345" y2="110"/>
+<line class="ca" x1="570" y1="150" x2="630" y2="150"/>
+<circle class="dot" cx="120" cy="150" r="3.5"/><circle class="dot" cx="345" cy="150" r="3.5"/><circle class="dot" cx="570" cy="150" r="3.5"/>
+<text class="hd" x="120" y="28" text-anchor="middle">Curves up both ways</text>
+<text class="sm" x="120" y="46" text-anchor="middle">a minimum</text>
+<text class="hd" x="345" y="28" text-anchor="middle">Up one way, down the other</text>
+<text class="sm" x="345" y="46" text-anchor="middle">a saddle</text>
+<text class="hd" x="570" y="28" text-anchor="middle">Up one way, flat the other</text>
+<text class="sm" x="570" y="46" text-anchor="middle">a trough: nothing pins the flat direction</text>
+<text class="sm" x="120" y="270" text-anchor="middle">Hessian positive definite</text>
+<text class="sm" x="345" y="270" text-anchor="middle">Hessian has both signs</text>
+<text class="sm" x="570" y="270" text-anchor="middle">Hessian positive semi-definite</text>
+<text class="sm" x="340" y="318" text-anchor="middle">contour lines near a point where the slope is zero; the black segments mark the two directions along which the Hessian measures curvature</text>
+</svg>

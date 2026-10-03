@@ -51,6 +51,8 @@ On the left and on the right every part of the surface lies above the floor exce
 - A **change of coordinates** keeps a positive definite matrix positive definite (the bowl is the same bowl, only described in other coordinates). That is why "positive definite" is a property of the geometry and not of one coordinate system.
 - **Chapter 4** treats the set of positive definite matrices as a manifold in its own right: [Chapter 4: α-geometry, Tsallis q-entropy and positive-definite matrices](../ch04-alpha-geometry/index.html).
 
+- **Curvature:** the matrix of second derivatives of a function, its Hessian, is positive definite at a minimum: [Jacobian and Hessian](../jacobian-and-hessian/index.html).
+
 ## Takeaways
 
 1. Positive definite means a bowl: $x^\top A x > 0$ for all nonzero $x$.
