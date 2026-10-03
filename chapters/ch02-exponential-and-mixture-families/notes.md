@@ -9,9 +9,23 @@ tags: [exponential-family, cumulant-generating-function, gaussian, natural-param
 status: reading
 ---
 
-Notes for Chapter 2 of Amari, *Information Geometry and Its Applications* (Springer, 2016), DOI [10.1007/978-4-431-55978-8](https://doi.org/10.1007/978-4-431-55978-8). No text of the book is reproduced here. This page keeps only the parts I asked for: the picture of a Gaussian family and its cumulant generating function, and the derivation of that function.
+Notes for Chapter 2 of Amari, *Information Geometry and Its Applications* (Springer, 2016), DOI [10.1007/978-4-431-55978-8](https://doi.org/10.1007/978-4-431-55978-8). No text of the book is reproduced here. The next section summarises the book's chapter in my own words, in the book's order. The sections after it are explorations that I asked for, one at a time, so they follow my questions and not the book's order.
 
 Previous chapter: [Chapter 1: the dually flat structure](../ch01-dually-flat-structure/index.html).
+
+## What the chapter covers (a summary of the book's chapter)
+
+The chapter studies the **exponential family** of probability distributions. It contains many familiar families (discrete distributions, Gaussians, multinomials, gammas), and it comes with a convex function, the cumulant generating function (the "free energy" of physics). Applying Chapter 1 to that function gives a dually flat structure whose divergence is the KL divergence, whose metric is the Fisher information, and whose two affine coordinate systems are the natural parameters and the expectation parameters of statistics. The **mixture family** is its dual. The chapter ends with applications of the Pythagorean theorem. The sections in order:
+
+- **§2.1 The exponential family.** The standard form is $p(x;\theta)=\exp\{\theta\cdot x-\psi(\theta)\}$ with respect to a base measure, where the statistics $x_i=h_i(x)$ must be linearly independent. The normalisation defines $\psi(\theta)=\log\int e^{\theta\cdot x}d\mu$, which is convex by Chapter 1. The natural parameter $\theta$ is one affine coordinate system. Its dual, from the Legendre transformation, is the expectation parameter $\eta=\nabla\psi(\theta)=\mathbb E[x]$, and the dual potential $\varphi(\eta)$ is the negative entropy. The Bregman divergence of $\psi$ turns out to be the KL divergence with its arguments reversed, and the metric $\partial_i\partial_j\psi$ is the Fisher information (Theorem 2.1).
+- **§2.2 Two examples.** The *Gaussian*, with statistics $(x,x^2)$, natural parameters $(\mu/\sigma^2,\,-1/(2\sigma^2))$ and expectation parameters $(\mu,\,\mu^2+\sigma^2)$. The *discrete distributions* on $\{0,\dots,n\}$, with the indicator functions as statistics, the log-odds against outcome 0 as natural parameters, $\psi=\log(1+\sum e^{\theta_i})$, and the probabilities themselves as expectation parameters.
+- **§2.3 The mixture family.** A family $p=\sum\eta_iq_i(x)$ of mixtures of fixed distributions. The discrete simplex is both an exponential and a mixture family. For a general mixture family the negative entropy is still convex in $\eta$, so it also has a dually flat structure, but its other coordinates are not the natural parameters of an exponential family.
+- **§2.4 e-flat and m-flat.** A straight line in $\theta$ is an **e-geodesic**: it interpolates the *logarithms* of the two densities and is itself a one-dimensional exponential family. A straight line in $\eta$ is an **m-geodesic**: it interpolates the expectations, which for discrete distributions is the ordinary mixture. Submanifolds defined by linear constraints in $\theta$ are e-flat, and in $\eta$ are m-flat.
+- **§2.5 The infinite-dimensional manifold.** The space of all densities is treated, in a naive way, as an exponential and a mixture family at once, using delta functions as the generating distributions: $\theta(s)=\log p(s)+\psi$ and $\eta(s)=p(s)$. The e- and m-geodesics, the KL divergence, the Pythagorean theorem and the Fisher metric all carry over formally. The book warns that this is not mathematically justified: KL neighbourhoods fail to define a topology and the entropy is not continuous there.
+- **§2.6 The kernel exponential family.** A model with a *function* $\theta(y)$ as natural parameter, built from a positive-definite kernel $k(x,y)$, with dual parameter $\eta(y)=\mathbb E[k(x,y)]$. It does not cover all densities, and §2.5 is the special case of a delta-function kernel.
+- **§2.7 Bregman divergences and exponential families.** The converse of §2.1: given a Bregman divergence one can build an exponential family whose KL divergence it is (finding the base measure is an inverse Laplace transform). Theorem 2.2: regular exponential families and regular Bregman divergences are in one-to-one correspondence. A mixture family is dually flat but is not thereby an exponential family.
+- **§2.8 Applications of the Pythagorean theorem.** (§2.8.1) *Maximum entropy*: among all distributions with prescribed averages, the max-entropy one is the e-projection of the uniform distribution onto an m-flat sheet, and the family of such answers is an exponential family. (§2.8.2) *Mutual information*: the independent distributions form an e-flat family, the m-projection of a joint distribution onto it is the product of its marginals, and the KL divergence to the product is the mutual information. (§2.8.3) *Repeated observations and maximum likelihood*: with $N$ independent observations, the potential, the KL divergence and the metric are multiplied by $N$ and the dual affine structure is unchanged; the maximum likelihood estimator in a submodel is the m-projection of the observed point (the histogram) onto it.
+- **Closing remarks.** Exponential families are the natural setting for studying dual flatness and statistical inference, and every discrete model sits inside one. For continuous variables many models are only curved subfamilies of exponential families, and non-exponential models can be approximated locally by a larger exponential family.
 
 ## A Gaussian family and its cumulant generating function
 
@@ -124,6 +138,38 @@ In the notation above the outcomes are the six faces, the constraint function is
 - **The other candidates have less entropy.** The two-point and the lopsided distributions both satisfy the constraint, but each puts probability in lumps, and each has lower entropy than the geometric profile. The fair die has the largest entropy of all, but it is not on the sheet.
 - **Pythagoras holds.** For any other distribution $P$ with average $4.5$, $D_{\mathrm{KL}}[P:P_0]=D_{\mathrm{KL}}[P:\hat P]+D_{\mathrm{KL}}[\hat P:P_0]$, so no distribution on the sheet is closer to the fair die than $\hat P$.
 - **$\theta$ is a multiplier.** It is the Lagrange multiplier of the constraint "average $=4.5$": the price, in log-probability, of one extra point of face value. Move the average back to $3.5$ and $\theta=0$, the fair die. Move it toward $6$ and the geometric profile steepens and piles more and more mass on face 6. A constraint on the variance too would add $x^2$ to the exponent.
+
+### Deriving the maximum entropy die
+
+The geometric shape is not a guess: it is forced by the constraint. Choose $p_1,\dots,p_6$ to maximise the entropy $H(p)=-\sum_x p_x\log p_x$ subject to $\sum_xp_x=1$ and $\sum_x x\,p_x=4.5$.
+
+*Step 1: Lagrange multipliers.* Fold the constraints into one function, with a multiplier for each,
+
+$$L=-\sum_{y}p_y\log p_y-\lambda_0\Big(\sum_yp_y-1\Big)-\lambda_1\Big(\sum_yy\,p_y-4.5\Big),$$
+
+and require the derivative with respect to every $p_x$ to vanish. (The summation index is called $y$ so that $x$ can mean the one face being differentiated.) Every sum has one term per face, and $\partial/\partial p_x$ only touches the term with $y=x$, so all the other terms differentiate to zero:
+
+- *the entropy term:* by the product rule, $\frac{\partial}{\partial p_x}(p_x\log p_x)=\log p_x+p_x\cdot\frac1{p_x}=\log p_x+1$, so the term contributes $-\log p_x-1$;
+- *the normalisation term:* $p_x$ appears once with coefficient 1, so it contributes $-\lambda_0$;
+- *the mean term:* $p_x$ appears as $x\,p_x$, where the face value $x$ is a constant, so it contributes $-\lambda_1x$.
+
+Together,
+
+$$\frac{\partial L}{\partial p_x}=-\log p_x-1-\lambda_0-\lambda_1x=0 .$$
+
+The surprising "$-1$" comes from the product rule on $p\log p$; it does not matter in the end, because it is absorbed into the normaliser.
+
+*Step 2: read off the shape.* Solving for $p_x$ gives $p_x=e^{-1-\lambda_0}\,e^{-\lambda_1x}$. The first factor does not depend on $x$, so write $\theta=-\lambda_1$ and call that constant $1/Z$:
+
+$$p_x=\frac{e^{\theta x}}{Z},\qquad Z=\sum_{x=1}^6e^{\theta x}.$$
+
+The ratio of neighbouring faces is $p_{x+1}/p_x=e^{\theta}$ for every $x$: each face is the same multiple of the previous one. That constant ratio is what "geometric" means, and it is exactly the exponential-family form with the face value as the statistic.
+
+*Step 3: fix $\theta$ with the average.* Only one number is left. The mean constraint reads $\sum_xx\,e^{\theta x}/Z=4.5$, that is $\frac{d\log Z}{d\theta}=4.5$. The left side is the average under the tilted distribution and it increases steadily with $\theta$ (it is $3.5$ at $\theta=0$, the fair die, and tends to $6$ as $\theta\to\infty$), so exactly one $\theta$ gives $4.5$. There is no tidy closed form for it; it is found numerically, for instance by bisection.
+
+*Why it is the maximum.* The entropy is concave and the constraints are linear, so a point satisfying these conditions is the global maximum. A direct argument needs no calculus. Take any other distribution $q$ with average $4.5$. By Gibbs' inequality (a KL divergence is never negative), $-\sum_xq_x\log q_x\le-\sum_xq_x\log\hat p_x$. Insert $\log\hat p_x=\theta x-\log Z$: the right side becomes $-\theta\cdot4.5+\log Z$, because $q$ and $\hat p$ have the same average, and that is the entropy of $\hat p$. So $H(q)\le H(\hat p)$ with equality only for $q=\hat p$, and the gap is $D_{\mathrm{KL}}[q:\hat p]$, which is the Pythagorean statement above.
+
+**Entropy rewards spreading probability out, and the constraint only touches the average, which is linear in the face value. The one structure the answer is allowed to keep is therefore a log-probability that is linear in the face value: a geometric profile, tilted just enough to hit $4.5$.**
 
 **A note on the book's wording.** The text says the natural coordinates of this family are "specified by $\theta=a$". As I read it, the constraints fix the *expectation* parameters, $\eta=a$, and $\theta$ is the dual coordinate that goes with them, so I take the printed sentence to be a slip.
 
