@@ -60,3 +60,18 @@ For unit width this is the parabola $\theta^2/2$ in the middle panel of the figu
 </figure>
 
 Three things to see. First, the function is a bowl over a **half-plane**, not the whole plane: the parameters are only meaningful while the variance is positive. Second, the bowl climbs without limit as a point approaches the forbidden edge, which is where the Gaussian becomes infinitely wide. Third, the same recipe works as before: the slope of the bowl (now a two-component gradient) gives the expectation parameters $(\mu,\ \mu^2+\sigma^2)$, and its curvature (now a matrix) gives the covariance of $(x,x^2)$, the Fisher matrix.
+
+## A kernel exponential family, the simplest case
+
+An ordinary exponential family multiplies a few fixed functions of $x$ (such as $x$ and $x^2$) by weights $\theta_i$, adds them up in the exponent and normalises. A **kernel exponential family** does the same thing, but the fixed functions are *bumps* $k(x,c_i)$, one around each of a set of centres $c_i$. The weights decide how much probability sits near each centre:
+
+$$p(x;\theta)\;\propto\;\exp\Big\{\sum_i\theta_i\,k(x,c_i)\Big\}.$$
+
+With many centres the family can approximate nearly any smooth density, which is why it is a model "of all densities" in the book's section on the kernel exponential family. The simplest case to look at has just two centres on a line.
+
+<figure>
+<img src="figures/kernel-exponential-family.svg" alt="Left: two bump-shaped kernels, one solid and one dashed, centred at two points on a line. Middle: four densities built by weighting the two bumps and exponentiating: a flat grey one for zero weights, a blue one with a peak at the left centre, a green one with a peak at each centre, and an orange one with a tall peak at the right centre and a dip at the left. Right: the plane of the two weights, with four coloured points that are the four densities.">
+<figcaption>Left: two kernel bumps. Middle: densities built from them; each curve is one choice of weights. Right: the two weights are the parameters, and each coloured point is the density of the same colour in the middle panel.</figcaption>
+</figure>
+
+Read the picture from left to right. The two bumps are fixed once and for all. A choice of the two weights, one point in the right panel, gives one density in the middle panel. Zero weights give the flat grey density (here on a fixed interval). A positive weight on a bump piles probability near its centre (blue, left bump), positive weights on both give two peaks (green), and a negative weight on one bump pushes probability away from its centre (orange has a dip at the left centre). So the weights $\theta_1,\theta_2$ are the natural parameters of an exponential family whose "statistics" are the two kernel bumps, and everything said about exponential families applies: a convex normaliser $\psi(\theta)$, with its slope giving the average of each bump and its curvature giving how the bumps co-vary.
