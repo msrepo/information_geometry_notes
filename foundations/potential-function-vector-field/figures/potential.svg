@@ -1,0 +1,230 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>A potential and its vector field, and a field with no potential</title>
+<desc>Left: a hill drawn with elliptical contour lines; the arrows are the slope of the hill, each pointing uphill and crossing the contours at right angles. Right: a swirling field whose arrows circle the centre; walking once around the marked loop you are pushed along the whole way, which no hill could produce, so this field has no potential.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f}
+.fr{fill:none;stroke:#c9c8c0;stroke-width:1} .ct{fill:none;stroke:#8a8880;stroke-width:1.6;stroke-dasharray:5 3}
+.ab{stroke:#2a78d6;stroke-width:2;stroke-linecap:round;fill:none} .ao{stroke:#eb6834;stroke-width:2;stroke-linecap:round;fill:none}
+.loop{fill:none;stroke:#8a8880;stroke-width:1.4;stroke-dasharray:3 4} .loopa{fill:none;stroke:#8a8880;stroke-width:1.4}
+.dot{fill:#1a1a19}
+@media (prefers-color-scheme: dark){ .hd{fill:#eceae3} .sm{fill:#b6b4ab} .fr{stroke:#4a4844} .ct,.loop,.loopa{stroke:#85837b} .ab{stroke:#3987e5} .ao{stroke:#d95926} .dot{fill:#eceae3} }
+</style>
+<rect class="fr" x="20" y="65" width="320" height="250" rx="4"/>
+<rect class="fr" x="380" y="65" width="320" height="250" rx="4"/>
+<ellipse class="ct" cx="180" cy="195" rx="47" ry="33"/>
+<ellipse class="ct" cx="180" cy="195" rx="94" ry="66"/>
+<ellipse class="ct" cx="180" cy="195" rx="141" ry="100"/>
+<circle class="dot" cx="180" cy="195" r="4"/>
+<line class="ab" x1="54.0" y1="119.0" x2="75.7" y2="145.2"/>
+<line class="ab" x1="75.7" y1="145.2" x2="74.0" y2="138.4"/>
+<line class="ab" x1="75.7" y1="145.2" x2="69.3" y2="142.3"/>
+<line class="ab" x1="54.0" y1="157.0" x2="83.1" y2="174.6"/>
+<line class="ab" x1="83.1" y1="174.6" x2="79.3" y2="168.7"/>
+<line class="ab" x1="83.1" y1="174.6" x2="76.1" y2="173.9"/>
+<line class="ab" x1="54.0" y1="195.0" x2="88.0" y2="195.0"/>
+<line class="ab" x1="88.0" y1="195.0" x2="81.7" y2="192.0"/>
+<line class="ab" x1="88.0" y1="195.0" x2="81.7" y2="198.0"/>
+<line class="ab" x1="54.0" y1="233.0" x2="83.1" y2="215.4"/>
+<line class="ab" x1="83.1" y1="215.4" x2="76.1" y2="216.1"/>
+<line class="ab" x1="83.1" y1="215.4" x2="79.3" y2="221.3"/>
+<line class="ab" x1="54.0" y1="271.0" x2="75.7" y2="244.8"/>
+<line class="ab" x1="75.7" y1="244.8" x2="69.3" y2="247.7"/>
+<line class="ab" x1="75.7" y1="244.8" x2="74.0" y2="251.6"/>
+<line class="ab" x1="96.0" y1="119.0" x2="112.4" y2="148.8"/>
+<line class="ab" x1="112.4" y1="148.8" x2="112.1" y2="141.8"/>
+<line class="ab" x1="112.4" y1="148.8" x2="106.7" y2="144.7"/>
+<line class="ab" x1="96.0" y1="157.0" x2="121.2" y2="179.8"/>
+<line class="ab" x1="121.2" y1="179.8" x2="118.6" y2="173.3"/>
+<line class="ab" x1="121.2" y1="179.8" x2="114.5" y2="177.8"/>
+<line class="ab" x1="96.0" y1="195.0" x2="130.0" y2="195.0"/>
+<line class="ab" x1="130.0" y1="195.0" x2="123.7" y2="192.0"/>
+<line class="ab" x1="130.0" y1="195.0" x2="123.7" y2="198.0"/>
+<line class="ab" x1="96.0" y1="233.0" x2="121.2" y2="210.2"/>
+<line class="ab" x1="121.2" y1="210.2" x2="114.5" y2="212.2"/>
+<line class="ab" x1="121.2" y1="210.2" x2="118.6" y2="216.7"/>
+<line class="ab" x1="96.0" y1="271.0" x2="112.4" y2="241.2"/>
+<line class="ab" x1="112.4" y1="241.2" x2="106.7" y2="245.3"/>
+<line class="ab" x1="112.4" y1="241.2" x2="112.1" y2="248.2"/>
+<line class="ab" x1="138.0" y1="119.0" x2="147.1" y2="151.8"/>
+<line class="ab" x1="147.1" y1="151.8" x2="148.3" y2="144.9"/>
+<line class="ab" x1="147.1" y1="151.8" x2="142.4" y2="146.5"/>
+<line class="ab" x1="138.0" y1="157.0" x2="154.4" y2="186.8"/>
+<line class="ab" x1="154.4" y1="186.8" x2="154.1" y2="179.8"/>
+<line class="ab" x1="154.4" y1="186.8" x2="148.7" y2="182.7"/>
+<line class="ab" x1="138.0" y1="195.0" x2="163.2" y2="195.0"/>
+<line class="ab" x1="163.2" y1="195.0" x2="156.9" y2="192.0"/>
+<line class="ab" x1="163.2" y1="195.0" x2="156.9" y2="198.0"/>
+<line class="ab" x1="138.0" y1="233.0" x2="154.4" y2="203.2"/>
+<line class="ab" x1="154.4" y1="203.2" x2="148.7" y2="207.3"/>
+<line class="ab" x1="154.4" y1="203.2" x2="154.1" y2="210.2"/>
+<line class="ab" x1="138.0" y1="271.0" x2="147.1" y2="238.2"/>
+<line class="ab" x1="147.1" y1="238.2" x2="142.4" y2="243.5"/>
+<line class="ab" x1="147.1" y1="238.2" x2="148.3" y2="245.1"/>
+<line class="ab" x1="180.0" y1="119.0" x2="180.0" y2="153.0"/>
+<line class="ab" x1="180.0" y1="153.0" x2="183.0" y2="146.7"/>
+<line class="ab" x1="180.0" y1="153.0" x2="177.0" y2="146.7"/>
+<line class="ab" x1="180.0" y1="157.0" x2="180.0" y2="191.0"/>
+<line class="ab" x1="180.0" y1="191.0" x2="183.0" y2="184.7"/>
+<line class="ab" x1="180.0" y1="191.0" x2="177.0" y2="184.7"/>
+<line class="ab" x1="180.0" y1="233.0" x2="180.0" y2="199.0"/>
+<line class="ab" x1="180.0" y1="199.0" x2="177.0" y2="205.3"/>
+<line class="ab" x1="180.0" y1="199.0" x2="183.0" y2="205.3"/>
+<line class="ab" x1="180.0" y1="271.0" x2="180.0" y2="237.0"/>
+<line class="ab" x1="180.0" y1="237.0" x2="177.0" y2="243.3"/>
+<line class="ab" x1="180.0" y1="237.0" x2="183.0" y2="243.3"/>
+<line class="ab" x1="222.0" y1="119.0" x2="212.9" y2="151.8"/>
+<line class="ab" x1="212.9" y1="151.8" x2="217.6" y2="146.5"/>
+<line class="ab" x1="212.9" y1="151.8" x2="211.7" y2="144.9"/>
+<line class="ab" x1="222.0" y1="157.0" x2="205.6" y2="186.8"/>
+<line class="ab" x1="205.6" y1="186.8" x2="211.3" y2="182.7"/>
+<line class="ab" x1="205.6" y1="186.8" x2="205.9" y2="179.8"/>
+<line class="ab" x1="222.0" y1="195.0" x2="196.8" y2="195.0"/>
+<line class="ab" x1="196.8" y1="195.0" x2="203.1" y2="198.0"/>
+<line class="ab" x1="196.8" y1="195.0" x2="203.1" y2="192.0"/>
+<line class="ab" x1="222.0" y1="233.0" x2="205.6" y2="203.2"/>
+<line class="ab" x1="205.6" y1="203.2" x2="205.9" y2="210.2"/>
+<line class="ab" x1="205.6" y1="203.2" x2="211.3" y2="207.3"/>
+<line class="ab" x1="222.0" y1="271.0" x2="212.9" y2="238.2"/>
+<line class="ab" x1="212.9" y1="238.2" x2="211.7" y2="245.1"/>
+<line class="ab" x1="212.9" y1="238.2" x2="217.6" y2="243.5"/>
+<line class="ab" x1="264.0" y1="119.0" x2="247.6" y2="148.8"/>
+<line class="ab" x1="247.6" y1="148.8" x2="253.3" y2="144.7"/>
+<line class="ab" x1="247.6" y1="148.8" x2="247.9" y2="141.8"/>
+<line class="ab" x1="264.0" y1="157.0" x2="238.8" y2="179.8"/>
+<line class="ab" x1="238.8" y1="179.8" x2="245.5" y2="177.8"/>
+<line class="ab" x1="238.8" y1="179.8" x2="241.4" y2="173.3"/>
+<line class="ab" x1="264.0" y1="195.0" x2="230.0" y2="195.0"/>
+<line class="ab" x1="230.0" y1="195.0" x2="236.3" y2="198.0"/>
+<line class="ab" x1="230.0" y1="195.0" x2="236.3" y2="192.0"/>
+<line class="ab" x1="264.0" y1="233.0" x2="238.8" y2="210.2"/>
+<line class="ab" x1="238.8" y1="210.2" x2="241.4" y2="216.7"/>
+<line class="ab" x1="238.8" y1="210.2" x2="245.5" y2="212.2"/>
+<line class="ab" x1="264.0" y1="271.0" x2="247.6" y2="241.2"/>
+<line class="ab" x1="247.6" y1="241.2" x2="247.9" y2="248.2"/>
+<line class="ab" x1="247.6" y1="241.2" x2="253.3" y2="245.3"/>
+<line class="ab" x1="306.0" y1="119.0" x2="284.3" y2="145.2"/>
+<line class="ab" x1="284.3" y1="145.2" x2="290.7" y2="142.3"/>
+<line class="ab" x1="284.3" y1="145.2" x2="286.0" y2="138.4"/>
+<line class="ab" x1="306.0" y1="157.0" x2="276.9" y2="174.6"/>
+<line class="ab" x1="276.9" y1="174.6" x2="283.9" y2="173.9"/>
+<line class="ab" x1="276.9" y1="174.6" x2="280.7" y2="168.7"/>
+<line class="ab" x1="306.0" y1="195.0" x2="272.0" y2="195.0"/>
+<line class="ab" x1="272.0" y1="195.0" x2="278.3" y2="198.0"/>
+<line class="ab" x1="272.0" y1="195.0" x2="278.3" y2="192.0"/>
+<line class="ab" x1="306.0" y1="233.0" x2="276.9" y2="215.4"/>
+<line class="ab" x1="276.9" y1="215.4" x2="280.7" y2="221.3"/>
+<line class="ab" x1="276.9" y1="215.4" x2="283.9" y2="216.1"/>
+<line class="ab" x1="306.0" y1="271.0" x2="284.3" y2="244.8"/>
+<line class="ab" x1="284.3" y1="244.8" x2="286.0" y2="251.6"/>
+<line class="ab" x1="284.3" y1="244.8" x2="290.7" y2="247.7"/>
+<line class="ao" x1="414.0" y1="119.0" x2="398.5" y2="144.7"/>
+<line class="ao" x1="398.5" y1="144.7" x2="404.4" y2="140.9"/>
+<line class="ao" x1="398.5" y1="144.7" x2="399.2" y2="137.7"/>
+<line class="ao" x1="414.0" y1="157.0" x2="405.3" y2="185.7"/>
+<line class="ao" x1="405.3" y1="185.7" x2="410.1" y2="180.6"/>
+<line class="ao" x1="405.3" y1="185.7" x2="404.2" y2="178.8"/>
+<line class="ao" x1="414.0" y1="195.0" x2="414.0" y2="225.0"/>
+<line class="ao" x1="414.0" y1="225.0" x2="417.0" y2="218.7"/>
+<line class="ao" x1="414.0" y1="225.0" x2="411.0" y2="218.7"/>
+<line class="ao" x1="414.0" y1="233.0" x2="422.7" y2="261.7"/>
+<line class="ao" x1="422.7" y1="261.7" x2="423.8" y2="254.8"/>
+<line class="ao" x1="422.7" y1="261.7" x2="417.9" y2="256.6"/>
+<line class="ao" x1="414.0" y1="271.0" x2="429.5" y2="296.7"/>
+<line class="ao" x1="429.5" y1="296.7" x2="428.8" y2="289.7"/>
+<line class="ao" x1="429.5" y1="296.7" x2="423.6" y2="292.9"/>
+<line class="ao" x1="456.0" y1="119.0" x2="435.9" y2="141.2"/>
+<line class="ao" x1="435.9" y1="141.2" x2="442.4" y2="138.6"/>
+<line class="ao" x1="435.9" y1="141.2" x2="437.8" y2="134.5"/>
+<line class="ao" x1="456.0" y1="157.0" x2="443.6" y2="184.3"/>
+<line class="ao" x1="443.6" y1="184.3" x2="449.0" y2="179.8"/>
+<line class="ao" x1="443.6" y1="184.3" x2="443.5" y2="177.3"/>
+<line class="ao" x1="456.0" y1="195.0" x2="456.0" y2="225.0"/>
+<line class="ao" x1="456.0" y1="225.0" x2="459.0" y2="218.7"/>
+<line class="ao" x1="456.0" y1="225.0" x2="453.0" y2="218.7"/>
+<line class="ao" x1="456.0" y1="233.0" x2="468.4" y2="260.3"/>
+<line class="ao" x1="468.4" y1="260.3" x2="468.5" y2="253.3"/>
+<line class="ao" x1="468.4" y1="260.3" x2="463.0" y2="255.8"/>
+<line class="ao" x1="456.0" y1="271.0" x2="476.1" y2="293.2"/>
+<line class="ao" x1="476.1" y1="293.2" x2="474.2" y2="286.5"/>
+<line class="ao" x1="476.1" y1="293.2" x2="469.6" y2="290.6"/>
+<line class="ao" x1="498.0" y1="119.0" x2="471.7" y2="133.5"/>
+<line class="ao" x1="471.7" y1="133.5" x2="478.7" y2="133.1"/>
+<line class="ao" x1="471.7" y1="133.5" x2="475.8" y2="127.8"/>
+<line class="ao" x1="498.0" y1="157.0" x2="484.1" y2="172.4"/>
+<line class="ao" x1="484.1" y1="172.4" x2="490.6" y2="169.8"/>
+<line class="ao" x1="484.1" y1="172.4" x2="486.0" y2="165.7"/>
+<line class="ao" x1="498.0" y1="195.0" x2="498.0" y2="210.4"/>
+<line class="ao" x1="498.0" y1="210.4" x2="501.0" y2="204.1"/>
+<line class="ao" x1="498.0" y1="210.4" x2="495.0" y2="204.1"/>
+<line class="ao" x1="498.0" y1="233.0" x2="511.9" y2="248.4"/>
+<line class="ao" x1="511.9" y1="248.4" x2="510.0" y2="241.7"/>
+<line class="ao" x1="511.9" y1="248.4" x2="505.4" y2="245.8"/>
+<line class="ao" x1="498.0" y1="271.0" x2="524.3" y2="285.5"/>
+<line class="ao" x1="524.3" y1="285.5" x2="520.2" y2="279.8"/>
+<line class="ao" x1="524.3" y1="285.5" x2="517.3" y2="285.1"/>
+<line class="ao" x1="540.0" y1="119.0" x2="512.1" y2="119.0"/>
+<line class="ao" x1="512.1" y1="119.0" x2="518.4" y2="122.0"/>
+<line class="ao" x1="512.1" y1="119.0" x2="518.4" y2="116.0"/>
+<line class="ao" x1="540.0" y1="157.0" x2="526.1" y2="157.0"/>
+<line class="ao" x1="526.1" y1="157.0" x2="532.4" y2="160.0"/>
+<line class="ao" x1="526.1" y1="157.0" x2="532.4" y2="154.0"/>
+<line class="ao" x1="540.0" y1="233.0" x2="553.9" y2="233.0"/>
+<line class="ao" x1="553.9" y1="233.0" x2="547.6" y2="230.0"/>
+<line class="ao" x1="553.9" y1="233.0" x2="547.6" y2="236.0"/>
+<line class="ao" x1="540.0" y1="271.0" x2="567.9" y2="271.0"/>
+<line class="ao" x1="567.9" y1="271.0" x2="561.6" y2="268.0"/>
+<line class="ao" x1="567.9" y1="271.0" x2="561.6" y2="274.0"/>
+<line class="ao" x1="582.0" y1="119.0" x2="555.7" y2="104.5"/>
+<line class="ao" x1="555.7" y1="104.5" x2="559.8" y2="110.2"/>
+<line class="ao" x1="555.7" y1="104.5" x2="562.7" y2="104.9"/>
+<line class="ao" x1="582.0" y1="157.0" x2="568.1" y2="141.6"/>
+<line class="ao" x1="568.1" y1="141.6" x2="570.0" y2="148.3"/>
+<line class="ao" x1="568.1" y1="141.6" x2="574.6" y2="144.2"/>
+<line class="ao" x1="582.0" y1="195.0" x2="582.0" y2="179.6"/>
+<line class="ao" x1="582.0" y1="179.6" x2="579.0" y2="185.9"/>
+<line class="ao" x1="582.0" y1="179.6" x2="585.0" y2="185.9"/>
+<line class="ao" x1="582.0" y1="233.0" x2="595.9" y2="217.6"/>
+<line class="ao" x1="595.9" y1="217.6" x2="589.4" y2="220.2"/>
+<line class="ao" x1="595.9" y1="217.6" x2="594.0" y2="224.3"/>
+<line class="ao" x1="582.0" y1="271.0" x2="608.3" y2="256.5"/>
+<line class="ao" x1="608.3" y1="256.5" x2="601.3" y2="256.9"/>
+<line class="ao" x1="608.3" y1="256.5" x2="604.2" y2="262.2"/>
+<line class="ao" x1="624.0" y1="119.0" x2="603.9" y2="96.8"/>
+<line class="ao" x1="603.9" y1="96.8" x2="605.8" y2="103.5"/>
+<line class="ao" x1="603.9" y1="96.8" x2="610.4" y2="99.4"/>
+<line class="ao" x1="624.0" y1="157.0" x2="611.6" y2="129.7"/>
+<line class="ao" x1="611.6" y1="129.7" x2="611.5" y2="136.7"/>
+<line class="ao" x1="611.6" y1="129.7" x2="617.0" y2="134.2"/>
+<line class="ao" x1="624.0" y1="195.0" x2="624.0" y2="165.0"/>
+<line class="ao" x1="624.0" y1="165.0" x2="621.0" y2="171.3"/>
+<line class="ao" x1="624.0" y1="165.0" x2="627.0" y2="171.3"/>
+<line class="ao" x1="624.0" y1="233.0" x2="636.4" y2="205.7"/>
+<line class="ao" x1="636.4" y1="205.7" x2="631.0" y2="210.2"/>
+<line class="ao" x1="636.4" y1="205.7" x2="636.5" y2="212.7"/>
+<line class="ao" x1="624.0" y1="271.0" x2="644.1" y2="248.8"/>
+<line class="ao" x1="644.1" y1="248.8" x2="637.6" y2="251.4"/>
+<line class="ao" x1="644.1" y1="248.8" x2="642.2" y2="255.5"/>
+<line class="ao" x1="666.0" y1="119.0" x2="650.5" y2="93.3"/>
+<line class="ao" x1="650.5" y1="93.3" x2="651.2" y2="100.3"/>
+<line class="ao" x1="650.5" y1="93.3" x2="656.4" y2="97.1"/>
+<line class="ao" x1="666.0" y1="157.0" x2="657.3" y2="128.3"/>
+<line class="ao" x1="657.3" y1="128.3" x2="656.2" y2="135.2"/>
+<line class="ao" x1="657.3" y1="128.3" x2="662.1" y2="133.4"/>
+<line class="ao" x1="666.0" y1="195.0" x2="666.0" y2="165.0"/>
+<line class="ao" x1="666.0" y1="165.0" x2="663.0" y2="171.3"/>
+<line class="ao" x1="666.0" y1="165.0" x2="669.0" y2="171.3"/>
+<line class="ao" x1="666.0" y1="233.0" x2="674.7" y2="204.3"/>
+<line class="ao" x1="674.7" y1="204.3" x2="669.9" y2="209.4"/>
+<line class="ao" x1="674.7" y1="204.3" x2="675.8" y2="211.2"/>
+<line class="ao" x1="666.0" y1="271.0" x2="681.5" y2="245.3"/>
+<line class="ao" x1="681.5" y1="245.3" x2="675.6" y2="249.1"/>
+<line class="ao" x1="681.5" y1="245.3" x2="680.8" y2="252.3"/>
+<circle class="loop" cx="540" cy="195" r="70"/>
+<text class="hd" x="180" y="28" text-anchor="middle">A potential and its field</text>
+<text class="sm" x="180" y="46" text-anchor="middle">dashed: contour lines of the hill</text>
+<text class="hd" x="540" y="28" text-anchor="middle">A field with no potential</text>
+<text class="sm" x="540" y="46" text-anchor="middle">it swirls, so no hill produces it</text>
+<text class="sm" x="180" y="338" text-anchor="middle">arrows point uphill, at right angles to the contours</text>
+<text class="sm" x="540" y="338" text-anchor="middle">going round the dotted loop, the push never lets up</text>
+</svg>

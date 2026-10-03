@@ -59,6 +59,8 @@ This is the positive-definite picture of [the earlier foundations page](../posit
 
 For a convex potential $\psi(\theta)$, the Hessian is positive definite and serves as the metric; for an exponential family it is the Fisher information matrix. That is how a ruler comes out of a potential function: see [Chapter 1: dually flat structure](../ch01-dually-flat-structure/index.html) and, for the idea of a metric, [distance, divergence and metric](../distance-divergence-metric/index.html).
 
+- **Potential:** the function whose gradient is a vector field, and whose Hessian is the metric: [Potential, function and vector field](../potential-function-vector-field/index.html).
+
 ## Takeaways
 
 1. The Jacobian is the local linear map of a vector-valued function: its columns are where the coordinate steps land, and $|\det J|$ is the local area scaling.
