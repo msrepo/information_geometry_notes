@@ -1,0 +1,64 @@
+<svg viewBox="0 0 760 432" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>The partition function as the total of the scores</title>
+<desc>Two columns for two choices of weights on three outcomes. Top row: the unnormalised scores as bars, and a stacked bar showing that their total is the partition function Z. Bottom row: each score divided by Z, which gives the probabilities. With all weights zero the three scores are equal; when the weights favour one outcome its score is large, the total changes, and the probabilities move with it.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:13px;fill:#1a1a19}
+.ax{stroke:#c9c8c0;stroke-width:1;fill:none} .br{fill:none;stroke:#8a8880;stroke-width:1.4}
+.c1{fill:#2a78d6} .c2{fill:#1baf7a} .c3{fill:#eb6834}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .br{stroke:#85837b} .c1{fill:#3987e5} .c2{fill:#199e70} .c3{fill:#d95926} }
+</style>
+<line class="ax" x1="70" y1="215" x2="320" y2="215"/><line class="ax" x1="70" y1="215" x2="70" y2="65"/>
+<rect class="b c1" x="84" y="179.0" width="30" height="36.0"/>
+<text class="sm" x="99" y="230" text-anchor="middle">1</text>
+<rect class="b c2" x="128" y="179.0" width="30" height="36.0"/>
+<text class="sm" x="143" y="230" text-anchor="middle">2</text>
+<rect class="b c3" x="172" y="179.0" width="30" height="36.0"/>
+<text class="sm" x="187" y="230" text-anchor="middle">3</text>
+<rect class="b c1" style="opacity:.75" x="250" y="179.0" width="30" height="36.0"/>
+<rect class="b c2" style="opacity:.75" x="250" y="143.0" width="30" height="36.0"/>
+<rect class="b c3" style="opacity:.75" x="250" y="107.0" width="30" height="36.0"/>
+<path class="br" d="M 286,107.0 L 291,107.0 L 291,215.0 L 286,215"/>
+<text class="v" x="296" y="165.0" text-anchor="start">Z</text>
+<text class="sm" x="265" y="230" text-anchor="middle">all added up</text>
+<line class="ax" x1="70" y1="372" x2="320" y2="372"/><line class="ax" x1="70" y1="372" x2="70" y2="262"/>
+<rect class="b c1" x="84" y="322.0" width="30" height="50.0"/>
+<text class="sm" x="99" y="387" text-anchor="middle">1</text>
+<rect class="b c2" x="128" y="322.0" width="30" height="50.0"/>
+<text class="sm" x="143" y="387" text-anchor="middle">2</text>
+<rect class="b c3" x="172" y="322.0" width="30" height="50.0"/>
+<text class="sm" x="187" y="387" text-anchor="middle">3</text>
+<text class="hd" x="190" y="28" text-anchor="middle">All weights zero</text><text class="sm" x="190" y="46" text-anchor="middle">scores are equal</text>
+<text class="sm" x="150" y="247" text-anchor="middle">outcome</text>
+<text class="sm" x="150" y="404" text-anchor="middle">outcome</text>
+<text class="sm" x="255" y="302" text-anchor="middle">each bar above, divided by Z,</text><text class="sm" x="255" y="318" text-anchor="middle">gives the bar below</text>
+<text class="sm" transform="translate(62 209) rotate(-90)" text-anchor="start">score e^(θ·x)</text>
+<text class="sm" transform="translate(62 366) rotate(-90)" text-anchor="start">probability</text>
+<line class="ax" x1="450" y1="215" x2="700" y2="215"/><line class="ax" x1="450" y1="215" x2="450" y2="65"/>
+<rect class="b c1" x="464" y="179.0" width="30" height="36.0"/>
+<text class="sm" x="479" y="230" text-anchor="middle">1</text>
+<rect class="b c2" x="508" y="117.1" width="30" height="97.9"/>
+<text class="sm" x="523" y="230" text-anchor="middle">2</text>
+<rect class="b c3" x="552" y="201.8" width="30" height="13.2"/>
+<text class="sm" x="567" y="230" text-anchor="middle">3</text>
+<rect class="b c1" style="opacity:.75" x="630" y="179.0" width="30" height="36.0"/>
+<rect class="b c2" style="opacity:.75" x="630" y="81.1" width="30" height="97.9"/>
+<rect class="b c3" style="opacity:.75" x="630" y="67.9" width="30" height="13.2"/>
+<path class="br" d="M 666,67.9 L 671,67.9 L 671,215.0 L 666,215"/>
+<text class="v" x="676" y="145.4" text-anchor="start">Z</text>
+<text class="sm" x="645" y="230" text-anchor="middle">all added up</text>
+<line class="ax" x1="450" y1="372" x2="700" y2="372"/><line class="ax" x1="450" y1="372" x2="450" y2="262"/>
+<rect class="b c1" x="464" y="335.3" width="30" height="36.7"/>
+<text class="sm" x="479" y="387" text-anchor="middle">1</text>
+<rect class="b c2" x="508" y="272.2" width="30" height="99.8"/>
+<text class="sm" x="523" y="387" text-anchor="middle">2</text>
+<rect class="b c3" x="552" y="358.5" width="30" height="13.5"/>
+<text class="sm" x="567" y="387" text-anchor="middle">3</text>
+<text class="hd" x="570" y="28" text-anchor="middle">Weights favour outcome 2</text><text class="sm" x="570" y="46" text-anchor="middle">one score is large, one small</text>
+<text class="sm" x="530" y="247" text-anchor="middle">outcome</text>
+<text class="sm" x="530" y="404" text-anchor="middle">outcome</text>
+<text class="sm" x="635" y="302" text-anchor="middle">each bar above, divided by Z,</text><text class="sm" x="635" y="318" text-anchor="middle">gives the bar below</text>
+<text class="sm" transform="translate(442 209) rotate(-90)" text-anchor="start">score e^(θ·x)</text>
+<text class="sm" transform="translate(442 366) rotate(-90)" text-anchor="start">probability</text>
+<text class="sm" x="380" y="420" text-anchor="middle">score of outcome x is e^(θ·x); Z is the total of the scores; probability = score ÷ Z; changing θ changes the scores, so Z changes too</text>
+</svg>

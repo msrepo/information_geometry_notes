@@ -1,0 +1,80 @@
+<svg viewBox="0 0 760 350" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>A die with average 4.5: the maximum entropy choice</title>
+<desc>Four bar charts of probabilities for the six faces of a die. First, the fair die with average 3.5, which does not satisfy the constraint. Then three distributions that all have average 4.5: the maximum entropy one, whose probabilities rise smoothly and geometrically with the face; a two-point distribution with all the probability on faces three and six; and a lopsided one with a spike on face six. A small triangle under each chart marks its average.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f}
+.ax{stroke:#c9c8c0;stroke-width:1;fill:none}
+.gr{fill:#a5a39a} .bl{fill:#2a78d6} .or{fill:#eb6834} .mk{fill:#1a1a19}
+@media (prefers-color-scheme: dark){ .hd{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .gr{fill:#85837b} .bl{fill:#3987e5} .or{fill:#d95926} .mk{fill:#eceae3} }
+</style>
+<line class="ax" x1="45" y1="250" x2="195" y2="250"/><line class="ax" x1="45" y1="250" x2="45" y2="120"/>
+<rect class="gr" x="53" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="61" y="264" text-anchor="middle">1</text>
+<rect class="gr" x="78" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="86" y="264" text-anchor="middle">2</text>
+<rect class="gr" x="103" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="111" y="264" text-anchor="middle">3</text>
+<rect class="gr" x="128" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="136" y="264" text-anchor="middle">4</text>
+<rect class="gr" x="153" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="161" y="264" text-anchor="middle">5</text>
+<rect class="gr" x="178" y="195.0" width="17" height="55.0"/>
+<text class="sm" x="186" y="264" text-anchor="middle">6</text>
+<path class="mk" d="M 124.0,272 l -5,9 l 10,0 z"/>
+<text class="sm" x="120.0" y="296" text-anchor="middle">average 3.5</text>
+<text class="hd" x="120" y="28" text-anchor="middle">Fair die</text><text class="sm" x="120" y="46" text-anchor="middle">average 3.5: not allowed</text>
+<text class="sm" x="120" y="314" text-anchor="middle">face</text>
+<text class="sm" transform="translate(35 246) rotate(-90)" text-anchor="start">probability</text>
+<line class="ax" x1="225" y1="250" x2="375" y2="250"/><line class="ax" x1="225" y1="250" x2="225" y2="120"/>
+<rect class="bl" x="233" y="232.1" width="17" height="17.9"/>
+<text class="sm" x="241" y="264" text-anchor="middle">1</text>
+<rect class="bl" x="258" y="224.0" width="17" height="26.0"/>
+<text class="sm" x="266" y="264" text-anchor="middle">2</text>
+<rect class="bl" x="283" y="212.3" width="17" height="37.7"/>
+<text class="sm" x="291" y="264" text-anchor="middle">3</text>
+<rect class="bl" x="308" y="195.4" width="17" height="54.6"/>
+<text class="sm" x="316" y="264" text-anchor="middle">4</text>
+<rect class="bl" x="333" y="170.9" width="17" height="79.1"/>
+<text class="sm" x="341" y="264" text-anchor="middle">5</text>
+<rect class="bl" x="358" y="135.3" width="17" height="114.7"/>
+<text class="sm" x="366" y="264" text-anchor="middle">6</text>
+<path class="mk" d="M 329.0,272 l -5,9 l 10,0 z"/>
+<text class="sm" x="300.0" y="296" text-anchor="middle">average 4.5</text>
+<text class="hd" x="300" y="28" text-anchor="middle">Maximum entropy</text><text class="sm" x="300" y="46" text-anchor="middle">smooth geometric profile</text>
+<text class="sm" x="300" y="314" text-anchor="middle">face</text>
+<text class="sm" transform="translate(215 246) rotate(-90)" text-anchor="start">probability</text>
+<line class="ax" x1="405" y1="250" x2="555" y2="250"/><line class="ax" x1="405" y1="250" x2="405" y2="120"/>
+<text class="sm" x="421" y="264" text-anchor="middle">1</text>
+<text class="sm" x="446" y="264" text-anchor="middle">2</text>
+<rect class="or" x="463" y="85.0" width="17" height="165.0"/>
+<text class="sm" x="471" y="264" text-anchor="middle">3</text>
+<text class="sm" x="496" y="264" text-anchor="middle">4</text>
+<text class="sm" x="521" y="264" text-anchor="middle">5</text>
+<rect class="or" x="538" y="85.0" width="17" height="165.0"/>
+<text class="sm" x="546" y="264" text-anchor="middle">6</text>
+<path class="mk" d="M 509.0,272 l -5,9 l 10,0 z"/>
+<text class="sm" x="480.0" y="296" text-anchor="middle">average 4.5</text>
+<text class="hd" x="480" y="28" text-anchor="middle">Two-point</text><text class="sm" x="480" y="46" text-anchor="middle">all mass on two faces</text>
+<text class="sm" x="480" y="314" text-anchor="middle">face</text>
+<text class="sm" transform="translate(395 246) rotate(-90)" text-anchor="start">probability</text>
+<line class="ax" x1="585" y1="250" x2="735" y2="250"/><line class="ax" x1="585" y1="250" x2="585" y2="120"/>
+<rect class="or" x="593" y="217.0" width="17" height="33.0"/>
+<text class="sm" x="601" y="264" text-anchor="middle">1</text>
+<rect class="or" x="618" y="217.0" width="17" height="33.0"/>
+<text class="sm" x="626" y="264" text-anchor="middle">2</text>
+<rect class="or" x="643" y="217.0" width="17" height="33.0"/>
+<text class="sm" x="651" y="264" text-anchor="middle">3</text>
+<rect class="or" x="668" y="217.0" width="17" height="33.0"/>
+<text class="sm" x="676" y="264" text-anchor="middle">4</text>
+<rect class="or" x="693" y="217.0" width="17" height="33.0"/>
+<text class="sm" x="701" y="264" text-anchor="middle">5</text>
+<rect class="or" x="718" y="85.0" width="17" height="165.0"/>
+<text class="sm" x="726" y="264" text-anchor="middle">6</text>
+<path class="mk" d="M 689.0,272 l -5,9 l 10,0 z"/>
+<text class="sm" x="660.0" y="296" text-anchor="middle">average 4.5</text>
+<text class="hd" x="660" y="28" text-anchor="middle">Lopsided</text><text class="sm" x="660" y="46" text-anchor="middle">a spike on six</text>
+<text class="sm" x="660" y="314" text-anchor="middle">face</text>
+<text class="sm" transform="translate(575 246) rotate(-90)" text-anchor="start">probability</text>
+<text class="sm" x="380" y="338" text-anchor="middle">triangle: the average of each distribution; the three on the right all satisfy "average 4.5", and blue is the one with the highest entropy</text>
+</svg>

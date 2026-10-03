@@ -109,4 +109,46 @@ $$\hat p(x;\theta)=\exp\{\theta\cdot c(x)-\psi(\theta)\}.$$
 
 In words: the maximum-entropy distribution for given averages is the uniform distribution tilted by an exponential of the quantities you constrained. The tilts $\theta$ are the Lagrange multipliers of the constraints. The book's variational derivation (maximising entropy under the constraints) gives the same result.
 
+### A concrete example: a die with average 4.5
+
+You have a six-sided die and the only thing you know is that its long-run average roll is $4.5$, not the fair $3.5$. Which probabilities should you assign to the faces? Many distributions fit: all the probability on faces 3 and 6 in equal parts, or a spike on face 6 over a flat floor, and so on. The maximum entropy principle picks the one that assumes the least beyond "the average is $4.5$".
+
+<figure>
+<img src="figures/maxent-die.svg" alt="Four bar charts of probabilities for the six faces of a die. The fair die with average 3.5 is flat and does not satisfy the constraint. The maximum entropy distribution with average 4.5 rises smoothly and geometrically from face 1 to face 6. A two-point distribution has all its probability on faces 3 and 6. A lopsided one is flat on faces 1 to 5 with a spike on face 6. A small triangle under each chart marks its average.">
+<figcaption>The fair die (grey) is not allowed, because its average is $3.5$. The three distributions on the right all have average $4.5$. The maximum entropy one (blue) is the smooth geometric profile, the others are lumpy.</figcaption>
+</figure>
+
+In the notation above the outcomes are the six faces, the constraint function is the face value $c(x)=x$, the prescribed average is $a=4.5$, the sheet $M(a)$ is the set of all distributions with that average, and the centre $P_0$ is the fair die.
+
+- **The answer is the uniform distribution tilted by $e^{\theta x}$.** The maximum entropy distribution is $\hat p(x)\propto e^{\theta x}$ for $x=1,\dots,6$: each face is a fixed multiple of the one before, so the probabilities rise geometrically. Only $\theta$ has to be found, so that the average comes out right; it is about $0.37$, which makes each face roughly $1.45$ times as likely as the previous one.
+- **The other candidates have less entropy.** The two-point and the lopsided distributions both satisfy the constraint, but each puts probability in lumps, and each has lower entropy than the geometric profile. The fair die has the largest entropy of all, but it is not on the sheet.
+- **Pythagoras holds.** For any other distribution $P$ with average $4.5$, $D_{\mathrm{KL}}[P:P_0]=D_{\mathrm{KL}}[P:\hat P]+D_{\mathrm{KL}}[\hat P:P_0]$, so no distribution on the sheet is closer to the fair die than $\hat P$.
+- **$\theta$ is a multiplier.** It is the Lagrange multiplier of the constraint "average $=4.5$": the price, in log-probability, of one extra point of face value. Move the average back to $3.5$ and $\theta=0$, the fair die. Move it toward $6$ and the geometric profile steepens and piles more and more mass on face 6. A constraint on the variance too would add $x^2$ to the exponent.
+
 **A note on the book's wording.** The text says the natural coordinates of this family are "specified by $\theta=a$". As I read it, the constraints fix the *expectation* parameters, $\eta=a$, and $\theta$ is the dual coordinate that goes with them, so I take the printed sentence to be a slip.
+
+## The partition function
+
+For an exponential family $p(x;\theta)=\exp\{\theta\cdot x-\psi(\theta)\}$ with respect to a base measure $\mu$, the **partition function** is the normalising constant
+
+$$Z(\theta)=\int e^{\theta\cdot x}\,d\mu(x)=e^{\psi(\theta)},$$
+
+so the potential $\psi$ of the earlier sections is its logarithm, $\psi=\log Z$.
+
+**Intuition.** Start with the unnormalised *score* $e^{\theta\cdot x}$ that the family gives to each outcome $x$. It says how favoured $x$ is, but the scores do not add up to 1. To turn scores into probabilities, divide each by their total, and that total is $Z(\theta)$: probability = score ÷ $Z$. The name comes from statistical physics, where the states of a system carry weights and $Z$ sums the weights over all states.
+
+<figure>
+<img src="figures/partition-function.svg" alt="Two columns for two choices of weights on three outcomes. Top row: the unnormalised scores as coloured bars, with a stacked bar beside them whose total height is marked Z. Bottom row: each score divided by Z, giving the probabilities. With all weights zero the three scores are equal and so are the probabilities. When the weights favour outcome 2 its score is large, the total Z is larger, and the probabilities shift toward outcome 2.">
+<figcaption>Top: the scores $e^{\theta\cdot x}$ and their total $Z$ (the stacked bar). Bottom: each score divided by $Z$ is a probability. Changing $\theta$ changes the scores, and so changes $Z$ as well.</figcaption>
+</figure>
+
+**Why it is more than a bookkeeping constant.** $Z$ depends on $\theta$, and that dependence holds everything about the family:
+
+- **Slope gives the mean:** $\nabla\log Z=\mathbb E_\theta[x]$.
+- **Curvature gives the covariance:** $\nabla^2\log Z=\operatorname{Cov}_\theta[x]$, which is the Fisher information, so $\log Z$ is convex.
+- **It is a Laplace transform** of the base measure, which is why the inverse problem of recovering the measure from $\psi$ (the book's Theorem 2.2) is an inverse Laplace transform.
+- **It must be finite.** The family exists only for the $\theta$ where the integral converges: for the Gaussian this is $\theta_2<0$.
+
+**Where it appeared above.** For a coin or a softmax with one logit fixed at zero, $Z=1+e^{\theta_1}+e^{\theta_2}$, so $\log Z$ is log-sum-exp and dividing by $Z$ is the softmax. For the fixed-width Gaussian, completing the square gives $Z=\sqrt{2\pi\sigma^2}\,e^{\sigma^2\theta^2/2}$. And in the maximum entropy principle, $Z$ is the normaliser that the Lagrange multipliers produce.
+
+**Names differ between texts.** Amari's $\psi$ is the *logarithm* of the partition function. Machine-learning texts often say "partition function" for $Z$ itself and "log-partition function" for $\psi$, and "free energy" for $-\log Z$ in some conventions.
