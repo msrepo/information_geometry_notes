@@ -53,6 +53,8 @@ This is the structure of the dually flat geometry of [Chapter 1](../ch01-dually-
 - The dual potential is the Legendre transform $\psi^*(\eta)$, which for an exponential family is the negative entropy.
 - The metric is the Hessian of $\psi$ in the $\theta$ coordinates and the Hessian of $\psi^*$ in the $\eta$ coordinates, and the two are inverse matrices: that is why the geometry is "dually flat".
 
+- **The gap to the tangent:** the Bregman divergence is the tangent gap of a convex function: [Bregman divergence](../bregman-divergence/index.html).
+
 ## Takeaways
 
 1. Convex means a bowl: chords above the graph, tangents below.
