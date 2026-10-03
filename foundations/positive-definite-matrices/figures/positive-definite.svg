@@ -1,0 +1,47 @@
+<svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Contours of three quadratic forms</title>
+<desc>Left: nested elliptical contours of a positive definite matrix, a bowl. Middle: hyperbolic contours of an indefinite matrix, a saddle, with solid curves above zero and dashed curves below zero. Right: tilted elliptical contours of a positive definite matrix with off-diagonal entries.</desc>
+<style>
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+  .hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+  .ax{stroke:#c9c8c0;stroke-width:1;fill:none} .zero{stroke:#8a8880;stroke-width:1;stroke-dasharray:2 3;fill:none}
+  .up{stroke:#2a78d6;stroke-width:2;fill:none} .dn{stroke:#eb6834;stroke-width:2;fill:none;stroke-dasharray:6 4}
+  .dot{fill:#1a1a19}
+  @media (prefers-color-scheme: dark){
+    .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .ax{stroke:#4a4844} .zero{stroke:#85837b}
+    .up{stroke:#3987e5} .dn{stroke:#d95926} .dot{fill:#eceae3}
+  }
+</style>
+<g class="ax">
+<line x1="25" y1="150" x2="215" y2="150"/><line x1="120" y1="55" x2="120" y2="245"/>
+<line x1="250" y1="150" x2="440" y2="150"/><line x1="345" y1="55" x2="345" y2="245"/>
+<line x1="475" y1="150" x2="665" y2="150"/><line x1="570" y1="55" x2="570" y2="245"/>
+</g>
+<g class="up" style="opacity:1">
+<ellipse cx="120" cy="150" rx="25" ry="35"/>
+<ellipse cx="120" cy="150" rx="50" ry="70"/>
+<ellipse cx="120" cy="150" rx="75" ry="105" style="opacity:.55"/>
+<g transform="translate(570 150) rotate(-45)">
+<ellipse rx="20" ry="35"/><ellipse rx="40" ry="70"/><ellipse rx="60" ry="105" style="opacity:.55"/>
+</g>
+</g>
+<line class="zero" x1="285" y1="90" x2="405" y2="210"/><line class="zero" x1="285" y1="210" x2="405" y2="90"/>
+<path class="up" d="M 402,84 C 380,116 368,134 365,150 C 368,166 380,184 402,216"/>
+<path class="up" d="M 288,84 C 310,116 322,134 325,150 C 322,166 310,184 288,216"/>
+<path class="dn" d="M 291,102 C 322,120 336,128 345,130 C 354,128 368,120 399,102"/>
+<path class="dn" d="M 291,198 C 322,180 336,172 345,170 C 354,172 368,180 399,198"/>
+<circle class="dot" cx="120" cy="150" r="3"/><circle class="dot" cx="345" cy="150" r="3"/><circle class="dot" cx="570" cy="150" r="3"/>
+<text class="hd" x="120" y="28" text-anchor="middle">Positive definite</text>
+<text class="sm" x="120" y="46" text-anchor="middle">a bowl: contours are ellipses</text>
+<text class="hd" x="345" y="28" text-anchor="middle">Not positive definite</text>
+<text class="sm" x="345" y="46" text-anchor="middle">a saddle: contours are hyperbolas</text>
+<text class="hd" x="570" y="28" text-anchor="middle">Positive definite, tilted</text>
+<text class="sm" x="570" y="46" text-anchor="middle">off-diagonal entries rotate it</text>
+<text class="v" x="120" y="270" text-anchor="middle">diag(2, 1)</text>
+<text class="sm" x="120" y="290" text-anchor="middle">narrow along x: steeper there</text>
+<text class="v" x="345" y="270" text-anchor="middle">diag(1, −1)</text>
+<text class="sm" x="345" y="290" text-anchor="middle">solid: above zero, dashed: below zero</text>
+<text class="v" x="570" y="270" text-anchor="middle">[[2, 1], [1, 2]]</text>
+<text class="sm" x="570" y="290" text-anchor="middle">narrow along the diagonal (1, 1)</text>
+<text class="sm" x="340" y="318" text-anchor="middle">first coordinate to the right, second upward, in every panel; the dot is the origin</text>
+</svg>
