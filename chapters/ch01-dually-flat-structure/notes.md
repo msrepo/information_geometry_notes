@@ -311,6 +311,24 @@ The family of Gaussians is the smallest example in which both flat structures ca
 
 Read the figure as one idea shown twice. A line is "straight" only relative to a chart. In the $\theta$ chart the straight line between $P$ and $Q$ is the **e-geodesic**; in the $\eta$ chart it is the **m-geodesic**; and each of them looks bent in the other chart. Both charts are flat in their own sense, and the potential and its Legendre dual convert one into the other, which is what "dually flat" means. The allowed region is also different in each chart: the variance must be positive, which excludes the top edge $\theta_2=0$ in the left panel and everything on or below the parabola $\eta_2=\eta_1^2$ in the right one.
 
+**Where the potential $\psi$ comes from.** Write the Gaussian density in exponential-family form,
+
+$$p(x;\theta)=\exp\{\theta_1x+\theta_2x^2-\psi(\theta)\},\qquad \theta_1=\frac{\mu}{\sigma^2},\ \theta_2=-\frac1{2\sigma^2}<0 .$$
+
+*Step 1: normalisation defines $\psi$.* The factor $e^{-\psi(\theta)}$ does not depend on $x$, and the density must integrate to 1, so $e^{\psi(\theta)}=\int e^{\theta_1x+\theta_2x^2}dx$, that is $\psi(\theta)=\log\int e^{\theta_1x+\theta_2x^2}dx$. The potential is the log of the normalising integral (in physics, the log of the partition function).
+
+*Step 2: complete the square in $x$.* Because $\theta_2<0$, rewrite the exponent as
+$\theta_2x^2+\theta_1x=\theta_2\big(x+\tfrac{\theta_1}{2\theta_2}\big)^2-\tfrac{\theta_1^2}{4\theta_2}$.
+The first part integrates to the standard Gaussian integral $\int e^{\theta_2u^2}du=\sqrt{\pi/(-\theta_2)}$, and the second part does not depend on $x$ and comes out of the integral.
+
+*Step 3: the answer.* Taking the logarithm,
+
+$$\psi(\theta)=-\frac{\theta_1^2}{4\theta_2}+\frac12\log\!\Big(\frac{\pi}{-\theta_2}\Big).$$
+
+Back in $(\mu,\sigma)$ this is $\psi=\mu^2/(2\sigma^2)+\log\sigma+\tfrac12\log2\pi$: the first term is the effect of the mean and the second the effect of the width. It is a bowl over the half-plane $\theta_2<0$ that rises without limit as $\theta_2\to0^-$, which is the forbidden top edge of the left chart in the figure.
+
+*Reading it back.* The slope of $\psi$ gives the other chart: $\partial\psi/\partial\theta_1=-\theta_1/(2\theta_2)=\mu$ and $\partial\psi/\partial\theta_2=\theta_1^2/(4\theta_2^2)-1/(2\theta_2)=\mu^2+\sigma^2$, so $\nabla\psi(\theta)=\eta$, the arrow in the figure. Its curvature $\nabla^2\psi$ is the covariance of $(x,x^2)$, the Fisher information in this chart. The dual potential is $\psi^*=\theta\cdot\eta-\psi=-\tfrac12\log(2\pi e\sigma^2)$, the negative entropy of the Gaussian, and the pair $(\psi,\psi^*)$ is what the two arrows between the charts are doing.
+
 Two kinds of straight.** Declare $\theta$ an affine coordinate system: a curve $\theta(t)=at+b$ is straight, an
 *e-geodesic*. Declare $\eta$ affine too: $\eta(t)=at+b$ is a *m-geodesic*. Because $\theta\mapsto\eta$ is not linear, the
 two families of lines are different. The picture below shows one pair $P=(0.7,0.2,0.1)$, $Q=(0.1,0.3,0.6)$
