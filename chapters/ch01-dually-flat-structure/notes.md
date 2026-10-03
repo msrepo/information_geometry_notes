@@ -106,6 +106,25 @@ Examples the chapter lists, with the coordinates worth knowing.
 - **Positive-definite matrices**, an $n(n+1)/2$-dimensional manifold, and **neural networks**, whose weights $W$ are a
   chart for the "neural manifold". The book only names these here and returns to them later.
 
+### Two questions about what a manifold is
+
+**How is a manifold different from a vector space?** A vector space has algebra built in: you can add two points, scale a point, and there is an origin. One set of coordinates covers everything, and "straight line" and "distance from the origin" mean the same thing everywhere. A manifold promises only that each small neighbourhood can be labelled by $n$ numbers, with nearby points getting nearby labels. There is no addition, no origin and no global straight line, so "the midpoint of $P$ and $Q$" means nothing until you choose a rule: the arithmetic mixture, the geometric mixture or the shortest path, which in general give different points (§5 computes all three for softmax). One chart may not cover the whole set (next question), and relabelling by any smooth invertible map is allowed, because the set does not change.
+
+This is why the softmax outputs of this chapter form a manifold and not a vector space. The probability triangle is not closed under addition (the sum of two distributions has total mass 2). In logit coordinates the same set looks like a flat plane, where straight lines are e-geodesics, while in the triangle the straight lines are m-geodesics; neither chart is "the" right one. Two caveats. Every vector space is a manifold, the simplest kind, so manifold is the more general notion. And at each point of a manifold there is a tangent space, which *is* a vector space: small steps, gradients and the Fisher metric live there, even though the whole set has no such structure.
+
+**Why does a sphere need at least two charts?** A chart is a continuous, invertible labelling of points by numbers in a flat region, continuous in both directions. A globe cannot be flattened onto one map without cutting it or sending points to infinity. Latitude and longitude show the failure:
+
+- at the poles longitude is undefined, because every meridian meets there (two points $0.00025$ apart near the pole can have longitudes $90^\circ$ apart);
+- across the $180^\circ$ meridian the label jumps from $+180$ to $-180$ (two points $0.00344$ apart get longitudes that differ by $359.8$).
+
+Dropping those points leaves a chart that no longer covers the sphere. This is not a flaw of one map. The sphere is compact (closed and bounded, with no edge), while a chart has to make it look like an open piece of the plane, and a closed-up set cannot be matched to an open one without cutting: the labels would have to "run out" somewhere, and there nearby points get badly separated labels.
+
+The fix is two overlapping charts. Project stereographically from the north pole, $(x,y,z)\mapsto(x,y)/(1-z)$: this covers everything except the north pole, which goes to infinity. Project from the south pole, $(x,y)/(1+z)$: this covers everything except the south pole. Every point is in at least one chart and most are in both. In the overlap a smooth map converts one label into the other, here $r\mapsto1/r$ (the two radii multiply to $1$; largest error $4.6\times10^{-14}$ over $2000$ random points). A collection of charts that cover the set and agree smoothly in the overlaps is what "manifold" means. In the picture the overlap is the ring of latitudes between $-60^\circ$ and $60^\circ$, which is the annulus $0.2679<r<3.7321$ in either chart. For the point $P$ at latitude $30^\circ$, longitude $-150^\circ$ the labels are $(-1.5000,-0.8660)$ in the north chart and $(-0.5000,-0.2887)$ in the south chart; round trips back to the sphere agree to $2.7\times10^{-15}$. Across the $180^\circ$ meridian, where longitude jumps, the two charts put the same two points $0.00416$ and $0.00293$ apart, with no jump.
+
+<img src="figures/sphere-charts.svg" alt="Left: a sphere with latitude and longitude lines; the north pole is marked where all meridians meet and longitude is undefined, and the 180 degree meridian is dashed because the label jumps there. Middle and right: stereographic projections from the north and the south pole, each a disc-like plane missing one point (sent to infinity); the ring of latitudes between minus 60 and 60 degrees is shaded as the overlap, where the two labels are related by r to 1/r. The point at latitude 30, longitude minus 150 has radius 1.7321 in the north chart and 0.5774 in the south chart.">
+
+Contrast with the examples below. The $(\mu,\sigma)$ half-plane is covered by one chart, because that set does not close up on itself; the same holds for the open probability simplex. One chart is enough for some manifolds, and the sphere is simply not one of them.
+
 ### Worked example: the Gaussians in three charts
 
 The *points* of this manifold are Gaussian curves. A *chart* is a way of naming one such curve with two numbers. Three

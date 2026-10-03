@@ -208,6 +208,55 @@ def check_softmax_charts():
           f"and (1 + e^c) x1^2 + e^c x2^2 - 4 e^c = {ell:.1e}, an ellipse in the (x1, x2) picture")
 
 
+# ------------------------------------------------------------------ 0c. the sphere needs two charts
+
+def sph(lat, lon):
+    la, lo = math.radians(lat), math.radians(lon)
+    return np.array([math.cos(la) * math.cos(lo), math.cos(la) * math.sin(lo), math.sin(la)])
+
+
+def chart_N(q):                                           # stereographic projection from the north pole
+    return q[:2] / (1 - q[2])
+
+
+def chart_S(q):                                           # stereographic projection from the south pole
+    return q[:2] / (1 + q[2])
+
+
+def inv_N(w):
+    r2 = float(w @ w); return np.array([2 * w[0], 2 * w[1], r2 - 1]) / (r2 + 1)
+
+
+def inv_S(w):
+    r2 = float(w @ w); return np.array([2 * w[0], 2 * w[1], 1 - r2]) / (r2 + 1)
+
+
+SAMPLE = (30.0, -150.0)                                  # latitude, longitude of the point drawn in the figure
+
+
+def check_sphere_charts():
+    head("0c. The sphere: latitude/longitude fails, two stereographic charts cover it (section 1.1)")
+    q = sph(*SAMPLE)
+    print(f"   sample point lat {SAMPLE[0]:g}, lon {SAMPLE[1]:g}: (x, y, z) = ({q[0]:.4f}, {q[1]:.4f}, {q[2]:.4f}); north chart (x/(1-z), y/(1-z)) = ({chart_N(q)[0]:.4f}, {chart_N(q)[1]:.4f}); "
+          f"south chart (x/(1+z), y/(1+z)) = ({chart_S(q)[0]:.4f}, {chart_S(q)[1]:.4f})")
+    rng = np.random.default_rng(1)
+    pts = rng.normal(size=(2000, 3)); pts /= np.linalg.norm(pts, axis=1, keepdims=True)
+    prod = max(abs(np.linalg.norm(chart_N(a)) * np.linalg.norm(chart_S(a)) - 1) for a in pts)
+    rt = max(max(np.abs(inv_N(chart_N(a)) - a).max(), np.abs(inv_S(chart_S(a)) - a).max()) for a in pts)
+    print(f"   on 2000 random points: |r_N r_S - 1| <= {prod:.1e}, so the change of label is the inversion w -> w/|w|^2 (r -> 1/r); round trip to the sphere through either chart <= {rt:.1e}")
+    for lat in (-60, -30, 0, 30, 60):
+        a = sph(lat, 10.0)
+        print(f"      latitude {lat:>3}: north-chart radius {np.linalg.norm(chart_N(a)):.4f}, south-chart radius {np.linalg.norm(chart_S(a)):.4f}")
+    a, b = sph(89.99, 0.0), sph(89.99, 90.0)
+    print(f"   near the pole the points (lat 89.99, lon 0) and (lat 89.99, lon 90) are {np.linalg.norm(a - b):.5f} apart on the unit sphere but their longitudes differ by 90 degrees; "
+          f"in the north chart (where the pole itself is at infinity) they sit at radius {np.linalg.norm(chart_N(a)):.2f}, in the south chart at ({chart_S(a)[0]:.5f}, {chart_S(a)[1]:.5f}) and ({chart_S(b)[0]:.5f}, {chart_S(b)[1]:.5f}), close together")
+    a, b = sph(10.0, 179.9), sph(10.0, -179.9)
+    print(f"   across the 180 degree meridian (lat 10, lon 179.9 and -179.9) the points are {np.linalg.norm(a - b):.5f} apart but their longitude labels differ by 359.8; "
+          f"the charts N and S put them {np.linalg.norm(chart_N(a) - chart_N(b)):.5f} and {np.linalg.norm(chart_S(a) - chart_S(b)):.5f} apart")
+    print("   the overlap |latitude| < 60 is the annulus 0.2679 < r < 3.7321 in either chart (r_N = tan(45 + lat/2 degrees)): "
+          f"{math.tan(math.radians(45 - 30)):.4f}, {math.tan(math.radians(45 + 30)):.4f}")
+
+
 def check_fisher_gaussian():
     head("   Tangent vectors and the Fisher metric on the Gaussians (the widget in section 3 of the interactive page)")
     def metric(mu, sg): return np.diag([1 / sg ** 2, 2 / sg ** 2])
@@ -1344,6 +1393,74 @@ def fig_softmax(out):
         "The coordinate grid of the logits (theta1, theta2) = (z1 - z0, z2 - z0) of a three-outcome softmax, redrawn in centred logits (a straight lattice with 60 degree angles in the plane z0 + z1 + z2 = 0), in probabilities (two fans of straight lines through two corners of the probability triangle) and in square-root coordinates (two fans of ellipse arcs in a quarter disc). The distribution P = (0.7, 0.2, 0.1) is theta = (-1.253, -1.946), centred logits (1.066, -0.187, -0.880) and square roots (0.894, 0.632).", body))
 
 
+def fig_sphere(out):
+    body = []
+    el, az = math.radians(25), 60.0
+    ca, sa = math.cos(math.radians(az)), math.sin(math.radians(az))
+
+    def view(q):                                          # orthographic view from above-front; returns (u, v, visible)
+        x1, y1, z = ca * q[0] - sa * q[1], sa * q[0] + ca * q[1], q[2]
+        return x1, y1 * math.sin(el) + z * math.cos(el), (-y1 * math.cos(el) + z * math.sin(el)) > 0
+
+    n = 190
+    S0 = Panel(body, 40, 50, n, n, (-1.1, 1.1), (-1.1, 1.1))
+    body.append('<text class="hd" x="40" y="36">latitude / longitude</text>')
+    phi = np.linspace(0, 2 * math.pi, 120)
+    S0.line(np.cos(phi), np.sin(phi), "ax")
+
+    def draw(pts, front, back):
+        v = [view(q) for q in pts]
+        for vis, cls in ((True, front), (False, back)):
+            run = []
+            for (u, w, vv) in v + [(0, 0, None)]:
+                if vv == vis:
+                    run.append((u, w))
+                else:
+                    if len(run) > 1:
+                        S0.line([r[0] for r in run], [r[1] for r in run], cls)
+                    run = []
+    for lat in (-60, -30, 0, 30, 60):
+        draw([sph(lat, l_) for l_ in np.linspace(-180, 180, 181)], "thin s1" if abs(lat) < 60 else "ln s1", "thin gd")
+    for lon in range(-150, 181, 30):
+        dashed = lon == 180
+        draw([sph(l_, lon) for l_ in np.linspace(-90, 90, 91)], "dash s2" if dashed else "thin s4", "thin gd")
+    for lat, name in ((90, "north pole: longitude undefined"),):
+        u, w, _ = view(sph(lat, 0)); S0.dot(u, w, "f2", 5); S0.text(u, w, name, "sm", "middle", 0, -9)
+    u, w, vis = view(sph(-90, 0)); S0.dot(u, w, "f0", 3)
+    S0.text(u, w, "south pole (behind): same problem", "sm", "middle", 0, 16)
+    u, w, _ = view(sph(0, 180)); S0.text(u, w, "180°: +180 meets −180", "sm", "start", -12, 30)
+    u, w, _ = view(sph(*SAMPLE)); S0.dot(u, w, "f2"); S0.text(u, w, "P", "v", "start", 7, -6)
+
+    xr = (-4.2, 4.2)
+    charts = []
+    for k, (title, f, miss) in enumerate((("chart N: project from the north pole", chart_N, "north pole → ∞"), ("chart S: project from the south pole", chart_S, "south pole → ∞"))):
+        P_ = Panel(body, 300 + 250 * k, 50, n, n, xr, xr)
+        body.append(f'<text class="hd" x="{300 + 250 * k}" y="36">{title}</text>')
+        r_lo, r_hi = math.tan(math.radians(15)), math.tan(math.radians(75))     # |latitude| < 60
+        ring = []
+        for r_ in (r_hi, r_lo):
+            ring.append("M " + " L ".join(f"{P_.X(r_ * math.cos(t)):.1f},{P_.Y(r_ * math.sin(t)):.1f}" for t in phi) + " Z")
+        body.append(f'<path class="fillS" fill-rule="evenodd" d="{" ".join(ring)}"/>')
+        for lat in (-60, -30, 0, 30, 60):
+            pts = np.array([f(sph(lat, l_)) for l_ in np.linspace(-180, 180, 181)]); P_.line(pts[:, 0], pts[:, 1], "thin s1" if abs(lat) < 60 else "ln s1")
+        for lon in range(-150, 181, 30):
+            pts = np.array([f(sph(l_, lon)) for l_ in np.linspace(-84, 84, 85)]); P_.line(pts[:, 0], pts[:, 1], "dash s2" if lon == 180 else "thin s4")
+        pole = 0 if k == 1 else None
+        P_.dot(0, 0, "f2" if True else "f0", 4)
+        P_.text(0, 0, ("south" if k == 0 else "north") + " pole", "sm", "start", 16, 30)
+        x, y = f(sph(*SAMPLE)); P_.dot(x, y, "f2"); P_.text(x, y, "P", "v", "start", 7, -6)
+        body.append(f'<text class="sm" x="{P_.X(0)}" y="{P_.y0 + n + 16}" text-anchor="middle">{miss} (not in this chart)</text>')
+    cap = ["Left: latitude and longitude. At the poles every meridian meets, so longitude has no value there; at the 180° meridian the label jumps from +180 to −180.",
+           "Middle and right: stereographic projections from the north and the south pole. Each misses one point (sent to infinity) and is smooth everywhere else.",
+           "The shaded ring is the overlap, latitudes between −60° and 60°. There a point has two labels related by r ↦ 1/r (radii multiply to 1),",
+           "a smooth invertible map: two overlapping charts cover the whole sphere.", ""]
+    cap[4] = "The dot is P at latitude 30°, longitude −150°: radius 1.7321 in chart N and 0.5774 in chart S (1.7321 × 0.5774 = 1)."
+    for k, line in enumerate(cap):
+        body.append(f'<text class="sm" x="40" y="{288 + 18 * k}">{line}</text>')
+    (out / "sphere-charts.svg").write_text(svg(800, 288 + 18 * len(cap) - 4, "A sphere needs two charts",
+        "Left: a sphere with latitude and longitude lines; longitude is undefined at the poles and jumps at the 180 degree meridian. Middle and right: stereographic projections from the north and from the south pole, each missing one point, with the ring |latitude| &lt; 60 degrees shaded as the overlap where the two labels are related by r to 1/r.", body))
+
+
 def fig_gaussian_geodesics(out):
     body = []
     ts = np.linspace(0, 1, 120)
@@ -1424,14 +1541,14 @@ def fig_projection_gaussian(out):
 def make_figures():
     out = Path(__file__).resolve().parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig_gaussian(out); fig_softmax(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_projection_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
+    fig_gaussian(out); fig_sphere(out); fig_softmax(out); fig_gaussian_geodesics(out); fig_fisher_rao(out); fig_projection_gaussian(out); fig_legendre(out); fig_charts(out); fig_pythagoras(out); fig_projection(out); fig_critical(out); fig_em(out)
     print("\nwrote", ", ".join(sorted(p.name for p in out.glob("*.svg"))))
 
 
 # ------------------------------------------------------------------ main
 
 if __name__ == "__main__":
-    check_gaussian_charts(); check_softmax_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
+    check_gaussian_charts(); check_sphere_charts(); check_softmax_charts(); check_divergence(); check_kl_gaussians(); check_kl_derivation(); check_fisher_gaussian(); check_bregman(); check_bregman_1d(); check_hessian(); check_exp_family(); check_legendre(); check_flat_structures(); check_gaussian_geodesics(); check_fisher_rao_gaussian(); check_legendre_1d()
     check_pythagoras(); check_pythagoras_gaussian(); check_projection(); check_projection_gaussian(); check_em(); check_coordinates()
     if "--figures" in sys.argv:
         make_figures()
