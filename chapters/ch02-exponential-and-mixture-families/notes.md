@@ -123,6 +123,21 @@ $$\hat p(x;\theta)=\exp\{\theta\cdot c(x)-\psi(\theta)\}.$$
 
 In words: the maximum-entropy distribution for given averages is the uniform distribution tilted by an exponential of the quantities you constrained. The tilts $\theta$ are the Lagrange multipliers of the constraints. The book's variational derivation (maximising entropy under the constraints) gives the same result.
 
+### How the maximum entropy principle follows from the Pythagorean theorem
+
+Step 3 above used the theorem in one line. Spelled out, it is three links, and the picture shows all of them.
+
+<figure>
+<img src="figures/maxent-pythagoras.svg" alt="Left: a sketch of a right-angled triangle. The uniform distribution P0 is joined by a blue curve, the e-geodesic, to the point P-hat on an orange line, the sheet of allowed distributions, meeting it at a right angle. Another allowed distribution P lies further along the sheet; the legs are labelled D of P-hat from P0 and D of P from P-hat, and the hypotenuse D of P from P0. Right: the divergence from the uniform distribution along the sheet is a bowl. A blue band up to its lowest level is D of P-hat from P0, the same for every P, and the orange region above that level is D of P from P-hat; the bowl bottoms out at P-hat.">
+<figcaption>Left: the right triangle $P_0,\hat P,P$. The right angle is measured in the Fisher metric, so it does not look like a right angle in every chart. Right: the distance from the uniform distribution along the sheet. Its lowest level is the fixed piece $D(\hat P:P_0)$ and what sits above that level is $D(P:\hat P)$.</figcaption>
+</figure>
+
+1. **Entropy is a distance to the uniform distribution.** When $P_0$ is uniform, $D_{\mathrm{KL}}[P:P_0]$ equals a constant minus the entropy of $P$. So maximising entropy is the same as minimising $D_{\mathrm{KL}}[P:P_0]$.
+2. **The constraint set is m-flat.** The distributions with the prescribed averages form the sheet $M(a)$, straight in the expectation parameters $\eta$. Let $\hat P$ be its max-entropy point.
+3. **The e-geodesic from $P_0$ to $\hat P$ meets the sheet at a right angle.** The point $\hat P$ is the exponential tilt of $P_0$ by the constrained functions $c(x)$, so the e-geodesic leaves $P_0$ in the direction $c$. A tangent direction of the sheet leaves every $\mathbb E[c_i]$ unchanged, and that is exactly the vanishing of the pairing between the two directions in the Pythagorean theorem.
+
+Then, for every other $P$ on the sheet, $D(P:P_0)=D(P:\hat P)+D(\hat P:P_0)$. The second piece is the same for every $P$ (the blue band in the right panel), and the first is never negative (the orange region), so the smallest total is at $P=\hat P$. Since entropy is a constant minus $D(P:P_0)$, that point has the largest entropy. The Gibbs-inequality argument in the derivation below is this same identity read the other way round: the entropy gap between $P$ and $\hat P$ is the divergence $D_{\mathrm{KL}}[P:\hat P]$.
+
 ### A concrete example: a die with average 4.5
 
 You have a six-sided die and the only thing you know is that its long-run average roll is $4.5$, not the fair $3.5$. Which probabilities should you assign to the faces? Many distributions fit: all the probability on faces 3 and 6 in equal parts, or a spike on face 6 over a flat floor, and so on. The maximum entropy principle picks the one that assumes the least beyond "the average is $4.5$".
