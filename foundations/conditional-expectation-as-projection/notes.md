@@ -32,7 +32,7 @@ The set of everything you can compute from $Y$ alone, $M=\{g(Y)\}$, is a flat su
 
 Roll a fair die. Let $X$ be the number and $Y$ whether it is odd or even.
 
-- A function of $Y$ takes one value on the odds and one on the evens, so $g(Y)=(a,b,a,b,a,b)$. These form a 2-dimensional plane inside the 6-dimensional space of lists of six numbers.
+- A function of $Y$ takes one value on the odds and one on the evens, so $g(Y)=(a,b,a,b,a,b)$. These form a 2-dimensional plane inside the 6-dimensional space of lists of six numbers. The next subsection spells out why.
 - Averaging $X$ inside each group gives $3$ for the odds and $4$ for the evens, so $E[X\mid Y]=(3,4,3,4,3,4)$.
 - The residual is $(-2,-2,0,0,2,2)$. Inside each group it adds up to zero, so it has no component along "odd" or "even": it is perpendicular to the plane.
 
@@ -42,6 +42,24 @@ Roll a fair die. Let $X$ be the number and $Y$ whether it is odd or even.
 </figure>
 
 The unavoidable part of the error is the spread of the rolls inside each group, which no choice of $a,b$ can remove. The extra part is the squared distance from your $(a,b)$ to $(3,4)$. Total error is the sum of the two.
+
+### Why a function of $Y$ looks like $(a,b,a,b,a,b)$
+
+1. **A random variable is a list of numbers.** The sample space is the six faces, $\Omega=\{1,\dots,6\}$. A random variable is a function $Z:\Omega\to\mathbb R$, and it is fixed by its six values $(Z(1),\dots,Z(6))$. So each random variable is one point of $\mathbb R^6$.
+2. **$Y$ is a function on the faces.** $Y(\omega)$ is "odd" for $\omega\in\{1,3,5\}$ and "even" for $\omega\in\{2,4,6\}$. It only ever takes two values.
+3. **A function of $Y$ is a composition.** Take any rule $g$ whose inputs are the two values "odd" and "even". Then $g(Y)$ is the random variable $\omega\mapsto g(Y(\omega))$. Because $g$ only has two possible inputs, it is completely defined by two numbers, $a=g(\text{odd})$ and $b=g(\text{even})$. You choose them freely, and there is nothing else to choose.
+4. **Evaluate from the inside out.** First compute $Y(\omega)$, then feed the result into $g$.
+
+| face $\omega$ | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| $Y(\omega)$ | odd | even | odd | even | odd | even |
+| $g(Y(\omega))$ | $a$ | $b$ | $a$ | $b$ | $a$ | $b$ |
+
+   For face 3, $Y(3)=$ odd, so $g(Y(3))=g(\text{odd})=a$. For face 4, $Y(4)=$ even, so $g(Y(4))=b$. The function $g$ cannot tell face 1 from face 3, because it only sees $Y(\omega)$, and that is the same for both.
+5. **Why it is a plane.** The set of all such lists is $\{\,a\,(1,0,1,0,1,0)+b\,(0,1,0,1,0,1)\,\}$, the span of two vectors that share no positions. They are independent, so it is a 2-dimensional subspace of the 6-dimensional space.
+6. **The converse.** A random variable that is constant on the odds and constant on the evens, with values $a$ and $b$, is $g(Y)$ for the $g$ with $g(\text{odd})=a$ and $g(\text{even})=b$. So the plane is exactly the set of functions of $Y$. In general, $Z$ is a function of $Y$ exactly when it is constant on each set $\{\omega: Y(\omega)=y\}$, which is why $E[X\mid Y]$ averages inside those sets.
+
+This restriction is what makes the plane small: a general random variable could give all six faces different values, but a function of $Y$ cannot. The conditional expectation is the closest member of this small plane to $X$.
 
 ## A second example: two dice
 
