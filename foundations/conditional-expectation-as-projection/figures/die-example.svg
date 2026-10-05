@@ -1,0 +1,40 @@
+<svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>One die: predicting the roll from its parity</title>
+<desc>Left: the six rolls as blue dots, grouped into odd and even. A prediction g(Y) is one value for the odd group and one for the even group, drawn as orange bars. The conditional expectation is the group average, 3 for the odds and 4 for the evens, drawn dashed. Right: the plane of predictions, with a coordinate a for the odd group and b for the even group; the green dot at (3, 4) is the projection and circles show equal error.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.bl{fill:#2a78d6} .or{fill:#eb6834} .gr{fill:#1f8a63} .gy{fill:#8a8880}
+.lbl{font-size:12px;fill:#2a78d6} .lor{font-size:12px;fill:#c2481f} .lgr{font-size:12px;fill:#13644a}
+.plane{fill:#dff3ea;stroke:#1f8a63;stroke-width:1} .box{fill:none;stroke:#c9c8c0;stroke-width:1}
+.bar{stroke:#2a78d6;stroke-width:2.6;fill:none} .res{stroke:#eb6834;stroke-width:2.4;fill:none}
+.mm{stroke:#1f8a63;stroke-width:3;fill:none} .gl{stroke:#8a8880;stroke-width:1.5;fill:none} .dsh{stroke:#8a8880;stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+.og{stroke:#eb6834;stroke-width:3;fill:none} .grid{stroke:#c9c8c0;stroke-width:1}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .bl{fill:#3987e5} .or{fill:#d95926} .gr{fill:#3cb58a} .gy{fill:#85837b} .lbl{fill:#6ba6ee} .lor{fill:#f0916b} .lgr{fill:#6fd0a8} .plane{fill:#173a2e;stroke:#3cb58a} .box,.grid{stroke:#4a4844} .bar{stroke:#3987e5} .res{stroke:#d95926} .mm{stroke:#3cb58a} .gl,.dsh{stroke:#85837b} .og{stroke:#d95926} }
+</style>
+<text class="hd" x="20" y="22">The six rolls and a prediction g(Y)</text>
+<line class="grid" x1="30" y1="260" x2="360" y2="260"/>
+<text class="sm" x="12" y="264">0</text>
+<g>
+<line class="grid" x1="30" y1="200" x2="360" y2="200"/><text class="sm" x="12" y="204">2</text>
+<line class="grid" x1="30" y1="140" x2="360" y2="140"/><text class="sm" x="12" y="144">4</text>
+<line class="grid" x1="30" y1="80" x2="360" y2="80"/><text class="sm" x="12" y="84">6</text>
+</g>
+<line class="dsh" x1="55" y1="170" x2="145" y2="170"/><line class="dsh" x1="215" y1="140" x2="305" y2="140"/>
+<line class="og" x1="55" y1="148" x2="145" y2="148"/><line class="og" x1="215" y1="182" x2="305" y2="182"/>
+<circle class="bl" cx="70" cy="230" r="5"/><circle class="bl" cx="100" cy="170" r="5"/><circle class="bl" cx="130" cy="110" r="5"/>
+<circle class="bl" cx="230" cy="200" r="5"/><circle class="bl" cx="260" cy="140" r="5"/><circle class="bl" cx="290" cy="80" r="5"/>
+<text class="sm" x="70" y="250" text-anchor="middle">1</text><text class="sm" x="100" y="190" text-anchor="middle">3</text><text class="sm" x="130" y="130" text-anchor="middle">5</text>
+<text class="sm" x="230" y="220" text-anchor="middle">2</text><text class="sm" x="260" y="160" text-anchor="middle">4</text><text class="sm" x="290" y="100" text-anchor="middle">6</text>
+<text class="v" x="100" y="282" text-anchor="middle">odd</text><text class="v" x="260" y="282" text-anchor="middle">even</text>
+<text class="lor" x="30" y="304">orange: a guess g(Y)</text><text class="sm" x="170" y="304">dashed: E[X|Y]</text><text class="lbl" x="260" y="304">blue: X</text>
+<text class="hd" x="400" y="22">The plane of predictions (a, b)</text>
+<rect class="box" x="400" y="34" width="260" height="256" rx="6"/>
+<circle cx="500" cy="140" r="30" class="dsh"/><circle cx="500" cy="140" r="60" class="dsh"/><circle cx="500" cy="140" r="90" class="dsh"/>
+<line class="gl" x1="410" y1="280" x2="650" y2="40"/>
+<circle class="gr" cx="500" cy="140" r="5"/><text class="lgr" x="508" y="134">(3, 4) = E[X|Y]</text>
+<circle class="gy" cx="545" cy="175" r="4"/><text class="sm" x="553" y="192">constant 3.5</text>
+<circle class="or" cx="590" cy="105" r="6"/><line class="og" x1="590" y1="105" x2="500" y2="140" stroke-width="1.5"/><text class="lor" x="598" y="100">your guess</text>
+<text class="sm" x="640" y="282" text-anchor="end">a (odd)</text><text class="sm" x="408" y="52">b (even)</text>
+<text class="sm" x="410" y="306">Error grows with distance from (3, 4)</text>
+</svg>

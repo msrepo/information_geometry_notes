@@ -1,0 +1,40 @@
+<svg viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Dual-coordinate picture of the projection</title>
+<desc>Left: in mean coordinates eta, an e-flat set of predictions is a curve and the m-geodesic from p to the foot q is a straight line; the right angle is in the Fisher metric, so it looks skewed. Right: for Gaussians with fixed variance both are straight and the right angle looks like one.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.bl{fill:#2a78d6} .or{fill:#eb6834} .gr{fill:#1f8a63} .gy{fill:#8a8880}
+.lbl{font-size:12px;fill:#2a78d6} .lor{font-size:12px;fill:#c2481f} .lgr{font-size:12px;fill:#13644a}
+.plane{fill:#dff3ea;stroke:#1f8a63;stroke-width:1} .box{fill:none;stroke:#c9c8c0;stroke-width:1}
+.bar{stroke:#2a78d6;stroke-width:2.6;fill:none} .res{stroke:#eb6834;stroke-width:2.4;fill:none}
+.mm{stroke:#1f8a63;stroke-width:3;fill:none} .gl{stroke:#8a8880;stroke-width:1.5;fill:none} .dsh{stroke:#8a8880;stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+.og{stroke:#eb6834;stroke-width:3;fill:none} .grid{stroke:#c9c8c0;stroke-width:1}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .bl{fill:#3987e5} .or{fill:#d95926} .gr{fill:#3cb58a} .gy{fill:#85837b} .lbl{fill:#6ba6ee} .lor{fill:#f0916b} .lgr{fill:#6fd0a8} .plane{fill:#173a2e;stroke:#3cb58a} .box,.grid{stroke:#4a4844} .bar{stroke:#3987e5} .res{stroke:#d95926} .mm{stroke:#3cb58a} .gl,.dsh{stroke:#85837b} .og{stroke:#d95926} }
+</style>
+<text class="hd" x="20" y="22">General exponential family (η coordinates)</text>
+<rect class="box" x="15" y="34" width="320" height="300" rx="8"/>
+<path class="mm" d="M30 220 Q150 40 300 210"/>
+<text class="lgr" x="38" y="248">M: functions g(Y)</text><text class="sm" x="38" y="264">e-flat, so curved here</text>
+<line class="dsh" x1="97" y1="130" x2="220" y2="125"/>
+<line class="og" x1="157" y1="128" x2="215" y2="45"/><line class="gl" x1="215" y1="45" x2="256" y2="167"/>
+<path class="og" d="M157 128 L171 127 L179 115 L165 116 Z" stroke-width="1.2"/>
+<circle class="bl" cx="215" cy="45" r="5"/><text class="lbl" x="224" y="42">p (law of X)</text>
+<circle class="gr" cx="157" cy="128" r="5"/><text class="lgr" x="120" y="152">q = E[X|Y]</text>
+<circle class="gy" cx="256" cy="167" r="4"/><text class="sm" x="264" y="190">other g</text>
+<text class="lor" x="182" y="92" transform="rotate(-55 182 92)">m-geodesic: straight</text>
+<text class="sm" x="25" y="300">Right angle is in the Fisher metric,</text><text class="sm" x="25" y="316">so it looks skewed in these coordinates.</text>
+<text class="hd" x="360" y="22">Gaussian, fixed variance</text>
+<rect class="box" x="355" y="34" width="310" height="300" rx="8"/>
+<line class="mm" x1="375" y1="225" x2="650" y2="153"/>
+<text class="lgr" x="380" y="252">M: functions g(Y)</text><text class="sm" x="380" y="268">flat in both coordinates</text>
+<line class="og" x1="500" y1="192" x2="472" y2="85"/><line class="gl" x1="472" y1="85" x2="605" y2="160"/>
+<path class="og" d="M500 192 L510 189.5 L507.5 179.5 L497.5 182 Z" stroke-width="1.2"/>
+<circle class="bl" cx="472" cy="85" r="5"/><text class="lbl" x="480" y="80">p</text>
+<circle class="gr" cx="500" cy="192" r="5"/><text class="lgr" x="508" y="212">E[X|Y]</text>
+<circle class="gy" cx="605" cy="165" r="4"/><text class="sm" x="570" y="188">other g</text>
+<text class="sm" x="368" y="300">θ and η differ only by a scale, so e- and</text><text class="sm" x="368" y="316">m-geodesics coincide. This is ordinary L2.</text>
+<text class="v" x="20" y="362">Both panels: D(p ‖ other g) = D(p ‖ q) + D(q ‖ other g)</text>
+<text class="sm" x="20" y="382">Orange: the m-geodesic p to q (straight in η). Green: the e-geodesic inside M (straight in θ).</text>
+<text class="sm" x="20" y="400">Pythagoras needs only that the two meet at a Fisher right angle at q.</text>
+</svg>
