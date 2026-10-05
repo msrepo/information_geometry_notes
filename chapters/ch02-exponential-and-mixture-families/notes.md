@@ -81,7 +81,7 @@ An ordinary exponential family multiplies a few fixed functions of $x$ (such as 
 
 $$p(x;\theta)=\exp\Big\{\int\theta(y)\,k(x,y)\,dy-\psi[\theta]\Big\}\quad\text{with respect to a base measure }d\mu(x).$$
 
-Here $k$ is a positive-definite kernel, for example the Gaussian kernel $k_\sigma(x,y)\propto e^{-(x-y)^2/(2\sigma^2)}$ with width $\sigma$, and the base measure is a suitable fixed one, for instance $d\mu(x)=e^{-x^2/(2\tau^2)}dx$. The natural parameter is the function $\theta(y)$ (instead of a list $\theta_i$), the dual parameter is the function $\eta(y)=\mathbb E[k(x,y)]$, the average of the bump at $y$, and $\psi[\theta]$ is a convex functional of $\theta$. The book stresses that this family does **not** cover every density: there are many such models, one for each choice of $k$ and $d\mu$. The "naive treatment" of the space of all densities in §2.5 is the special case where the kernel is a delta function, $k(x,y)=\delta(x-y)$.
+Here $k$ is a positive-definite kernel (see the [kernel functions page](../kernel-function/index.html) for what that means), for example the Gaussian kernel $k_\sigma(x,y)\propto e^{-(x-y)^2/(2\sigma^2)}$ with width $\sigma$, and the base measure is a suitable fixed one, for instance $d\mu(x)=e^{-x^2/(2\tau^2)}dx$. The natural parameter is the function $\theta(y)$ (instead of a list $\theta_i$), the dual parameter is the function $\eta(y)=\mathbb E[k(x,y)]$, the average of the bump at $y$, and $\psi[\theta]$ is a convex functional of $\theta$. The book stresses that this family does **not** cover every density: there are many such models, one for each choice of $k$ and $d\mu$. The "naive treatment" of the space of all densities in §2.5 is the special case where the kernel is a delta function, $k(x,y)=\delta(x-y)$.
 
 **The simplest picture: two centres.** Replace the continuum of points $y$ by just two centres $c_1,c_2$, so the weight function is concentrated on them, $\theta(y)=\theta_1\delta(y-c_1)+\theta_2\delta(y-c_2)$. The integral becomes a sum and the family is
 
@@ -95,6 +95,27 @@ an ordinary two-parameter exponential family whose two "statistics" are the two 
 </figure>
 
 Read the picture from left to right. The two bumps are fixed once and for all. A choice of the two weights, one point in the right panel, gives one density in the middle panel. Zero weights give the flat grey density. A positive weight on a bump piles probability near its centre (blue, left bump), positive weights on both give two peaks (green), and a negative weight on one bump pushes probability away from its centre (orange has a dip at the left centre). So the weights are the natural parameters, the dual parameters are the averages $\eta_i=\mathbb E[k(x,c_i)]$ of the two bumps, and everything said about exponential families applies: $\psi$ is convex, its slope gives the averages of the bumps and its curvature gives how they co-vary. With many centres the same construction becomes the function-valued $\theta(y)$ of the book.
+
+### From two centres to a whole function $\theta(y)$
+
+The two-centre family has two weights. The kernel exponential family lets every point $y$ carry a weight, so the parameter is a function $\theta(y)$. The only new idea is the middle step: the weights are not used directly, they are **smeared by the kernel** into a function of $x$,
+
+$$f(x)=\int\theta(y)\,k(x,y)\,dy,\qquad p(x)\;\propto\;e^{f(x)}\ \ (\text{times the base measure}).$$
+
+So $f$ is the log-density up to a constant, and it is always a blurred copy of $\theta$. The kernel decides how much blurring: a Gaussian kernel of width $\sigma$ averages $\theta$ over a window of that width.
+
+<figure>
+<img src="figures/kernel-smoothing.svg" alt="Left: a weight function theta of y with two positive bumps near minus 2 and plus 2 and a negative dip near 0. Middle: the smeared function f of x for a delta kernel (same as theta), a narrow Gaussian kernel (nearly the same, slightly rounded) and a wide Gaussian kernel (much flatter bumps and dip). Right: the densities made by exponentiating f, sharply peaked for the narrow kernel and gentle for the wide kernel.">
+<figcaption>Left: one choice of the weight function $\theta(y)$. Middle: the same $\theta$ smeared by three kernels. Right: the densities $p\propto e^{f}$ for the two Gaussian kernels. Positive weight piles probability up and negative weight digs a dip, as with the two bumps, but the kernel width limits how sharp the result can be.</figcaption>
+</figure>
+
+What the figure shows:
+
+- **A delta kernel does no smearing**, so $f=\theta$ and the log-density can be any function. This is the "naive" space of all densities of §2.5.
+- **A narrow kernel** blurs only a little, so $f$ still follows the wiggles of $\theta$ and the family can reach sharp-looking densities.
+- **A wide kernel** blurs a lot. Whatever $\theta$ you choose, $f$ comes out smooth, so the family contains only smooth densities. This is the sense in which the family does not cover every density, and why each choice of $k$ is a different model.
+- **The dual parameter** has the same picture in the other direction: $\eta(y)=\mathbb E[k(x,y)]$ is the density $p$ itself smeared by the kernel, a function of $y$.
+- **Why the kernel must be positive definite**: so that a nonzero $\theta$ cannot be smeared into nothing, which keeps $\psi[\theta]$ convex and the dual pair of coordinates well defined.
 
 ## The maximum entropy principle (§2.8.1)
 
