@@ -245,3 +245,99 @@ so the potential $\psi$ of the earlier sections is its logarithm, $\psi=\log Z$.
 **Where it appeared above.** For a coin or a softmax with one logit fixed at zero, $Z=1+e^{\theta_1}+e^{\theta_2}$, so $\log Z$ is log-sum-exp and dividing by $Z$ is the softmax. For the fixed-width Gaussian, completing the square gives $Z=\sqrt{2\pi\sigma^2}\,e^{\sigma^2\theta^2/2}$. And in the maximum entropy principle, $Z$ is the normaliser that the Lagrange multipliers produce.
 
 **Names differ between texts.** Amari's $\psi$ is the *logarithm* of the partition function. Machine-learning texts often say "partition function" for $Z$ itself and "log-partition function" for $\psi$, and "free energy" for $-\log Z$ in some conventions.
+
+## What an exponential family is: tilting a base distribution
+
+An exponential family is a set of distributions that all share one form, in which the parameters meet the data only through a simple exponent:
+
+$$p(x;\theta)=h(x)\,\exp\{\theta\cdot T(x)-\psi(\theta)\}.$$
+
+- $\theta$ is the **natural parameter** (the knob, and the coordinates of the family).
+- $T(x)$ is the **sufficient statistic**: the data affects the distribution only through $T(x)$.
+- $h(x)$ is a fixed **base** term that does not depend on $\theta$.
+- $\psi(\theta)$ is the **log-normaliser** ($\log Z$ of the previous section): whatever makes the total probability 1.
+
+**Intuition.** Start from a base distribution $h$. Multiply each outcome by $e^{\theta\cdot T(x)}$, which favours outcomes with a large $T(x)$ when $\theta$ is positive and penalises them when it is negative, then divide by the total so it adds up to 1. Turning the knob $\theta$ reshapes the distribution in this one structured way, and the family is the set of all such tilts.
+
+<figure>
+<img src="figures/tilting.svg" alt="Three columns for theta equal to minus 0.4, 0 and plus 0.4. Top row: the same bump-shaped base distribution on the outcomes 0 to 10. Middle row: the tilt factor, which decays from left to right, is flat, or grows from left to right. Bottom row: the renormalised result, shifted toward small x, unchanged, or shifted toward large x, with a dashed outline of the base.">
+<figcaption>The same base $h$ (top), the tilt $e^{\theta x}$ (middle, drawn relative to its largest bar) and the result $p$ (bottom, dashed outline is $h$). At $\theta=0$ nothing changes.</figcaption>
+</figure>
+
+### A measure on the sample space absorbs $h$
+
+The book removes $h$ from the formula by moving it into the measure that the density is taken against. Define a measure on the sample space $X$ by
+
+$$d\mu(x)=e^{k(x)}\,dx,\qquad\text{so that } e^{k}=h .$$
+
+This is the idea from the [measure page](../measure/index.html) that a function builds a measure: $\mu(A)=\int_A e^{k(x)}dx$ gives each region the weight $e^{k}$ instead of the same weight everywhere, and $e^{k}$ is the density of $\mu$ with respect to the ordinary $dx$. Probabilities are then $P(A)=\int_A\exp\{\theta\cdot x-\psi(\theta)\}\,d\mu(x)$, which is the same as before, but the density against $\mu$ has the bare form $\exp\{\theta\cdot x-\psi\}$. The normaliser is $e^{\psi(\theta)}=\int e^{\theta\cdot x}d\mu(x)$.
+
+Two remarks. For a discrete family $\mu$ is a sum instead of an integral; for the Poisson family $h(x)=1/x!$ is just a weight of $1/x!$ on each integer $x$. And writing the statistic as $x$ itself loses nothing: rename $y=T(x)$ and work with $y$.
+
+## The usual families in exponential-family form
+
+Each line takes the usual formula, takes its log, and sorts the terms into the part that depends on $x$ only ($h$), the part where $\theta$ meets $x$ ($\theta\cdot T$) and the part that depends on the parameters only ($-\psi$).
+
+| Family | Usual form | $T(x)$ | Natural parameter $\theta$ | $h(x)$ | $\psi(\theta)$ |
+|---|---|---|---|---|---|
+| Bernoulli | $p^x(1-p)^{1-x}$ | $x$ | $\log\frac{p}{1-p}$ | $1$ | $\log(1+e^{\theta})$ |
+| Gaussian | $\frac{1}{\sqrt{2\pi\sigma^2}}e^{-(x-\mu)^2/2\sigma^2}$ | $(x,x^2)$ | $\big(\frac{\mu}{\sigma^2},-\frac{1}{2\sigma^2}\big)$ | $1$ | $-\frac{\theta_1^2}{4\theta_2}+\frac12\log\frac{\pi}{-\theta_2}$ |
+| Categorical | $P(x=k)=\pi_k$ | one-hot | $\theta_k=\log\pi_k$ (logits) | $1$ | $\log\sum_j e^{\theta_j}$ |
+| Poisson | $\frac{\lambda^x e^{-\lambda}}{x!}$ | $x$ | $\log\lambda$ | $\frac1{x!}$ | $e^{\theta}$ |
+| Exponential | $\lambda e^{-\lambda x}$ | $x$ | $-\lambda$ | $1$ | $-\log(-\theta)$ |
+| Gamma | $\frac{\beta^k}{\Gamma(k)}x^{k-1}e^{-\beta x}$ | $(\log x,x)$ | $(k-1,-\beta)$ | $1$ | $\log\Gamma(\theta_1{+}1)-(\theta_1{+}1)\log(-\theta_2)$ |
+| Dirichlet | $\frac{\Gamma(\sum\alpha_i)}{\prod\Gamma(\alpha_i)}\prod x_i^{\alpha_i-1}$ | $(\log x_i)$ | $\alpha_i-1$ | $1$ | $\sum\log\Gamma(\alpha_i)-\log\Gamma(\sum\alpha_i)$ |
+
+For example, the Bernoulli: $p^x(1-p)^{1-x}=\exp\{x\log\frac{p}{1-p}+\log(1-p)\}$, so $\theta=\log\frac{p}{1-p}$ (the log-odds), $\psi=-\log(1-p)$, and the sigmoid is the map from $\theta$ back to $p$. For the Gaussian, expand the square: the exponent is $\frac{\mu}{\sigma^2}x-\frac{1}{2\sigma^2}x^2-\frac{\mu^2}{2\sigma^2}-\frac12\log(2\pi\sigma^2)$. The categorical's logits are defined only up to adding one constant to all of them, so the "minimal" version fixes one class to zero.
+
+<figure>
+<img src="figures/family-gallery.svg" alt="Seven small plots: Bernoulli as two bars, a Gaussian bell, categorical as three bars, Poisson as bars from 0 to 9, a decaying exponential curve, a gamma hump, and a Dirichlet density shaded on a triangle. Each has its sufficient statistic and natural parameter written above.">
+<figcaption>One member of each family from the table, with its sufficient statistic $T$ and natural parameter $\theta$.</figcaption>
+</figure>
+
+## Theorem 2.1: the Fisher metric is the curvature of $\psi$
+
+The theorem says that the Riemannian metric of an exponential family is the Fisher information matrix,
+
+$$g_{ij}(\theta)=E\big[\partial_i\log p(x;\theta)\,\partial_j\log p(x;\theta)\big],\qquad\partial_i=\frac{\partial}{\partial\theta^i}.$$
+
+A Riemannian metric is a rule for the length of a small step: $ds^2=\sum g_{ij}\,d\theta^i d\theta^j$, with $g$ allowed to change from point to point. Here the rule measures how distinguishable $p(x;\theta)$ is from $p(x;\theta+d\theta)$. For an exponential family it also has an explicit form, obtained in five short steps:
+
+1. Take the log: $\log p=\theta\cdot x-\psi(\theta)+k(x)$.
+2. Differentiate in $\theta$ (the score): the $k(x)$ term drops out and $\partial_i\log p=x_i-\partial_i\psi$.
+3. Use $E[x_i]=\partial_i\psi=:\eta_i$, so the score is the data minus its mean, $x_i-\eta_i$.
+4. Put it in the definition: $g_{ij}=E[(x_i-\eta_i)(x_j-\eta_j)]=\operatorname{Cov}(x_i,x_j)$.
+5. Differentiating $E[x]=\nabla\psi$ once more gives $\operatorname{Cov}(x)=\nabla^2\psi$.
+
+So **the Fisher metric is the covariance matrix of the statistic, and equally the Hessian of $\psi$**; since a covariance matrix is positive semi-definite, $\psi$ is convex and $g$ is a genuine metric. For the Bernoulli, $\psi'=p$ and $\psi''=p(1-p)$, the variance of a coin.
+
+<figure>
+<img src="figures/fisher-curvature.svg" alt="Left: the curve psi of theta for the Bernoulli family, rising from near zero on the left to a straight rise on the right, with a dashed tangent line at a marked point. Right: the second derivative p times one minus p, a bell-shaped curve peaking at theta equal to zero, with the same point marked.">
+<figcaption>Left: $\psi(\theta)=\log(1+e^{\theta})$, whose slope at a point is the mean $p$. Right: its curvature $g(\theta)=p(1-p)$, the Fisher metric, which is largest at $\theta=0$. A step of fixed size in $\theta$ is a long statistical distance near $0$ and a short one far out.</figcaption>
+</figure>
+
+## Mixture families
+
+A **mixture family** is a set of distributions built by blending a few fixed ingredients with adjustable weights. Take fixed distributions $p_0(x),p_1(x),\dots,p_n(x)$ on the same space and let
+
+$$p(x;\eta)=\sum_{i=0}^{n}\eta_i\,p_i(x),\qquad\eta_i\ge0,\ \ \sum_i\eta_i=1 .$$
+
+There are $n$ free weights (the last is fixed by $\eta_0=1-\sum_{i\ge1}\eta_i$), so the family is an $n$-dimensional manifold with the weights $\eta$ as coordinates.
+
+<figure>
+<img src="figures/mixture-two-gaussians.svg" alt="Top: three plots for mixing weights 0.1, 0.5 and 0.9, each showing the weighted left Gaussian in green, the weighted right Gaussian in orange and their sum in blue, which is one hump on the left, two humps, then one hump on the right. Bottom: the Fisher metric along the mixing weight on a log scale, a U-shaped curve that is smallest at 0.5 and large at both ends.">
+<figcaption>Two fixed Gaussians $p_0=N(-1.5,1)$ and $p_1=N(1.5,1)$ blended with weights $1-\eta$ and $\eta$. The ingredients never change; only their weights do. Below, the Fisher metric $g(\eta)=\int(p_1-p_0)^2/p\,dx$ along the family: small in the middle, large near the ends, where a small step in $\eta$ adds mass in a region the other ingredient barely covers.</figcaption>
+</figure>
+
+**Why it is a clean geometric object.** The family is *linear in the probabilities*: averaging two members' densities gives the member whose weights are the average of theirs. So "straight lines" here are straight when you average probabilities. This is the **m-flat** (mixture-flat) structure, the counterpart of the **e-flat** structure of exponential families, which is straight in $\log p$.
+
+| | Exponential family | Mixture family |
+|---|---|---|
+| Form | $p=h\,e^{\theta\cdot T-\psi}$ | $p=\sum_i\eta_i\,p_i$ |
+| Linear in | $\log p$ | $p$ |
+| Coordinates | natural $\theta$ | mixture weights $\eta$ |
+| Flat structure | e-flat | m-flat |
+
+The set of all categorical distributions on $n+1$ outcomes is both: a mixture of the point masses $\delta_i$, with the weights as coordinates, and an exponential family in the softmax form. It is the one family where both flat structures coexist.
+
+**A common confusion.** A "Gaussian mixture model" whose means and variances are also learned is *not* a mixture family in this sense. Here the ingredients $p_i$ are fixed and only the weights vary. Learning the Gaussian centres too gives a larger, curved model, flat in neither direction.

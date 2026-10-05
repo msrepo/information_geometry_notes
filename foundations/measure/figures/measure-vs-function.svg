@@ -1,0 +1,28 @@
+<svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>A function takes a point, a measure takes a set</title>
+<desc>A density curve p(x) over a line. A single point x has a height p(x), which is a function value. Two disjoint intervals A and B are shaded, and the area under the curve over each is the measure of that set. The measure of the union is the sum of the two areas.</desc>
+<style>
+text{font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;font-weight:400}
+.hd{font-size:13px;font-weight:500;fill:#1a1a19} .sm{font-size:11px;fill:#57564f} .v{font-size:12px;fill:#1a1a19}
+.lbl{font-size:12px;fill:#2a78d6} .lor{font-size:12px;fill:#c2481f} .lgr{font-size:12px;fill:#13644a}
+.curve{stroke:#2a78d6;stroke-width:2.6;fill:none} .axis{stroke:#8a8880;stroke-width:1.5;fill:none}
+.A{fill:#2a78d6;fill-opacity:.35} .B{fill:#eb6834;fill-opacity:.4}
+.pt{stroke:#1f8a63;stroke-width:2.4;fill:none} .dot{fill:#1f8a63} .box{fill:none;stroke:#c9c8c0;stroke-width:1}
+@media (prefers-color-scheme: dark){ .hd,.v{fill:#eceae3} .sm{fill:#b6b4ab} .lbl{fill:#6ba6ee} .lor{fill:#f0916b} .lgr{fill:#6fd0a8} .curve{stroke:#3987e5} .A{fill:#3987e5} .B{fill:#d95926} .axis{stroke:#85837b} .pt{stroke:#3cb58a} .dot{fill:#3cb58a} .box{stroke:#4a4844} }
+</style>
+<path class="A" d="M150,250 L150,176 C165,160 180,142 195,130 L210,125 L210,250 Z"/>
+<path class="B" d="M380,250 L380,170 C395,185 410,205 425,222 L450,238 L450,250 Z"/>
+<path class="curve" d="M60,246 C100,240 130,210 160,170 C190,125 215,100 250,100 C290,100 320,140 350,175 C385,215 420,236 460,244 C500,248 540,249 620,250"/>
+<line class="axis" x1="50" y1="250" x2="630" y2="250"/>
+<text class="lbl" x="170" y="272" text-anchor="middle">A</text>
+<text class="lor" x="415" y="272" text-anchor="middle">B</text>
+<text class="lbl" x="170" y="228" text-anchor="middle">area = μ(A)</text>
+<text class="lor" x="415" y="228" text-anchor="middle">μ(B)</text>
+<line class="pt" x1="290" y1="250" x2="290" y2="103"/><circle class="dot" cx="290" cy="250" r="4"/>
+<text class="lgr" x="298" y="140">p(x): a height at one point</text>
+<text class="sm" x="298" y="156">(a function value, not a size)</text>
+<text class="hd" x="40" y="32">Function: point in, value out. Measure: set in, size out.</text>
+<text class="v" x="40" y="58">μ(A ∪ B) = μ(A) + μ(B)  when A and B do not overlap</text>
+<text class="sm" x="40" y="78">A single point has width zero, so its area is zero, yet an interval made of points has positive area.</text>
+<text class="sm" x="40" y="305">Here μ(A) = ∫ over A of p(x) dx: the density p is a function that builds the measure μ.</text>
+</svg>
