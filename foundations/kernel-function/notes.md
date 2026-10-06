@@ -2,7 +2,7 @@
 title: "Kernel functions: similarity that behaves like a dot product"
 short_title: "Kernel functions"
 category: "Foundations"
-tags: [kernel, positive-definite-kernel, gram-matrix, kernel-trick, feature-space, kernel-exponential-family]
+tags: [kernel, positive-definite-kernel, gram-matrix, kernel-trick, feature-space, rkhs, kernel-exponential-family]
 status: read
 ---
 
@@ -64,6 +64,37 @@ The infinite dimension does not go away: it is where the dot product lives. The 
 
 Positive definiteness is what guarantees that the hidden feature space exists. A kernel that fails the Gram test has no feature space, and the trick would give meaningless answers.
 
+## The reproducing kernel Hilbert space
+
+A **reproducing kernel Hilbert space** (RKHS) is the space of functions you can build by adding up bumps of a positive definite kernel, with a dot product chosen so that evaluating a function at a point is itself a dot product. It is the feature space of the kernel trick, made concrete as a space of functions.
+
+**Functions made of bumps.** For each point $y$, $k(\cdot,y)$ is a bump centred at $y$. The RKHS $H_k$ is the set of weighted sums of bumps (and their limits),
+
+$$f(x)=\sum_ic_i\,k(x,x_i).$$
+
+This is the same "smear weights through the kernel" construction as $f(x)=\int\theta(y)k(x,y)\,dy$ in the kernel exponential family: those $f$ are elements of this space.
+
+**A dot product on functions.** Require the bumps to act like the feature vectors, $\langle k(\cdot,x),k(\cdot,y)\rangle=k(x,y)$, and extend linearly. For $f=\sum_ic_ik(\cdot,x_i)$ this gives
+
+$$\|f\|^2=\sum_{i,j}c_ic_j\,k(x_i,x_j)=c^\top Kc,$$
+
+the quantity of the Gram-matrix test. Positive definiteness of $k$ is what makes this a genuine squared length. ("Hilbert" means a space with such an inner product that has no gaps: every sequence that settles down has a limit in the space.)
+
+**The reproducing property.** Take the inner product of $f$ with a single bump:
+
+$$\langle f,k(\cdot,x)\rangle=\sum_ic_ik(x_i,x)=f(x).$$
+
+Evaluating $f$ at $x$ is the same as taking a dot product with the bump at $x$. That is the "reproducing" in the name, and it is the kernel trick in function form: the feature vector of the point $x$ is the bump $\varphi(x)=k(\cdot,x)$, and $\langle\varphi(x),\varphi(y)\rangle=k(x,y)$.
+
+<figure>
+<img src="figures/rkhs.svg" alt="Left: two Gaussian bumps with weights 1 and 1 and their sum, a gentle two-humped function. Middle: two close bumps with weights 4 and minus 4 whose sum is a small wiggle that goes up then down. Right: an arrow for f and an arrow for the bump at x, with a dashed perpendicular from the tip of f onto the bump arrow, labelled the dot product equals f of x.">
+<figcaption>Left and middle: a function in the RKHS is a weighted sum of bumps (dashed), and its norm $c^\top Kc$ is small when the weights do not cancel and large when large weights have to cancel to make a small wiggle. Right: the reproducing property, drawn as a projection: the shadow of $f$ on the bump at $x$ has the value $f(x)$.</figcaption>
+</figure>
+
+**Why this is more than a convenience.** In an ordinary function space, two functions can be close in length but differ wildly at one point, so evaluating at a point is not a well-behaved operation. In an RKHS, evaluation is continuous: $|f(x)|\le\|f\|\sqrt{k(x,x)}$, so a small norm means small values everywhere. This property characterises these spaces: every positive definite kernel has such a space, and every Hilbert space of functions with continuous evaluation has such a kernel (the Moore–Aronszajn theorem).
+
+**The norm measures roughness.** With a Gaussian kernel, a function that wiggles quickly can only be made from large cancelling weights, so it has a big norm, while a smooth function has a small one. Kernel methods exploit this by minimising a fit error plus $\lambda\|f\|^2$, which prefers smooth fits. It is also why a wide kernel allows only smooth functions, as in the kernel-smoothing figure of the [kernel exponential family section](../ch02-exponential-and-mixture-families/index.html).
+
 ## Where it appears
 
-In the kernel exponential family, $\int\theta(y)k(x,y)\,dy$ is an inner product in the feature space, with $\theta$ the weights, so the family is an ordinary exponential family with a function-valued parameter. The positivity of the kernel is what makes $\psi[\theta]$ convex.
+In the kernel exponential family, $\int\theta(y)k(x,y)\,dy$ is an element of the RKHS and an inner product in the feature space, with $\theta$ the weights, so the family is an ordinary exponential family with a function-valued parameter. The positivity of the kernel is what makes $\psi[\theta]$ convex.
